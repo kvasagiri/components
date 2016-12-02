@@ -24,20 +24,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.avro.Schema;
-import org.apache.avro.Schema.Field;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
+import org.talend.components.common.avro.JDBCTableMetadata;
 import org.talend.components.snowflake.SnowflakeConnectionProperties;
 import org.talend.components.snowflake.SnowflakeConnectionTableProperties;
 import org.talend.components.snowflake.SnowflakeProvideConnectionProperties;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.SimpleNamedThing;
+<<<<<<< HEAD
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
+=======
+>>>>>>> 136f771... fix(TDI-37655): TCOMP JDBC component tests mostly don't actual JDBC
 import org.talend.daikon.i18n.GlobalI18N;
 import org.talend.daikon.i18n.I18nMessages;
 import org.talend.daikon.properties.ValidationResult;
@@ -87,7 +90,7 @@ public class SnowflakeSourceOrSink extends SnowflakeRuntime implements SourceOrS
     }
 
     public static ValidationResult validateConnection(SnowflakeProvideConnectionProperties properties) {
-        //check if every required properties was specified
+        // check if every required properties was specified
         ValidationResultMutable vr = validateConnectionProperties(properties);
         if (vr.getStatus() == Result.OK) {
             SnowflakeSourceOrSink sss = new SnowflakeSourceOrSink();
@@ -185,8 +188,8 @@ public class SnowflakeSourceOrSink extends SnowflakeRuntime implements SourceOrS
                 returnList.add(new SimpleNamedThing(tableName, tableName));
             }
         } catch (SQLException se) {
-            throw new IOException(i18nMessages
-                    .getMessage("error.searchingTable", getCatalog(connProps), getDbSchema(connProps), se.getMessage()), se);
+            throw new IOException(i18nMessages.getMessage("error.searchingTable", getCatalog(connProps), getDbSchema(connProps),
+                    se.getMessage()), se);
         }
         return returnList;
     }
@@ -222,6 +225,7 @@ public class SnowflakeSourceOrSink extends SnowflakeRuntime implements SourceOrS
 
         SnowflakeConnectionProperties connProps = getEffectiveConnectionProperties(container);
         try {
+<<<<<<< HEAD
             DatabaseMetaData metaData = connection.getMetaData();
 
             ResultSet resultSet = metaData.getColumns(getCatalog(connProps), getDbSchema(connProps), tableName, null);
@@ -245,6 +249,14 @@ public class SnowflakeSourceOrSink extends SnowflakeRuntime implements SourceOrS
                 }
             }
 
+=======
+            JDBCTableMetadata tableMetadata = new JDBCTableMetadata();
+            tableMetadata.setDatabaseMetaData(connection.getMetaData()).setCatalog(getCatalog(connProps))
+                    .setDbSchema(getDbSchema(connProps)).setTablename(tableName);
+            tableSchema = getSnowflakeAvroRegistry().inferSchema(tableMetadata);
+            if (tableSchema == null)
+                throw new IOException(i18nMessages.getMessage("error.tableNotFound", tableName));
+>>>>>>> 136f771... fix(TDI-37655): TCOMP JDBC component tests mostly don't actual JDBC
         } catch (SQLException se) {
             throw new IOException(se);
         }
