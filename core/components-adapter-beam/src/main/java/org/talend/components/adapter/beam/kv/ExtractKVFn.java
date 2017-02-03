@@ -23,9 +23,9 @@ import org.talend.daikon.avro.converter.IndexedRecordConverter;
 
 public class ExtractKVFn extends DoFn<Object, KV<IndexedRecord, IndexedRecord>> {
 
-    private IndexedRecordConverter converter = null;
-
     private List<String> keyList = null;
+
+    private transient IndexedRecordConverter converter = null;
 
     private transient Schema keySchema = null;
 

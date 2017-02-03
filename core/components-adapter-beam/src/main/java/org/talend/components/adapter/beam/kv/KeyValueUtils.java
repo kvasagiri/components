@@ -85,7 +85,7 @@ public class KeyValueUtils {
      * @param keyRecord an indexedRecord
      * @param valueRecord an indexedRecord
      * @param outputSchema a schema
-     * @return a mergerd IndexedRecord
+     * @return a merged IndexedRecord
      */
     public static IndexedRecord mergeIndexedRecord(IndexedRecord keyRecord, IndexedRecord valueRecord, Schema outputSchema) {
         GenericRecordBuilder outputRecord = new GenericRecordBuilder(outputSchema);
