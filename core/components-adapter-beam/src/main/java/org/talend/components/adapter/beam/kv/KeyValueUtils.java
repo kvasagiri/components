@@ -24,9 +24,9 @@ public class KeyValueUtils {
 
     /**
      * Generate a new Index Record which is the filtered result of the input record.
-     * 
+     *
      * The user can freely remove column, add empty column or change the place of column in the same hierarchical level.
-     * 
+     *
      * @return the new record
      */
     public static IndexedRecord extractIndexedRecord(IndexedRecord inputRecord, Schema outputSchema) {
@@ -82,6 +82,7 @@ public class KeyValueUtils {
 
     /**
      * Merge a two IndexedRecords in order to match the outputSchema.
+     *
      * @param keyRecord an indexedRecord
      * @param valueRecord an indexedRecord
      * @param outputSchema a schema
@@ -123,7 +124,8 @@ public class KeyValueUtils {
     }
 
     /**
-     * Merge the key and the value of a KV IndexedRecord to match the provided Schema 
+     * Merge the key and the value of a KV IndexedRecord to match the provided Schema
+     *
      * @param record a KV IndexedRecordf
      * @param schema the output schema
      * @return a merged IndexedRecord
@@ -136,7 +138,7 @@ public class KeyValueUtils {
 
     /**
      * Use a Schema to generate a hierarchical GenericRecord that contains only null values.
-     * 
+     *
      * @param schema the parent schema of the field to set as null
      * @param fieldName the name of the field to set as null
      * @return if fieldName is a Record of the schema, the method will return a GenericRecord with any leaf set as null,
@@ -185,6 +187,8 @@ public class KeyValueUtils {
             return getField(fieldPath, keyRecord);
         }
     }
+
+    // TODO externalize the following method
     /**
      * Retrieve a field from on indexedRecord.
      * 
@@ -199,6 +203,9 @@ public class KeyValueUtils {
         Schema schema = record.getSchema();
 
         for (Integer i = 0; i < path.length; i++) {
+            if (schema.getField(path[i]) == null) {
+                return null;
+            }
             // The column was existing on the input record, we forward it to the
             // output record.
             Object inputValue = record.get(schema.getField(path[i]).pos());
@@ -210,8 +217,7 @@ public class KeyValueUtils {
                 record = (IndexedRecord) inputValue;
 
                 // The sub-schema at this level is a union of "empty" and a
-                // record, so we need to get the true
-                // sub-schema
+                // record, so we need to get the true sub-schema
                 if (schema.getField(path[i]).schema().getType().equals(Type.RECORD)) {
                     schema = schema.getField(path[i]).schema();
                 } else if (schema.getField(path[i]).schema().getType().equals(Type.UNION)) {
@@ -224,8 +230,7 @@ public class KeyValueUtils {
                 }
 
             } else {
-                // if we are on a object, then this is or the expected value of
-                // an error.
+                // if we are on a object, then this is or the expected value of an error.
                 if (i == path.length - 1) {
                     return inputValue;
                 } else {

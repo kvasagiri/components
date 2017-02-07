@@ -24,8 +24,6 @@ import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.generic.GenericRecordBuilder;
 import org.apache.avro.generic.IndexedRecord;
 import org.junit.Test;
-import org.talend.components.adapter.beam.kv.KeyValueUtils;
-import org.talend.components.adapter.beam.kv.SchemaGeneratorUtils;
 import org.talend.daikon.avro.GenericDataRecordHelper;
 
 public class KeyValueUtilsTest {
