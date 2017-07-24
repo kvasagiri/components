@@ -63,8 +63,9 @@ public class TJDBCConnectionDefinitionTest {
         String[] result = fixture.getFamilies();
 
         assertNotNull(result);
-        assertEquals(1, result.length);
+        assertEquals(2, result.length);
         assertEquals("Databases/DB_JDBC", result[0]);
+        assertEquals("ELT/Connections", result[1]);
     }
 
     /**
