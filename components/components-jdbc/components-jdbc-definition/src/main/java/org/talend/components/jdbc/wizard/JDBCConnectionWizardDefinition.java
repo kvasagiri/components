@@ -19,7 +19,7 @@ import org.talend.components.api.wizard.WizardImageType;
 import org.talend.daikon.definition.DefinitionImageType;
 
 /**
- * JDBC wizard
+ * JDBC wizard for creating a new JDBC meta data
  *
  */
 public class JDBCConnectionWizardDefinition extends AbstractComponentWizardDefintion {

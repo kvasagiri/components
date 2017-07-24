@@ -14,6 +14,7 @@ package org.talend.components.jdbc.module;
 
 import static org.talend.daikon.properties.presentation.Widget.*;
 
+import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.common.UserPasswordProperties;
 import org.talend.daikon.properties.PropertiesImpl;
 import org.talend.daikon.properties.presentation.Form;
@@ -25,7 +26,8 @@ import org.talend.daikon.properties.property.PropertyFactory;
  * common JDBC connection information properties
  *
  */
-public class JDBCConnectionModule extends PropertiesImpl {
+//have to implement ComponentProperties for the wizard part, not good
+public class JDBCConnectionModule extends ComponentPropertiesImpl {
 
     public Property<String> jdbcUrl = PropertyFactory.newProperty("jdbcUrl").setRequired();
 

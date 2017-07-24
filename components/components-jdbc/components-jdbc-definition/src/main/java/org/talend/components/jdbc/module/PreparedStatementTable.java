@@ -12,9 +12,9 @@
 // ============================================================================
 package org.talend.components.jdbc.module;
 
-import static org.talend.daikon.properties.property.PropertyFactory.*;
+import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.reflect.TypeLiteral;
@@ -54,14 +54,18 @@ public class PreparedStatementTable extends ComponentPropertiesImpl {
         super.setupLayout();
         Form mainForm = new Form(this, Form.MAIN);
         mainForm.addColumn(indexs);
-        mainForm.addColumn(new Widget(types).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
+        mainForm.addColumn(Widget.widget(types).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
         mainForm.addColumn(values);
     }
 
     @Override
     public void setupProperties() {
         super.setupProperties();
-        types.setPossibleValues(Arrays.asList(Type.values()));
+        List<String> values = new ArrayList<>();
+        for (Type type : Type.values()) {
+            values.add(type.toString());
+        }
+        types.setPossibleValues(values);
     }
 
     public enum Type {

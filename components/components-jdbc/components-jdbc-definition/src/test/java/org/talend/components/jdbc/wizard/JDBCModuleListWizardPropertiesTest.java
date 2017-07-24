@@ -1,6 +1,7 @@
 package org.talend.components.jdbc.wizard;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
@@ -28,7 +29,7 @@ public class JDBCModuleListWizardPropertiesTest {
 
         JDBCModuleListWizardProperties result = new JDBCModuleListWizardProperties(name);
 
-        assertEquals(null, result.getRuntimeSetting());
+        assertNotNull(result.getRuntimeSetting());
         // FIXME
         assertEquals("", result.getDisplayName());
         assertEquals(null, result.getName());
@@ -46,7 +47,7 @@ public class JDBCModuleListWizardPropertiesTest {
     public void testGetRuntimeSetting() throws Exception {
         JDBCModuleListWizardProperties fixture = new JDBCModuleListWizardProperties("wizard");
         AllSetting result = fixture.getRuntimeSetting();
-        assertEquals(null, result);
+        assertNotNull(result);
     }
 
     /**

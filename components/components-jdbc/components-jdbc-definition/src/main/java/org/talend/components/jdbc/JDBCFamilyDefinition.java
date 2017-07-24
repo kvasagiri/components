@@ -30,6 +30,7 @@ import org.talend.components.jdbc.tjdbcinput.TJDBCInputDefinition;
 import org.talend.components.jdbc.tjdbcoutput.TJDBCOutputDefinition;
 import org.talend.components.jdbc.tjdbcrollback.TJDBCRollbackDefinition;
 import org.talend.components.jdbc.tjdbcrow.TJDBCRowDefinition;
+import org.talend.components.jdbc.wizard.JDBCConnectionEditWizardDefinition;
 import org.talend.components.jdbc.wizard.JDBCConnectionWizardDefinition;
 
 import com.google.auto.service.AutoService;
@@ -84,7 +85,7 @@ public class JDBCFamilyDefinition extends AbstractComponentFamilyDefinition impl
                 new TJDBCInputDefinition(), new TJDBCOutputDefinition(), new TJDBCRollbackDefinition(), new TJDBCRowDefinition(),
                 new TDataPrepDBInputDefinition(),
                 // Component wizards
-                new JDBCConnectionWizardDefinition(),
+                new JDBCConnectionWizardDefinition(), new JDBCConnectionEditWizardDefinition(),
                 // Datastore, Dataset and the component
                 new JDBCDatastoreDefinition(), new JDBCDatasetDefinition(), new JDBCInputDefinition(),
                 new JDBCOutputDefinition());

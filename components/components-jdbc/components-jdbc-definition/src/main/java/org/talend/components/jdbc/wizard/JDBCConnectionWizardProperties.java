@@ -82,8 +82,11 @@ public class JDBCConnectionWizardProperties extends ComponentPropertiesImpl impl
 
     @Override
     public AllSetting getRuntimeSetting() {
-        // TODO Auto-generated method stub
-        return null;
+        AllSetting setting = new AllSetting();
+        
+        CommonUtils.setCommonConnectionInfo(setting, connection);
+        
+        return setting;
     }
 
 }

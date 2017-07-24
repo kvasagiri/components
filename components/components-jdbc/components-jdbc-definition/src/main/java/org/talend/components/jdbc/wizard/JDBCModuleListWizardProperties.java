@@ -20,6 +20,7 @@ import java.util.List;
 import org.apache.avro.Schema;
 import org.apache.commons.lang3.reflect.TypeLiteral;
 import org.talend.components.api.properties.ComponentPropertiesImpl;
+import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.JdbcRuntimeInfo;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
@@ -116,7 +117,7 @@ public class JDBCModuleListWizardProperties extends ComponentPropertiesImpl impl
 
                 properties.tableSelection.tablename.setValue(tablename);
                 properties.main.schema.setValue(schema);
-                repo.storeProperties(properties, tablename, connRepLocation, "schema.schema");
+                repo.storeProperties(properties, tablename, connRepLocation, "main.schema");
             }
             return ValidationResult.OK;
         }
@@ -124,7 +125,10 @@ public class JDBCModuleListWizardProperties extends ComponentPropertiesImpl impl
 
     @Override
     public AllSetting getRuntimeSetting() {
-        // TODO Auto-generated method stub
-        return null;
+        AllSetting setting = new AllSetting();
+        
+        CommonUtils.setCommonConnectionInfo(setting, connection);
+        
+        return setting;
     }
 }

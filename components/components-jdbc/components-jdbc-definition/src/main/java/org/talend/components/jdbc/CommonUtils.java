@@ -167,6 +167,10 @@ public class CommonUtils {
      * @param connection
      */
     public static void setCommonConnectionInfo(AllSetting setting, JDBCConnectionModule connection) {
+        if(connection == null) {
+            return;
+        }
+        
         setting.setDriverPaths(connection.driverTable.drivers.getValue());
         setting.setDriverClass(connection.driverClass.getValue());
         setting.setJdbcUrl(connection.jdbcUrl.getValue());
