@@ -140,7 +140,7 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
 
         tableSelection.setConnection(this);
 
-        //TODO not sure the trigger can work very well, need a check
+        // FIXME now the trigger can't work very well, need a check why
         schemaListener = new ISchemaListener() {
 
             @Override
@@ -173,10 +173,10 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
         if (form.getName().equals(Form.ADVANCED)) {
             form.getWidget(cursor.getName()).setHidden(!useCursor.getValue());
             form.getWidget(trimTable.getName()).setHidden(trimStringOrCharColumns.getValue());
-            updateTrimTable();
         }
     }
 
+    // FIXME now the trigger can't work very well, need a check why
     public void beforeTrimTable() {
         updateTrimTable();
     }
