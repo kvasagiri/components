@@ -14,17 +14,21 @@ package org.talend.components.jdbc.tjdbcinput;
 
 import static org.talend.daikon.properties.presentation.Widget.widget;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.avro.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.Connector;
+import org.talend.components.api.component.ISchemaListener;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.api.properties.ComponentReferenceProperties;
 import org.talend.components.common.FixedConnectorsComponentProperties;
 import org.talend.components.common.SchemaProperties;
+import org.talend.components.common.TrimFieldsTable;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.JdbcRuntimeInfo;
 import org.talend.components.jdbc.RuntimeSettingProvider;
@@ -60,7 +64,17 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
 
     public final PropertyPathConnector mainConnector = new PropertyPathConnector(Connector.MAIN_NAME, "main");
 
-    public SchemaProperties main = new SchemaProperties("main");
+    public ISchemaListener schemaListener;
+
+    public SchemaProperties main = new SchemaProperties("main") {
+
+        public void afterSchema() {
+            if (schemaListener != null) {
+                schemaListener.afterSchema();
+            }
+        }
+
+    };
 
     public JDBCTableSelectionModule tableSelection = new JDBCTableSelectionModule("tableSelection");
 
@@ -83,7 +97,7 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
 
     public Property<Boolean> trimStringOrCharColumns = PropertyFactory.newBoolean("trimStringOrCharColumns").setRequired();
 
-    // TODO the tirm table
+    public TrimFieldsTable trimTable = new TrimFieldsTable("trimTable");
 
     // TODO enable mapping for dynamic
 
@@ -100,20 +114,19 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
         mainForm.addRow(main.getForm(Form.REFERENCE));
 
         mainForm.addRow(tableSelection.getForm(Form.REFERENCE));
-        mainForm.addRow(sql);
+        mainForm.addRow(Widget.widget(sql).setWidgetType(Widget.TEXT_AREA_WIDGET_TYPE));
 
         mainForm.addRow(Widget.widget(fetchSchemaFromQuery).setWidgetType(Widget.BUTTON_WIDGET_TYPE));
+        mainForm.addColumn(Widget.widget(guessQueryFromSchema).setWidgetType(Widget.BUTTON_WIDGET_TYPE));
 
         mainForm.addRow(useDataSource);
         mainForm.addRow(dataSource);
-
-        // TODO now there is some issue about the layout, have to write here
-        mainForm.addRow(Widget.widget(guessQueryFromSchema).setWidgetType(Widget.BUTTON_WIDGET_TYPE));
 
         Form advancedForm = CommonUtils.addForm(this, Form.ADVANCED);
         advancedForm.addRow(useCursor);
         advancedForm.addRow(cursor);
         advancedForm.addRow(trimStringOrCharColumns);
+        advancedForm.addRow(widget(trimTable).setWidgetType(Widget.TABLE_WIDGET_TYPE));
     }
 
     @Override
@@ -126,6 +139,16 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
         cursor.setValue(1000);
 
         tableSelection.setConnection(this);
+
+        //TODO not sure the trigger can work very well, need a check
+        schemaListener = new ISchemaListener() {
+
+            @Override
+            public void afterSchema() {
+                updateTrimTable();
+            }
+
+        };
     }
 
     @Override
@@ -149,9 +172,28 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
 
         if (form.getName().equals(Form.ADVANCED)) {
             form.getWidget(cursor.getName()).setHidden(!useCursor.getValue());
+            form.getWidget(trimTable.getName()).setHidden(trimStringOrCharColumns.getValue());
+            updateTrimTable();
         }
     }
-    
+
+    public void beforeTrimTable() {
+        updateTrimTable();
+    }
+
+    private void updateTrimTable() {
+        Schema schema = main.schema.getValue();
+        if (schema == null) {
+            return;
+        }
+
+        List<String> fieldNames = new ArrayList<>();
+        for (Schema.Field f : schema.getFields()) {
+            fieldNames.add(f.name());
+        }
+        trimTable.columnName.setValue(fieldNames);
+    }
+
     public void afterReferencedComponent() {
         refreshLayout(getForm(Form.MAIN));
     }
@@ -161,6 +203,10 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
     }
 
     public void afterUseCursor() {
+        refreshLayout(getForm(Form.ADVANCED));
+    }
+
+    public void afterTrimStringOrCharColumns() {
         refreshLayout(getForm(Form.ADVANCED));
     }
 
