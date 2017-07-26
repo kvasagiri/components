@@ -18,6 +18,7 @@ import java.util.List;
 import org.apache.avro.Schema;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.common.avro.JDBCAvroRegistryInfluencer;
+import org.talend.components.jdbc.module.SPParameterTable;
 import org.talend.components.jdbc.tjdbcoutput.TJDBCOutputProperties.DataAction;
 
 /**
@@ -94,7 +95,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     public void setJdbcUrl(String jdbcUrl) {
         if (jdbcUrl != null) {
             this.jdbcUrl = jdbcUrl.trim();
-        }else{
+        } else {
             this.jdbcUrl = null;
         }
     }
@@ -334,6 +335,56 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
 
     public Boolean isReadOnly() {
         return readOnly;
+    }
+
+    private String spName;
+
+    private boolean isFunction;
+
+    private String returnResultIn;
+
+    private List<String> schemaColumns;
+
+    private List<SPParameterTable.ParameterType> parameterTypes;
+
+    public String getSpName() {
+        return spName;
+    }
+
+    public void setSpName(String spName) {
+        this.spName = spName;
+    }
+
+    public String getReturnResultIn() {
+        return returnResultIn;
+    }
+
+    public void setReturnResultIn(String returnResultIn) {
+        this.returnResultIn = returnResultIn;
+    }
+
+    public List<String> getSchemaColumns() {
+        return schemaColumns;
+    }
+
+    public void setSchemaColumns(List<String> schemaColumns) {
+        this.schemaColumns = schemaColumns;
+    }
+
+    public List<SPParameterTable.ParameterType> getParameterTypes() {
+        return parameterTypes;
+    }
+
+    public void setParameterTypes(List<SPParameterTable.ParameterType> parameterTypes) {
+        this.parameterTypes = parameterTypes;
+    }
+
+    public boolean isFunction() {
+        return isFunction;
+    }
+
+    public void setIsFunction(boolean isFunction) {
+        this.isFunction = isFunction;
     }
 
 }
