@@ -27,8 +27,6 @@ import org.talend.components.api.component.runtime.AbstractBoundedReader;
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
-import org.talend.components.api.properties.ComponentProperties;
-import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.module.SPParameterTable;
 import org.talend.components.jdbc.runtime.JDBCSPSource;
@@ -65,7 +63,6 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
         this.source = (JDBCSPSource) getCurrentSource();
 
         this.setting = props.getRuntimeSetting();
-
     }
 
     @Override
@@ -91,65 +88,80 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
         try {
             cs = conn.prepareCall(source.getSPStatement(setting));
 
+            Schema schema = setting.getSchema();
             // TODO correct the type
+
             if (setting.isFunction()) {
                 cs.registerOutParameter(1, java.sql.Types.VARCHAR);
             }
 
-            boolean propagateResultSet = false;
             List<SPParameterTable.ParameterType> pts = setting.getParameterTypes();
             if (pts != null) {
                 int index = setting.isFunction() ? 2 : 1;
                 for (SPParameterTable.ParameterType pt : pts) {
+                    if (SPParameterTable.ParameterType.RECORDSET == pt) {
+                        continue;
+                    }
+
                     if (SPParameterTable.ParameterType.OUT == pt) {
                         cs.registerOutParameter(index, java.sql.Types.VARCHAR);
                     }
 
-                    if (SPParameterTable.ParameterType.RECORDSET == pt) {
-
-                    } else {
-                        index++;
-                    }
+                    index++;
                 }
             }
 
             cs.execute();
 
-            handleSuccess();
+            IndexedRecord result = new GenericData.Record(schema);
+
+            if (setting.isFunction()) {
+                Schema.Field field = getField(schema, setting.getReturnResultIn());
+                result.put(field.pos(), cs.getString(1));
+            }
+
+            List<String> columns = setting.getSchemaColumns();
+            if (pts != null) {
+                int i = setting.isFunction() ? 2 : 1;
+                int j = -1;
+                for (SPParameterTable.ParameterType pt : pts) {
+                    j++;
+                    String columnName = columns.get(j);
+
+                    if (SPParameterTable.ParameterType.RECORDSET == pt) {
+                        Schema.Field field = getField(schema, columnName);
+                        result.put(field.pos(), cs.getResultSet());
+                        continue;
+                    }
+
+                    if (SPParameterTable.ParameterType.OUT == pt) {
+                        Schema.Field field = getField(schema, columnName);
+                        result.put(field.pos(), cs.getString(i));
+                    }
+
+                    i++;
+                }
+            }
+
+            return result;
         } catch (SQLException e) {
             throw new ComponentException(e);
         }
-        return null;
+
     }
 
-    private IndexedRecord handleSuccess() throws SQLException {
-        Schema outSchema = CommonUtils.getOutputSchema((ComponentProperties) properties);
-        IndexedRecord output = new GenericData.Record(outSchema);
+    public Schema.Field getField(Schema schema, String fieldName) {
+        if (schema == null) {
+            return null;
+        }
 
-        List<SPParameterTable.ParameterType> pts = setting.getParameterTypes();
-        List<String> columns = setting.getSchemaColumns();
-        String returnColumnName = setting.getReturnResultIn();
-        if (pts != null) {
-            int index = setting.isFunction() ? 2 : 1;
-            for (SPParameterTable.ParameterType pt : pts) {
-                if (SPParameterTable.ParameterType.OUT == pt) {
-                    // TODO put the value to record and correct the type
-                    cs.getString(index);
-                }
-
-                if (SPParameterTable.ParameterType.RECORDSET == pt) {
-                    for (Schema.Field outField : output.getSchema().getFields()) {
-                        if (outField.name().equals("TDDO")) {
-                            output.put(outField.pos(), cs.getResultSet());
-                        }
-                    }
-                } else {
-                    index++;
-                }
+        for (Schema.Field outField : schema.getFields()) {
+            if (outField.name().equals(fieldName)) {
+                return outField;
             }
         }
 
-        return output;
+        return null;
     }
 
     @Override
