@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ import org.talend.components.common.avro.JDBCAvroRegistry;
 import org.talend.components.jdbc.module.SPParameterTable;
 import org.talend.components.jdbc.runtime.JDBCSPSink;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
+import org.talend.components.jdbc.runtime.type.JDBCMapping;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 
 /**
@@ -101,7 +103,9 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
             // TODO correct the type
 
             if (setting.isFunction()) {
-                cs.registerOutParameter(1, java.sql.Types.VARCHAR);
+                String columnName = setting.getReturnResultIn();
+                Field outputField = getField(outputSchema, columnName);
+                cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(outputField));
             }
 
             List<String> columns = setting.getSchemaColumns();
@@ -118,7 +122,8 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
                     }
 
                     if (SPParameterTable.ParameterType.OUT == pt || SPParameterTable.ParameterType.INOUT == pt) {
-                        cs.registerOutParameter(i, java.sql.Types.VARCHAR);
+                        Schema.Field outputField = getField(outputSchema, columnName);
+                        cs.registerOutParameter(i, JDBCMapping.getSQLTypeFromAvroType(outputField));
                     }
 
                     if (SPParameterTable.ParameterType.IN == pt || SPParameterTable.ParameterType.INOUT == pt) {
@@ -157,7 +162,7 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
                         result.put(outputField.pos(), cs.getString(i));
                     }
 
-                    if (SPParameterTable.ParameterType.IN == pt || SPParameterTable.ParameterType.INOUT == pt) {
+                    if (SPParameterTable.ParameterType.IN == pt) {
                         Schema.Field inputField = getField(inputSchema, columnName);
                         Schema.Field outputField = getField(outputSchema, columnName);
                         result.put(outputField.pos(), (String) input.get(inputField.pos()));
@@ -166,6 +171,8 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
                     i++;
                 }
             }
+
+            // TODO pass all the columns which is not in the parameter table from input record to output record
 
             successfulWrites.add(result);
         } catch (Exception e) {

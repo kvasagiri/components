@@ -12,6 +12,13 @@
 // ============================================================================
 package org.talend.components.common.avro;
 
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.SchemaBuilder;
@@ -23,13 +30,6 @@ import org.talend.daikon.avro.SchemaConstants;
 import org.talend.daikon.avro.converter.AvroConverter;
 import org.talend.daikon.avro.converter.IndexedRecordConverter.UnmodifiableAdapterException;
 import org.talend.daikon.java8.SerializableFunction;
-
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class JDBCAvroRegistry extends AvroRegistry {
 
@@ -224,7 +224,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
         return new Field(name, schema, null, (JsonNode) null);
     }
 
-    public JDBCConverter getConverter(final Field f) {
+    public JDBCConverter getConverter(final Field f, final int index) {
         Schema basicSchema = AvroUtils.unwrapIfNullable(f.schema());
 
         if (AvroUtils.isSameType(basicSchema, AvroUtils._string())) {
@@ -235,7 +235,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                     boolean trimAll = isTrim();
                     // TODO trim the columns which is selected by user
                     try {
-                        String result = value.getString(f.pos() + 1);
+                        String result = value.getString(index);
 
                         if (trimAll && result != null) {
                             return result.trim();
@@ -253,7 +253,6 @@ public class JDBCAvroRegistry extends AvroRegistry {
 
                 @Override
                 public Object convertToAvro(ResultSet value) {
-                    int index = f.pos() + 1;
                     try {
                         if (value.getObject(index) == null) {
                             return null;
@@ -274,7 +273,6 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 public Object convertToAvro(ResultSet value) {
                     java.util.Date date = null;
 
-                    int index = f.pos() + 1;
                     try {
                         date = value.getTimestamp(index);
                     } catch (SQLException e1) {
@@ -302,7 +300,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(ResultSet value) {
                     try {
-                        return value.getBigDecimal(f.pos() + 1);
+                        return value.getBigDecimal(index);
                     } catch (SQLException e) {
                         throw new ComponentException(e);
                     }
@@ -314,7 +312,6 @@ public class JDBCAvroRegistry extends AvroRegistry {
 
                 @Override
                 public Object convertToAvro(ResultSet value) {
-                    int index = f.pos() + 1;
                     try {
                         if (value.getObject(index) == null) {
                             return null;
@@ -332,7 +329,6 @@ public class JDBCAvroRegistry extends AvroRegistry {
 
                 @Override
                 public Object convertToAvro(ResultSet value) {
-                    int index = f.pos() + 1;
                     try {
                         if (value.getObject(index) == null) {
                             return null;
@@ -350,7 +346,6 @@ public class JDBCAvroRegistry extends AvroRegistry {
 
                 @Override
                 public Object convertToAvro(ResultSet value) {
-                    int index = f.pos() + 1;
                     try {
                         if (value.getObject(index) == null) {
                             return null;
@@ -368,7 +363,6 @@ public class JDBCAvroRegistry extends AvroRegistry {
 
                 @Override
                 public Object convertToAvro(ResultSet value) {
-                    int index = f.pos() + 1;
                     try {
                         if (value.getObject(index) == null) {
                             return null;
@@ -386,7 +380,6 @@ public class JDBCAvroRegistry extends AvroRegistry {
 
                 @Override
                 public Object convertToAvro(ResultSet value) {
-                    int index = f.pos() + 1;
                     try {
                         if (value.getObject(index) == null) {
                             return null;
@@ -407,7 +400,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                     boolean trimAll = isTrim();
                     // TODO trim the columns which is selected by user
                     try {
-                        String result = value.getString(f.pos() + 1);
+                        String result = value.getString(index);
 
                         if (trimAll && result != null) {
                             return result.trim();
@@ -429,7 +422,6 @@ public class JDBCAvroRegistry extends AvroRegistry {
 
                 @Override
                 public Object convertToAvro(ResultSet value) {
-                    int index = f.pos() + 1;
                     try {
                         if (value.getObject(index) == null) {
                             return null;
@@ -449,7 +441,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 public Object convertToAvro(ResultSet value) {
                     // TODO trim the columns which is selected by user
                     try {
-                        String result = value.getString(f.pos() + 1);
+                        String result = value.getString(index);
 
                         if (isTrim() && result != null) {
                             return result.trim();
@@ -463,6 +455,10 @@ public class JDBCAvroRegistry extends AvroRegistry {
 
             };
         }
+    }
+
+    public JDBCConverter getConverter(final Field f) {
+        return getConverter(f, f.pos() + 1);
     }
 
     public abstract class JDBCConverter implements AvroConverter<ResultSet, Object> {

@@ -19,22 +19,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.avro.Schema;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.SourceOrSink;
+
+import org.apache.avro.generic.IndexedRecord;
+
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
+import org.talend.components.common.avro.JDBCAvroRegistry;
+import org.talend.components.common.avro.JDBCResultSetIndexedRecordConverter;
 import org.talend.components.common.dataset.DatasetProperties;
 import org.talend.components.common.datastore.DatastoreProperties;
 import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.JdbcComponentErrorsCode;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.avro.JDBCAvroRegistryString;
+import org.talend.components.jdbc.avro.ResultSetStringRecordConverter;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSinkDefault;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.SimpleNamedThing;
+import org.talend.daikon.avro.AvroRegistry;
+import org.talend.daikon.avro.converter.IndexedRecordConverter;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.ValidationResult.Result;
 import org.talend.daikon.properties.ValidationResultMutable;
@@ -55,10 +64,19 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
     private Connection conn;
 
+    private transient AvroRegistry avroRegistry;
+
+    private transient IndexedRecordConverter<ResultSet, IndexedRecord> converter;
+
     @Override
     public ValidationResult initialize(RuntimeContainer runtime, ComponentProperties properties) {
         this.properties = (RuntimeSettingProvider) properties;
         setting = this.properties.getRuntimeSetting();
+
+        // TODO use another registry which use the db mapping files
+        avroRegistry = JDBCAvroRegistry.get();
+        converter = new JDBCResultSetIndexedRecordConverter();
+
         return ValidationResult.OK;
     }
 
@@ -66,6 +84,10 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
     public ValidationResult initialize(RuntimeContainer runtime, DatastoreProperties properties) {
         this.properties = (RuntimeSettingProvider) properties;
         setting = this.properties.getRuntimeSetting();
+
+        avroRegistry = JDBCAvroRegistryString.get();
+        converter = new ResultSetStringRecordConverter();
+
         return ValidationResult.OK;
     }
 
@@ -74,6 +96,10 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
     public ValidationResult initialize(RuntimeContainer runtime, DatasetProperties properties) {
         this.properties = (RuntimeSettingProvider) properties;
         setting = this.properties.getRuntimeSetting();
+
+        avroRegistry = JDBCAvroRegistryString.get();
+        converter = new ResultSetStringRecordConverter();
+
         return ValidationResult.OK;
     }
 
@@ -165,6 +191,14 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
             conn = connect(runtime);
         }
         return conn;
+    }
+
+    public AvroRegistry getAvroRegistry() {
+        return avroRegistry;
+    }
+
+    public IndexedRecordConverter<ResultSet, IndexedRecord> getConverter() {
+        return converter;
     }
 
 }

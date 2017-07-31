@@ -21,7 +21,6 @@ import org.talend.components.api.component.runtime.BoundedReader;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.jdbc.ComponentConstants;
-import org.talend.components.jdbc.JDBCTemplate;
 import org.talend.components.jdbc.runtime.reader.JDBCInputReader;
 
 /**
@@ -32,6 +31,7 @@ public class JDBCSource extends JDBCSourceOrSink implements BoundedSource {
 
     private static final long serialVersionUID = -9111994542816954024L;
 
+    //TODO will allow to use different mapping for different env like dataprep and di
     @SuppressWarnings("rawtypes")
     @Override
     public BoundedReader createReader(RuntimeContainer container) {

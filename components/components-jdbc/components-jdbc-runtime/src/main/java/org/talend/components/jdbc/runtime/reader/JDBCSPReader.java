@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
 import org.talend.components.api.component.runtime.AbstractBoundedReader;
@@ -31,6 +32,7 @@ import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.module.SPParameterTable;
 import org.talend.components.jdbc.runtime.JDBCSPSource;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
+import org.talend.components.jdbc.runtime.type.JDBCMapping;
 
 /**
  * JDBC reader for JDBC SP
@@ -92,22 +94,30 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
             // TODO correct the type
 
             if (setting.isFunction()) {
-                cs.registerOutParameter(1, java.sql.Types.VARCHAR);
+                String columnName = setting.getReturnResultIn();
+                Field field = getField(schema, columnName);
+                cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(field));
             }
 
+            List<String> columns = setting.getSchemaColumns();
             List<SPParameterTable.ParameterType> pts = setting.getParameterTypes();
             if (pts != null) {
-                int index = setting.isFunction() ? 2 : 1;
+                int i = setting.isFunction() ? 2 : 1;
+                int j = -1;
                 for (SPParameterTable.ParameterType pt : pts) {
+                    j++;
+                    String columnName = columns.get(j);
+
                     if (SPParameterTable.ParameterType.RECORDSET == pt) {
                         continue;
                     }
 
                     if (SPParameterTable.ParameterType.OUT == pt) {
-                        cs.registerOutParameter(index, java.sql.Types.VARCHAR);
+                        Field field = getField(schema, columnName);
+                        cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(field));
                     }
 
-                    index++;
+                    i++;
                 }
             }
 
@@ -120,7 +130,6 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
                 result.put(field.pos(), cs.getString(1));
             }
 
-            List<String> columns = setting.getSchemaColumns();
             if (pts != null) {
                 int i = setting.isFunction() ? 2 : 1;
                 int j = -1;

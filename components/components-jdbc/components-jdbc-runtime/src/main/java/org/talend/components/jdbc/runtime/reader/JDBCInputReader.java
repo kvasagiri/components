@@ -29,10 +29,9 @@ import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.jdbc.JdbcComponentErrorsCode;
 import org.talend.components.jdbc.RuntimeSettingProvider;
-import org.talend.components.jdbc.avro.JDBCAvroRegistryString;
-import org.talend.components.jdbc.avro.ResultSetStringRecordConverter;
 import org.talend.components.jdbc.runtime.JDBCSource;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
+import org.talend.daikon.avro.AvroRegistry;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 
@@ -52,7 +51,9 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
 
     protected ResultSet resultSet;
 
-    private transient IndexedRecordConverter<ResultSet, IndexedRecord> factory;
+    private transient AvroRegistry avroRegistry;
+
+    private transient IndexedRecordConverter<ResultSet, IndexedRecord> converter;
 
     private transient Schema querySchema;
 
@@ -97,18 +98,18 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
                  * reader for studio and dataprep(now for data store and set) execution platform. And
                  * need more thinking about it.
                  */
-                querySchema = JDBCAvroRegistryString.get().inferSchema(resultSet.getMetaData());
+                querySchema = source.getAvroRegistry().inferSchema(resultSet.getMetaData());
             }
         }
         return querySchema;
     }
 
-    private IndexedRecordConverter<ResultSet, IndexedRecord> getFactory() throws IOException, SQLException {
-        if (null == factory) {
-            factory = new ResultSetStringRecordConverter();
-            factory.setSchema(getSchema());
+    private IndexedRecordConverter<ResultSet, IndexedRecord> getConverter() throws IOException, SQLException {
+        if (converter == null) {
+            converter = source.getConverter();
+            converter.setSchema(getSchema());
         }
-        return factory;
+        return converter;
     }
 
     @Override
@@ -146,7 +147,7 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
         boolean haveNext = resultSet.next();
 
         if (haveNext) {
-            currentRecord = getFactory().convertToAvro(resultSet);
+            currentRecord = getConverter().convertToAvro(resultSet);
             result.totalCount++;
         }
 

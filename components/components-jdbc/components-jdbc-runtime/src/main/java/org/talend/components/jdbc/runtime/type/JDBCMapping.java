@@ -15,12 +15,14 @@ package org.talend.components.jdbc.runtime.type;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Field;
 import org.talend.daikon.avro.AvroUtils;
 
 /**
- * the mapping tool for JDBC writer
+ * the mapping tool for JDBC
  *
  */
 public class JDBCMapping {
@@ -93,6 +95,42 @@ public class JDBCMapping {
             statement.setByte(index, (Byte) value);
         } else {
             statement.setObject(index, value);
+        }
+    }
+
+    /**
+     * work for tJDBCSP components
+     * 
+     * @param f
+     * @return
+     */
+    public static int getSQLTypeFromAvroType(Field f) {
+        Schema basicSchema = AvroUtils.unwrapIfNullable(f.schema());
+
+        if (AvroUtils.isSameType(basicSchema, AvroUtils._string())) {
+            return Types.VARCHAR;
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._int())) {
+            return Types.INTEGER;
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._date())) {
+            return Types.DATE;
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._decimal())) {
+            return Types.DECIMAL;
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._long())) {
+            return Types.BIGINT;
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._double())) {
+            return Types.DOUBLE;
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._float())) {
+            return Types.FLOAT;
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._boolean())) {
+            return Types.BOOLEAN;
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._short())) {
+            return Types.SMALLINT;
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._character())) {
+            return Types.CHAR;
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._byte())) {
+            return Types.TINYINT;
+        } else {
+            return Types.OTHER;
         }
     }
 }
