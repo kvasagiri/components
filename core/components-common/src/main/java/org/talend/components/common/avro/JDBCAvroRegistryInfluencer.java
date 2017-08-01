@@ -12,8 +12,14 @@
 // ============================================================================
 package org.talend.components.common.avro;
 
+import java.util.Map;
+
 public interface JDBCAvroRegistryInfluencer {
 
     public boolean trim();
+    
+    public void setTrimMap(Map<Integer, Boolean> trimMap);
+    
+    public boolean isTrim(int index);
 
 }

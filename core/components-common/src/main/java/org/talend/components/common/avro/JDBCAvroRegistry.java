@@ -232,12 +232,11 @@ public class JDBCAvroRegistry extends AvroRegistry {
 
                 @Override
                 public Object convertToAvro(ResultSet value) {
-                    boolean trimAll = isTrim();
-                    // TODO trim the columns which is selected by user
+                    boolean trim = isTrim() || isTrim(index);
                     try {
                         String result = value.getString(index);
 
-                        if (trimAll && result != null) {
+                        if (trim && result != null) {
                             return result.trim();
                         }
 
@@ -397,12 +396,11 @@ public class JDBCAvroRegistry extends AvroRegistry {
 
                 @Override
                 public Object convertToAvro(ResultSet value) {
-                    boolean trimAll = isTrim();
-                    // TODO trim the columns which is selected by user
+                    boolean trim = isTrim() || isTrim(index);
                     try {
                         String result = value.getString(index);
 
-                        if (trimAll && result != null) {
+                        if (trim && result != null) {
                             return result.trim();
                         }
 
@@ -439,11 +437,11 @@ public class JDBCAvroRegistry extends AvroRegistry {
 
                 @Override
                 public Object convertToAvro(ResultSet value) {
-                    // TODO trim the columns which is selected by user
+                    boolean trim = isTrim() || isTrim(index);
                     try {
                         String result = value.getString(index);
 
-                        if (isTrim() && result != null) {
+                        if (trim && result != null) {
                             return result.trim();
                         }
 
@@ -485,6 +483,12 @@ public class JDBCAvroRegistry extends AvroRegistry {
         protected boolean isTrim() {
             if (influencer != null)
                 return influencer.trim();
+            return false;
+        }
+
+        protected boolean isTrim(int index) {
+            if (influencer != null)
+                return influencer.isTrim(index);
             return false;
         }
 

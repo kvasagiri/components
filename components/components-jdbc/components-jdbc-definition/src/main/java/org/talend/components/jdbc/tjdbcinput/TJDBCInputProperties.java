@@ -16,7 +16,9 @@ import static org.talend.daikon.properties.presentation.Widget.widget;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.avro.Schema;
@@ -276,14 +278,14 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
 
         setting.setTrimStringOrCharColumns(this.trimStringOrCharColumns.getValue());
 
-        Object v1 = this.trimTable.columnName.getValue();
+        Object v1 = this.trimTable.trim.getValue();
         if (v1 != null && v1 instanceof List) {
-            setting.setTrimColumns((List) v1);
-        }
-
-        Object v2 = this.trimTable.trim.getValue();
-        if (v2 != null && v2 instanceof List) {
-            setting.setTrimValues((List) v2);
+            List<Boolean> trims = (List<Boolean>) v1;
+            int index = 0;
+            for (Boolean trim : trims) {
+                Map<Integer, Boolean> trimMap = new HashMap<>();
+                trimMap.put(++index, trim);
+            }
         }
 
         setting.setEnableDBMapping(this.enableDBMapping.getValue());

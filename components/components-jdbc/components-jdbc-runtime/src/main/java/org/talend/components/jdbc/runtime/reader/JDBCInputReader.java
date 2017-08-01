@@ -13,6 +13,7 @@
 package org.talend.components.jdbc.runtime.reader;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,6 +28,8 @@ import org.talend.components.api.component.runtime.Reader;
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
+import org.talend.components.jdbc.CommonUtils;
+import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.JdbcComponentErrorsCode;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.runtime.JDBCSource;
@@ -83,6 +86,7 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
 
     private Schema getSchema() throws IOException, SQLException {
         if (querySchema == null) {
+            // we can't use the method below as the reader also work for dataset topic which don't support that.
             // querySchema = CommonUtils.getMainSchemaFromOutputConnector((ComponentProperties) properties);
             querySchema = setting.getSchema();
 
@@ -114,21 +118,31 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
 
     @Override
     public boolean start() throws IOException {
-        // TODO need to adjust the key
         if (container != null) {
-            container.setComponentData(container.getCurrentComponentId(), "QUERY", setting.getSql());
+            container.setComponentData(container.getCurrentComponentId(),
+                    CommonUtils.getStudioNameFromProperty(ComponentConstants.RETURN_QUERY), setting.getSql());
         }
 
         result = new Result();
         try {
             conn = source.getConnection(container);
-            statement = conn.createStatement();
 
-            // some information come from the old javajet:
-            // TODO for mysql driver, should use this statement :
-            // statement = conn.createStatement(java.sql.ResultSet.TYPE_FORWARD_ONLY, java.sql.ResultSet.CONCUR_READ_ONLY);
-            // ((com.mysql.jdbc.Statement) statement).enableStreamingResults();
-            // and mysql driver don't support setFetchSize method
+            String driverClass = setting.getDriverClass();
+            if (driverClass != null && driverClass.toLowerCase().contains("mysql")) {
+                statement = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+
+                Class clazz = statement.getClass();
+                String canonicalName = clazz.getCanonicalName();
+                if ("com.mysql.jdbc.Statement".equals(canonicalName)
+                        || "com.mysql.jdbc.jdbc2.optional.JDBC4StatementWrapper".equals(canonicalName)) {
+                    // have to use reflect here
+                    Method method = clazz.getMethod("enableStreamingResults");
+                    method.invoke(statement);
+                }
+            } else {
+                statement = conn.createStatement();
+            }
+
             if (setting.getUseCursor() != null && setting.getUseCursor()) {
                 statement.setFetchSize(setting.getCursor());
             }
@@ -147,8 +161,8 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
         boolean haveNext = resultSet.next();
 
         if (haveNext) {
-            currentRecord = getConverter().convertToAvro(resultSet);
             result.totalCount++;
+            currentRecord = getConverter().convertToAvro(resultSet);
         }
 
         return haveNext;
