@@ -144,7 +144,7 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         if (useExistedConnection) {
             if (runtime != null) {
                 String refComponentId = setting.getReferencedComponentId();
-                Object existedConn = runtime.getComponentData(refComponentId, ComponentConstants.CONNECTION_KEY);
+                Object existedConn = runtime.getComponentData(ComponentConstants.CONNECTION_KEY, refComponentId);
                 if (existedConn == null) {
                     throw new RuntimeException("Referenced component: " + refComponentId + " is not connected");
                 }

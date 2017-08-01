@@ -176,8 +176,8 @@ public class JDBCCommitTestIT {
 
         Assert.assertEquals(5, count);
 
-        try (java.sql.Connection refConnection = (java.sql.Connection) container.getComponentData(refComponentId,
-                ComponentConstants.CONNECTION_KEY)) {
+        try (java.sql.Connection refConnection = (java.sql.Connection) container.getComponentData(ComponentConstants.CONNECTION_KEY,refComponentId
+                )) {
             assertTrue(refConnection != null);
             Assert.assertTrue(!refConnection.isClosed());
         }
@@ -207,8 +207,8 @@ public class JDBCCommitTestIT {
         commitSourceOrSink.initialize(container, commitProperties);
         commitSourceOrSink.validate(container);
 
-        try (java.sql.Connection refConnection = (java.sql.Connection) container.getComponentData(refComponentId,
-                ComponentConstants.CONNECTION_KEY)) {
+        try (java.sql.Connection refConnection = (java.sql.Connection) container
+                .getComponentData(ComponentConstants.CONNECTION_KEY, refComponentId)) {
             assertTrue(refConnection != null);
             Assert.assertTrue(refConnection.isClosed());
         }

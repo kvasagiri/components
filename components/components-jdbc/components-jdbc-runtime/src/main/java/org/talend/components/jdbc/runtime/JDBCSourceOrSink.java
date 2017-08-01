@@ -106,8 +106,6 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
     @Override
     public ValidationResult validate(RuntimeContainer runtime) {
         ValidationResultMutable vr = new ValidationResultMutable();
-        // TODO The connection should not be maintained just for validation. But as it is store in the runtime context, could not
-        // close it here.
         try {
             conn = connect(runtime);
         } catch (Exception ex) {
@@ -180,7 +178,11 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         }
 
         if (runtime != null) {
-            runtime.setComponentData(runtime.getCurrentComponentId(), ComponentConstants.CONNECTION_KEY, conn);
+            // if you check the api, you will find the parameter is set to the wrong location, but it's right now, as we need to
+            // keep the connection component can work with some old javajet components
+            runtime.setComponentData(ComponentConstants.CONNECTION_KEY, runtime.getCurrentComponentId(), conn);
+            runtime.setComponentData(ComponentConstants.URL_KEY, runtime.getCurrentComponentId(), setting.getJdbcUrl());
+            runtime.setComponentData(ComponentConstants.USERNAME_KEY, runtime.getCurrentComponentId(), setting.getUsername());
         }
 
         return conn;

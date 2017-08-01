@@ -69,8 +69,8 @@ public class JDBCRollbackSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
     public void doRollbackAction(RuntimeContainer runtime) throws SQLException {
         String refComponentId = ((RuntimeSettingProvider) properties).getRuntimeSetting().getReferencedComponentId();
         if (refComponentId != null && runtime != null) {
-            java.sql.Connection conn = (java.sql.Connection) runtime.getComponentData(refComponentId,
-                    ComponentConstants.CONNECTION_KEY);
+            java.sql.Connection conn = (java.sql.Connection) runtime.getComponentData(ComponentConstants.CONNECTION_KEY,
+                    refComponentId);
             if (conn != null && !conn.isClosed()) {
                 conn.rollback();
 

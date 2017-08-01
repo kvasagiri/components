@@ -95,8 +95,8 @@ public class JDBCloseTestIT {
         closeSourceOrSink.initialize(container, closeProperties);
         closeSourceOrSink.validate(container);
 
-        try (java.sql.Connection conn = (java.sql.Connection) container.getComponentData(refComponentId,
-                ComponentConstants.CONNECTION_KEY)) {
+        try (java.sql.Connection conn = (java.sql.Connection) container.getComponentData(ComponentConstants.CONNECTION_KEY,
+                refComponentId)) {
             if (conn != null) {
                 Assert.assertTrue(conn.isClosed());
             }

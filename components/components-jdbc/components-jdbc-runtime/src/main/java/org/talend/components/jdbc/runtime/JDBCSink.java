@@ -40,7 +40,7 @@ public class JDBCSink extends JDBCSourceOrSink implements Sink {
         // using another component's connection
         if (refComponentId != null) {
             if (runtime != null) {
-                Object existedConn = runtime.getComponentData(refComponentId, ComponentConstants.CONNECTION_KEY);
+                Object existedConn = runtime.getComponentData(ComponentConstants.CONNECTION_KEY, refComponentId);
                 if (existedConn == null) {
                     throw new RuntimeException("Referenced component: " + refComponentId + " is not connected");
                 }

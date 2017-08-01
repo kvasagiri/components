@@ -175,8 +175,8 @@ public class JDBCRollbackTestIT {
 
         Assert.assertEquals(3, count);
 
-        try (java.sql.Connection refConnection = (java.sql.Connection) container.getComponentData(refComponentId,
-                ComponentConstants.CONNECTION_KEY)) {
+        try (java.sql.Connection refConnection = (java.sql.Connection) container
+                .getComponentData(ComponentConstants.CONNECTION_KEY, refComponentId)) {
             assertTrue(refConnection != null);
             Assert.assertTrue(!refConnection.isClosed());
         }
@@ -206,8 +206,8 @@ public class JDBCRollbackTestIT {
         rollbackSourceOrSink.initialize(container, rollbackProperties);
         rollbackSourceOrSink.validate(container);
 
-        try (java.sql.Connection refConnection = (java.sql.Connection) container.getComponentData(refComponentId,
-                ComponentConstants.CONNECTION_KEY)) {
+        try (java.sql.Connection refConnection = (java.sql.Connection) container
+                .getComponentData(ComponentConstants.CONNECTION_KEY, refComponentId)) {
             assertTrue(refConnection != null);
             Assert.assertTrue(refConnection.isClosed());
         }

@@ -31,7 +31,6 @@ public class JDBCSource extends JDBCSourceOrSink implements BoundedSource {
 
     private static final long serialVersionUID = -9111994542816954024L;
 
-    //TODO will allow to use different mapping for different env like dataprep and di
     @SuppressWarnings("rawtypes")
     @Override
     public BoundedReader createReader(RuntimeContainer container) {
@@ -61,7 +60,7 @@ public class JDBCSource extends JDBCSourceOrSink implements BoundedSource {
         String refComponentId = setting.getReferencedComponentId();
         // using another component's connection
         if (refComponentId != null && runtime != null) {
-            Object existedConn = runtime.getComponentData(refComponentId, ComponentConstants.CONNECTION_KEY);
+            Object existedConn = runtime.getComponentData(ComponentConstants.CONNECTION_KEY, refComponentId);
             if (existedConn == null) {
                 throw new RuntimeException("Referenced component: " + refComponentId + " is not connected");
             }
