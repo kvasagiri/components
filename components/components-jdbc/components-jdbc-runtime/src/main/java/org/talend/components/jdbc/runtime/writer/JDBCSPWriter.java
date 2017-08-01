@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
-import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +32,7 @@ import org.talend.components.api.component.runtime.WriterWithFeedback;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.common.avro.JDBCAvroRegistry;
+import org.talend.components.jdbc.avro.JDBCSPIndexedRecordCreator;
 import org.talend.components.jdbc.module.SPParameterTable;
 import org.talend.components.jdbc.runtime.JDBCSPSink;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
@@ -89,18 +89,19 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
         }
     }
 
+    private JDBCSPIndexedRecordCreator indexedRecordCreator;
+
     public void write(Object datum) throws IOException {
         result.totalCount++;
 
         successfulWrites.clear();
         rejectedWrites.clear();
 
-        IndexedRecord input = this.getFactory(datum).convertToAvro(datum);
-        Schema inputSchema = input.getSchema();
+        IndexedRecord inputRecord = this.getGenericIndexedRecordConverter(datum).convertToAvro(datum);
+        Schema inputSchema = inputRecord.getSchema();
 
         try {
             Schema outputSchema = setting.getSchema();
-            // TODO correct the type
 
             if (setting.isFunction()) {
                 String columnName = setting.getReturnResultIn();
@@ -128,7 +129,7 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
 
                     if (SPParameterTable.ParameterType.IN == pt || SPParameterTable.ParameterType.INOUT == pt) {
                         Schema.Field inputField = getField(inputSchema, columnName);
-                        cs.setString(i, (String) input.get(inputField.pos()));
+                        JDBCMapping.setValue(i, cs, inputField, inputRecord.get(inputField.pos()));
                     }
 
                     i++;
@@ -137,44 +138,14 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
 
             cs.execute();
 
-            IndexedRecord result = new GenericData.Record(outputSchema);
-
-            if (setting.isFunction()) {
-                Schema.Field field = getField(outputSchema, setting.getReturnResultIn());
-                result.put(field.pos(), cs.getString(1));
+            if (indexedRecordCreator == null) {
+                indexedRecordCreator = new JDBCSPIndexedRecordCreator();
+                indexedRecordCreator.init(null, outputSchema, setting);
             }
 
-            if (pts != null) {
-                int i = setting.isFunction() ? 2 : 1;
-                int j = -1;
-                for (SPParameterTable.ParameterType pt : pts) {
-                    j++;
-                    String columnName = columns.get(j);
+            IndexedRecord outputRecord = indexedRecordCreator.createOutputIndexedRecord(cs.getResultSet(), inputRecord);
 
-                    if (SPParameterTable.ParameterType.RECORDSET == pt) {
-                        Schema.Field outputField = getField(outputSchema, columnName);
-                        result.put(outputField.pos(), cs.getResultSet());
-                        continue;
-                    }
-
-                    if (SPParameterTable.ParameterType.OUT == pt || SPParameterTable.ParameterType.INOUT == pt) {
-                        Schema.Field outputField = getField(outputSchema, columnName);
-                        result.put(outputField.pos(), cs.getString(i));
-                    }
-
-                    if (SPParameterTable.ParameterType.IN == pt) {
-                        Schema.Field inputField = getField(inputSchema, columnName);
-                        Schema.Field outputField = getField(outputSchema, columnName);
-                        result.put(outputField.pos(), (String) input.get(inputField.pos()));
-                    }
-
-                    i++;
-                }
-            }
-
-            // TODO pass all the columns which is not in the parameter table from input record to output record
-
-            successfulWrites.add(result);
+            successfulWrites.add(outputRecord);
         } catch (Exception e) {
             throw new ComponentException(e);
         }
@@ -230,15 +201,18 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
         return writeOperation;
     }
 
-    private IndexedRecordConverter<Object, ? extends IndexedRecord> factory;
+    // the converter convert all the data type to indexed record, in this class, it factly only convert the indexed record to
+    // indexed record, not sure it's more than write like this :
+    // (IndexedRecord)object
+    private IndexedRecordConverter<Object, ? extends IndexedRecord> genericIndexedRecordConverter;
 
     @SuppressWarnings("unchecked")
-    private IndexedRecordConverter<Object, ? extends IndexedRecord> getFactory(Object datum) {
-        if (null == factory) {
-            factory = (IndexedRecordConverter<Object, ? extends IndexedRecord>) JDBCAvroRegistry.get()
+    private IndexedRecordConverter<Object, ? extends IndexedRecord> getGenericIndexedRecordConverter(Object datum) {
+        if (null == genericIndexedRecordConverter) {
+            genericIndexedRecordConverter = (IndexedRecordConverter<Object, ? extends IndexedRecord>) JDBCAvroRegistry.get()
                     .createIndexedRecordConverter(datum.getClass());
         }
-        return factory;
+        return genericIndexedRecordConverter;
     }
 
     private void closeStatementQuietly(Statement statement) {

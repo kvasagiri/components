@@ -29,6 +29,7 @@ import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.jdbc.RuntimeSettingProvider;
+import org.talend.components.jdbc.avro.JDBCSPIndexedRecordCreator;
 import org.talend.components.jdbc.module.SPParameterTable;
 import org.talend.components.jdbc.runtime.JDBCSPSource;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
@@ -85,17 +86,18 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
         return false;// only one row
     }
 
+    private JDBCSPIndexedRecordCreator indexedRecordCreator;
+    
     @Override
     public IndexedRecord getCurrent() {
         try {
             cs = conn.prepareCall(source.getSPStatement(setting));
 
-            Schema schema = setting.getSchema();
-            // TODO correct the type
+            Schema outputSchema = setting.getSchema();
 
             if (setting.isFunction()) {
                 String columnName = setting.getReturnResultIn();
-                Field field = getField(schema, columnName);
+                Field field = getField(outputSchema, columnName);
                 cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(field));
             }
 
@@ -113,8 +115,8 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
                     }
 
                     if (SPParameterTable.ParameterType.OUT == pt) {
-                        Field field = getField(schema, columnName);
-                        cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(field));
+                        Field field = getField(outputSchema, columnName);
+                        cs.registerOutParameter(i, JDBCMapping.getSQLTypeFromAvroType(field));
                     }
 
                     i++;
@@ -122,37 +124,15 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
             }
 
             cs.execute();
-
-            IndexedRecord result = new GenericData.Record(schema);
-
-            if (setting.isFunction()) {
-                Schema.Field field = getField(schema, setting.getReturnResultIn());
-                result.put(field.pos(), cs.getString(1));
+            
+            if (indexedRecordCreator == null) {
+                indexedRecordCreator = new JDBCSPIndexedRecordCreator();
+                indexedRecordCreator.init(null, outputSchema, setting);
             }
 
-            if (pts != null) {
-                int i = setting.isFunction() ? 2 : 1;
-                int j = -1;
-                for (SPParameterTable.ParameterType pt : pts) {
-                    j++;
-                    String columnName = columns.get(j);
-
-                    if (SPParameterTable.ParameterType.RECORDSET == pt) {
-                        Schema.Field field = getField(schema, columnName);
-                        result.put(field.pos(), cs.getResultSet());
-                        continue;
-                    }
-
-                    if (SPParameterTable.ParameterType.OUT == pt) {
-                        Schema.Field field = getField(schema, columnName);
-                        result.put(field.pos(), cs.getString(i));
-                    }
-
-                    i++;
-                }
-            }
-
-            return result;
+            IndexedRecord outputRecord = indexedRecordCreator.createOutputIndexedRecord(cs.getResultSet(), null);
+            
+            return outputRecord;
         } catch (SQLException e) {
             throw new ComponentException(e);
         }

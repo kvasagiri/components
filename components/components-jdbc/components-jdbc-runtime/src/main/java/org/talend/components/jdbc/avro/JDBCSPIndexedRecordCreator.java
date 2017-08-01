@@ -13,7 +13,6 @@
 package org.talend.components.jdbc.avro;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,18 +34,19 @@ import org.talend.daikon.exception.TalendRuntimeException;
  */
 public class JDBCSPIndexedRecordCreator {
 
-    private Schema inputSchema;
-
     private Schema currentComponentSchema;
 
     private Schema outputSchema;
 
     AllSetting setting;
 
+    // the fields which need converter
     private Map<Integer, AvroConverter> outputFieldLocation2AvroConverter = new HashMap<>();// more often
 
-    private Integer resultSetPostionOfOutputSchema;// less often
+    // the field which store the whole result set object
+    private int resultSetPostionOfOutputSchema = -1;// less often
 
+    // the fields which propagate from input to output directly
     private Map<Integer, Integer> autoPropagatedFieldsFromInputToOutput = new HashMap<>();// less less often
 
     public void init(Schema currentComponentSchema, Schema outputSchema, AllSetting setting) {
@@ -99,42 +99,76 @@ public class JDBCSPIndexedRecordCreator {
         return null;
     }
 
-    public IndexedRecord createOutputIndexedRecord(IndexedRecord inputRecord, ResultSet value) {
-        if (inputSchema == null) {
-            inputSchema = inputRecord.getSchema();
-            List<Field> inputFields = inputSchema.getFields();
+    private boolean firstRowHaveCame = false;
+
+    public IndexedRecord createOutputIndexedRecord(ResultSet value, IndexedRecord inputRecord) {
+        if (!firstRowHaveCame) {
+            firstRowHaveCame = true;
+
+            Schema inputSchema = null;
+            if (inputRecord != null) {
+                inputSchema = inputRecord.getSchema();
+            }
+
+            Map<String, Field> inputFieldMap = null;
+
             for (Schema.Field outputField : outputSchema.getFields()) {
                 if (outputFieldLocation2AvroConverter.containsKey(outputField.pos())
-                        || ((resultSetPostionOfOutputSchema != null) && (resultSetPostionOfOutputSchema == outputField.pos()))) {
+                        || (resultSetPostionOfOutputSchema == outputField.pos())) {
                     continue;
                 }
 
-                if (outputField.pos() < inputFields.size()) {// try the more often case, if success, no need the cost time one
-                    Field inputField = inputFields.get(outputField.pos());
-                    if (inputField.name().equals(outputField.name())) {
-                        autoPropagatedFieldsFromInputToOutput.put(outputField.pos(), inputField.pos());
+                if (inputSchema == null) {
+                    continue;
+                }
+
+                List<Field> inputFields = inputSchema.getFields();
+
+                if (inputFieldMap == null) {
+                    inputFieldMap = new HashMap<>();
+                    for (Field inputField : inputFields) {
+                        inputFieldMap.put(inputField.name(), inputField);
                     }
-                    continue;
                 }
 
-                // TODO
+                Field inputField = inputFieldMap.get(outputField.name());
+                if (inputField != null) {
+                    autoPropagatedFieldsFromInputToOutput.put(outputField.pos(), inputField.pos());
+                }
             }
         }
 
-        return new ResultSetIndexedRecord(value);
+        return new ResultSetIndexedRecord(value, inputRecord);
     }
 
     private class ResultSetIndexedRecord implements IndexedRecord {
 
         private Object[] values;
 
-        public ResultSetIndexedRecord(ResultSet resultSet) {
+        public ResultSetIndexedRecord(ResultSet resultSet, IndexedRecord inputRecord) {
             try {
-                values = new Object[resultSet.getMetaData().getColumnCount()];
+                List<Field> outputFields = outputSchema.getFields();
+                values = new Object[outputFields.size()];
                 for (int i = 0; i < values.length; i++) {
-                    // values[i] = fieldConverter[i].convertToAvro(resultSet);
+                    AvroConverter converter = outputFieldLocation2AvroConverter.get(i);
+                    if (converter != null) {
+                        values[i] = converter.convertToAvro(resultSet);
+                        continue;
+                    }
+
+                    if (resultSetPostionOfOutputSchema == i) {
+                        values[i] = resultSet;
+                        continue;
+                    }
+
+                    Integer inputLocation = autoPropagatedFieldsFromInputToOutput.get(i);
+                    if (inputLocation != null && inputRecord != null) {
+                        values[i] = inputRecord.get(inputLocation);
+                    }
+
+                    // the other fields in the output indexed record is null
                 }
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 TalendRuntimeException.unexpectedException(e);
             }
         }
