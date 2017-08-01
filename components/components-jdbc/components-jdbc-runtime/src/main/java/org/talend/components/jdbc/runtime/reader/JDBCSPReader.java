@@ -22,12 +22,12 @@ import java.util.Map;
 
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
-import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
 import org.talend.components.api.component.runtime.AbstractBoundedReader;
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
+import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.avro.JDBCSPIndexedRecordCreator;
 import org.talend.components.jdbc.module.SPParameterTable;
@@ -97,7 +97,7 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
 
             if (setting.isFunction()) {
                 String columnName = setting.getReturnResultIn();
-                Field field = getField(outputSchema, columnName);
+                Field field = CommonUtils.getField(outputSchema, columnName);
                 cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(field));
             }
 
@@ -115,7 +115,7 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
                     }
 
                     if (SPParameterTable.ParameterType.OUT == pt) {
-                        Field field = getField(outputSchema, columnName);
+                        Field field = CommonUtils.getField(outputSchema, columnName);
                         cs.registerOutParameter(i, JDBCMapping.getSQLTypeFromAvroType(field));
                     }
 
@@ -137,20 +137,6 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
             throw new ComponentException(e);
         }
 
-    }
-
-    public Schema.Field getField(Schema schema, String fieldName) {
-        if (schema == null) {
-            return null;
-        }
-
-        for (Schema.Field outField : schema.getFields()) {
-            if (outField.name().equals(fieldName)) {
-                return outField;
-            }
-        }
-
-        return null;
     }
 
     @Override

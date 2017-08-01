@@ -19,6 +19,7 @@ import org.talend.components.api.component.AbstractComponentDefinition;
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.properties.ComponentProperties;
+import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.JdbcRuntimeInfo;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
@@ -34,6 +35,7 @@ public class TJDBCInputDefinition extends AbstractComponentDefinition {
 
     public TJDBCInputDefinition() {
         super(COMPONENT_NAME, ExecutionEngine.DI);
+        setupI18N(new Property<?>[] { RETURN_QUERY_PROP });
     }
 
     @Override
@@ -46,15 +48,11 @@ public class TJDBCInputDefinition extends AbstractComponentDefinition {
         return new String[] { "Databases/DB_JDBC" };
     }
 
-    // TODO can't i18n
-    public static final String RETURN_QUERY = "query";
-
-    public static final Property<String> RETURN_QUERY_PROP = PropertyFactory.newString(RETURN_QUERY);
+    public static final Property<String> RETURN_QUERY_PROP = PropertyFactory.newString(ComponentConstants.RETURN_QUERY);
 
     @SuppressWarnings("rawtypes")
     @Override
     public Property[] getReturnProperties() {
-        setupI18N(new Property<?>[] { RETURN_QUERY_PROP });
         return new Property[] { RETURN_ERROR_MESSAGE_PROP, RETURN_TOTAL_RECORD_COUNT_PROP, RETURN_QUERY_PROP };
     }
 

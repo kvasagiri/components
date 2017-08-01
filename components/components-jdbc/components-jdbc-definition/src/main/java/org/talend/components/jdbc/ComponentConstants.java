@@ -22,5 +22,7 @@ public interface ComponentConstants {
     String URL_KEY = "url";
     
     String USERNAME_KEY = "username";
+    
+    String RETURN_QUERY = "query";
 
 }

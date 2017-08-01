@@ -14,6 +14,7 @@ package org.talend.components.jdbc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -167,21 +168,20 @@ public class CommonUtils {
      * @param connection
      */
     public static void setCommonConnectionInfo(AllSetting setting, JDBCConnectionModule connection) {
-        if(connection == null) {
+        if (connection == null) {
             return;
         }
-        
+
         setting.setDriverPaths(connection.driverTable.drivers.getValue());
         setting.setDriverClass(connection.driverClass.getValue());
         setting.setJdbcUrl(connection.jdbcUrl.getValue());
         setting.setUsername(connection.userPassword.userId.getValue());
         setting.setPassword(connection.userPassword.password.getValue());
     }
-    
-    
+
     public static List<String> getAllSchemaFieldNames(Schema schema) {
         List<String> values = new ArrayList<>();
-        
+
         if (schema == null) {
             return values;
         }
@@ -189,7 +189,7 @@ public class CommonUtils {
         for (Schema.Field field : schema.getFields()) {
             values.add(field.name());
         }
-        
+
         return values;
     }
 
@@ -211,6 +211,34 @@ public class CommonUtils {
 
         throw TalendRuntimeException.createUnexpectedException(
                 "Please check your sql as we only allow the query which don't do write or lock action.");
+	}
+
+    // the code below come from azure, will move to tcomp common
+    public static String getStudioNameFromProperty(final String inputString) {
+        StringBuilder result = new StringBuilder();
+        if (inputString == null || inputString.isEmpty()) {
+            return inputString;
+        }
+
+        for (int i = 0; i < inputString.length(); i++) {
+            Character c = inputString.charAt(i);
+            result.append(Character.isUpperCase(c) && i > 0 ? "_" + c : c);
+        }
+        return result.toString().toUpperCase(Locale.ENGLISH);
+    }
+    
+    public static Schema.Field getField(Schema schema, String fieldName) {
+        if (schema == null) {
+            return null;
+        }
+
+        for (Schema.Field outField : schema.getFields()) {
+            if (outField.name().equals(fieldName)) {
+                return outField;
+            }
+        }
+
+        return null;
     }
 
 }

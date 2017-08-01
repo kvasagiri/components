@@ -32,6 +32,7 @@ import org.talend.components.common.TrimFieldsTable;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.JdbcRuntimeInfo;
 import org.talend.components.jdbc.RuntimeSettingProvider;
+import org.talend.components.jdbc.module.DBTypes;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.components.jdbc.module.JDBCTableSelectionModule;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
@@ -99,7 +100,9 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
 
     public TrimFieldsTable trimTable = new TrimFieldsTable("trimTable");
 
-    // TODO enable mapping for dynamic
+    public Property<Boolean> enableDBMapping = PropertyFactory.newBoolean("enableDBMapping").setRequired();
+
+    public Property<DBTypes> dbMapping = PropertyFactory.newEnum("dbMapping", DBTypes.class);
 
     @Override
     public void setupLayout() {
@@ -127,18 +130,21 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
         advancedForm.addRow(cursor);
         advancedForm.addRow(trimStringOrCharColumns);
         advancedForm.addRow(widget(trimTable).setWidgetType(Widget.TABLE_WIDGET_TYPE));
+        advancedForm.addRow(enableDBMapping);
+        advancedForm.addRow(widget(dbMapping).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
     }
 
     @Override
     public void setupProperties() {
         super.setupProperties();
 
-        // TODO fix it later
-        // sql.setValue("select id, name from employee");
+        sql.setValue("select id, name from employee");
 
         cursor.setValue(1000);
 
         tableSelection.setConnection(this);
+
+        dbMapping.setValue(DBTypes.MYSQL);
 
         // FIXME now the trigger can't work very well, need a check why
         schemaListener = new ISchemaListener() {
@@ -173,12 +179,8 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
         if (form.getName().equals(Form.ADVANCED)) {
             form.getWidget(cursor.getName()).setHidden(!useCursor.getValue());
             form.getWidget(trimTable.getName()).setHidden(trimStringOrCharColumns.getValue());
+            form.getWidget(dbMapping.getName()).setVisible(enableDBMapping.getValue());
         }
-    }
-
-    // FIXME now the trigger can't work very well, need a check why
-    public void beforeTrimTable() {
-        updateTrimTable();
     }
 
     private void updateTrimTable() {
@@ -207,6 +209,10 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
     }
 
     public void afterTrimStringOrCharColumns() {
+        refreshLayout(getForm(Form.ADVANCED));
+    }
+
+    public void afterDbMapping() {
         refreshLayout(getForm(Form.ADVANCED));
     }
 
@@ -267,7 +273,24 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
 
         setting.setUseCursor(this.useCursor.getValue());
         setting.setCursor(this.cursor.getValue());
+
         setting.setTrimStringOrCharColumns(this.trimStringOrCharColumns.getValue());
+
+        Object v1 = this.trimTable.columnName.getValue();
+        if (v1 != null && v1 instanceof List) {
+            setting.setTrimColumns((List) v1);
+        }
+
+        Object v2 = this.trimTable.trim.getValue();
+        if (v2 != null && v2 instanceof List) {
+            setting.setTrimValues((List) v2);
+        }
+
+        setting.setEnableDBMapping(this.enableDBMapping.getValue());
+        setting.setDbMapping(this.dbMapping.getValue());
+
+        setting.setUseDataSource(useDataSource.getValue());
+        setting.setDataSource(dataSource.getValue());
 
         setting.setSchema(main.schema.getValue());
 

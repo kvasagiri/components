@@ -21,6 +21,7 @@ import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.IndexedRecord;
 import org.talend.components.common.avro.JDBCAvroRegistry;
+import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.module.SPParameterTable;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.daikon.avro.converter.AvroConverter;
@@ -56,7 +57,7 @@ public class JDBCSPIndexedRecordCreator {
         this.setting = setting;
 
         if (setting.isFunction()) {
-            Schema.Field outputField = getField(outputSchema, setting.getReturnResultIn());
+            Schema.Field outputField = CommonUtils.getField(outputSchema, setting.getReturnResultIn());
             outputFieldLocation2AvroConverter.put(outputField.pos(), JDBCAvroRegistry.get().getConverter(outputField, 1));
         }
 
@@ -70,33 +71,19 @@ public class JDBCSPIndexedRecordCreator {
                 String columnName = parameterColumns.get(j);
 
                 if (SPParameterTable.ParameterType.RECORDSET == pt) {
-                    Schema.Field outputField = getField(outputSchema, columnName);
+                    Schema.Field outputField = CommonUtils.getField(outputSchema, columnName);
                     resultSetPostionOfOutputSchema = outputField.pos();
                     continue;
                 }
 
                 if (SPParameterTable.ParameterType.OUT == pt || SPParameterTable.ParameterType.INOUT == pt) {
-                    Schema.Field outputField = getField(outputSchema, columnName);
+                    Schema.Field outputField = CommonUtils.getField(outputSchema, columnName);
                     outputFieldLocation2AvroConverter.put(outputField.pos(), JDBCAvroRegistry.get().getConverter(outputField, i));
                 }
 
                 i++;
             }
         }
-    }
-
-    public Schema.Field getField(Schema schema, String fieldName) {
-        if (schema == null) {
-            return null;
-        }
-
-        for (Schema.Field outField : schema.getFields()) {
-            if (outField.name().equals(fieldName)) {
-                return outField;
-            }
-        }
-
-        return null;
     }
 
     private boolean firstRowHaveCame = false;

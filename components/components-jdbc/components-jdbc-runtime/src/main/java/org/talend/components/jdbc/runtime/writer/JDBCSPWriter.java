@@ -32,6 +32,7 @@ import org.talend.components.api.component.runtime.WriterWithFeedback;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.common.avro.JDBCAvroRegistry;
+import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.avro.JDBCSPIndexedRecordCreator;
 import org.talend.components.jdbc.module.SPParameterTable;
 import org.talend.components.jdbc.runtime.JDBCSPSink;
@@ -105,7 +106,7 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
 
             if (setting.isFunction()) {
                 String columnName = setting.getReturnResultIn();
-                Field outputField = getField(outputSchema, columnName);
+                Field outputField = CommonUtils.getField(outputSchema, columnName);
                 cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(outputField));
             }
 
@@ -123,12 +124,12 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
                     }
 
                     if (SPParameterTable.ParameterType.OUT == pt || SPParameterTable.ParameterType.INOUT == pt) {
-                        Schema.Field outputField = getField(outputSchema, columnName);
+                        Schema.Field outputField = CommonUtils.getField(outputSchema, columnName);
                         cs.registerOutParameter(i, JDBCMapping.getSQLTypeFromAvroType(outputField));
                     }
 
                     if (SPParameterTable.ParameterType.IN == pt || SPParameterTable.ParameterType.INOUT == pt) {
-                        Schema.Field inputField = getField(inputSchema, columnName);
+                        Schema.Field inputField = CommonUtils.getField(inputSchema, columnName);
                         JDBCMapping.setValue(i, cs, inputField, inputRecord.get(inputField.pos()));
                     }
 
@@ -150,20 +151,6 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
             throw new ComponentException(e);
         }
 
-    }
-
-    public Schema.Field getField(Schema schema, String fieldName) {
-        if (schema == null) {
-            return null;
-        }
-
-        for (Schema.Field outField : schema.getFields()) {
-            if (outField.name().equals(fieldName)) {
-                return outField;
-            }
-        }
-
-        return null;
     }
 
     @Override

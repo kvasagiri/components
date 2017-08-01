@@ -18,6 +18,7 @@ import java.util.List;
 import org.apache.avro.Schema;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.common.avro.JDBCAvroRegistryInfluencer;
+import org.talend.components.jdbc.module.DBTypes;
 import org.talend.components.jdbc.module.SPParameterTable;
 import org.talend.components.jdbc.tjdbcoutput.TJDBCOutputProperties.DataAction;
 
@@ -385,6 +386,99 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
 
     public void setIsFunction(boolean isFunction) {
         this.isFunction = isFunction;
+    }
+
+    private Boolean shareConnection;
+
+    private String sharedConnectionName;
+
+    private Boolean useDataSource;
+
+    private String dataSource;
+    
+    public Boolean getShareConnection() {
+        return shareConnection;
+    }
+
+    
+    public void setShareConnection(Boolean shareConnection) {
+        this.shareConnection = shareConnection;
+    }
+
+    
+    public String getSharedConnectionName() {
+        return sharedConnectionName;
+    }
+
+    
+    public void setSharedConnectionName(String sharedConnectionName) {
+        this.sharedConnectionName = sharedConnectionName;
+    }
+
+    
+    public Boolean getUseDataSource() {
+        return useDataSource;
+    }
+
+    
+    public void setUseDataSource(Boolean useDataSource) {
+        this.useDataSource = useDataSource;
+    }
+
+    
+    public String getDataSource() {
+        return dataSource;
+    }
+
+    
+    public void setDataSource(String dataSource) {
+        this.dataSource = dataSource;
+    }
+    
+    private Boolean enableDBMapping;
+    private DBTypes dbMapping;
+
+    
+    public Boolean getEnableDBMapping() {
+        return enableDBMapping;
+    }
+
+    
+    public void setEnableDBMapping(Boolean enableDBMapping) {
+        this.enableDBMapping = enableDBMapping;
+    }
+
+    
+    public DBTypes getDbMapping() {
+        return dbMapping;
+    }
+
+    
+    public void setDbMapping(DBTypes dbMapping) {
+        this.dbMapping = dbMapping;
+    }
+    
+    private List<String> trimColumns;
+    private List<Boolean> trimValues;
+
+    
+    public List<String> getTrimColumns() {
+        return trimColumns;
+    }
+
+    
+    public void setTrimColumns(List<String> trimColumns) {
+        this.trimColumns = trimColumns;
+    }
+
+    
+    public List<Boolean> getTrimValues() {
+        return trimValues;
+    }
+
+    
+    public void setTrimValues(List<Boolean> trimValues) {
+        this.trimValues = trimValues;
     }
 
 }
