@@ -12,11 +12,11 @@
 // ============================================================================
 package org.talend.components.jdbc.module;
 
-import static org.talend.daikon.properties.presentation.Widget.*;
+import static org.talend.daikon.properties.presentation.Widget.widget;
 
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.common.UserPasswordProperties;
-import org.talend.daikon.properties.PropertiesImpl;
+import org.talend.components.jdbc.CommonUtils;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
@@ -26,7 +26,7 @@ import org.talend.daikon.properties.property.PropertyFactory;
  * common JDBC connection information properties
  *
  */
-//have to implement ComponentProperties for the wizard part, not good
+// have to implement ComponentProperties for the wizard part, not good
 public class JDBCConnectionModule extends ComponentPropertiesImpl {
 
     public Property<String> jdbcUrl = PropertyFactory.newProperty("jdbcUrl").setRequired();
@@ -45,15 +45,14 @@ public class JDBCConnectionModule extends ComponentPropertiesImpl {
     @Override
     public void setupProperties() {
         super.setupProperties();
-        // TODO fix it
-        // jdbcUrl.setValue("jdbc:");
+        jdbcUrl.setValue("jdbc:");
     }
 
     @Override
     public void setupLayout() {
         super.setupLayout();
 
-        Form form = Form.create(this, Form.MAIN);
+        Form form = CommonUtils.addForm(this, Form.MAIN);
         form.addRow(jdbcUrl);
         form.addRow(widget(driverTable).setWidgetType(Widget.TABLE_WIDGET_TYPE));
         form.addRow(driverClass);
