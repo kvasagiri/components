@@ -13,6 +13,7 @@
 package org.talend.components.jdbc;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -20,11 +21,16 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Field;
 import org.talend.components.api.component.Connector;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
+
 import org.talend.daikon.exception.TalendRuntimeException;
+
+import org.talend.daikon.avro.SchemaConstants;
+
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.presentation.Form;
 
@@ -138,6 +144,10 @@ public class CommonUtils {
      * @return
      */
     public static Schema newSchema(Schema metadataSchema, String newSchemaName, List<Schema.Field> moreFields) {
+        return newSchema(metadataSchema, newSchemaName, moreFields, metadataSchema.getFields().size());
+    }
+
+    public static Schema newSchema(Schema metadataSchema, String newSchemaName, List<Schema.Field> moreFields, int insertPoint) {
         Schema newSchema = Schema.createRecord(newSchemaName, metadataSchema.getDoc(), metadataSchema.getNamespace(),
                 metadataSchema.isError());
 
@@ -151,7 +161,7 @@ public class CommonUtils {
             copyFieldList.add(field);
         }
 
-        copyFieldList.addAll(moreFields);
+        copyFieldList.addAll(insertPoint, moreFields);
 
         newSchema.setFields(copyFieldList);
         for (Map.Entry<String, Object> entry : metadataSchema.getObjectProps().entrySet()) {
@@ -159,6 +169,30 @@ public class CommonUtils {
         }
 
         return newSchema;
+    }
+
+    // TOOD use a common one
+    private static final String TALEND6_DYNAMIC_COLUMN_POSITION = "di.dynamic.column.position";
+
+    public static Schema mergeRuntimeSchema2DesignSchema4Dynamic(Schema designSchema, Schema runtimeSchema) {
+        List<Field> designFields = designSchema.getFields();
+        Set<String> designFieldSet = new HashSet<>();
+        for (Field designField : designFields) {
+            String oname = designField.getProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME);
+            designFieldSet.add(oname);
+        }
+
+        List<Schema.Field> dynamicFields = new ArrayList<>();
+
+        for (Field runtimeField : runtimeSchema.getFields()) {
+            String oname = runtimeField.getProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME);
+            if (!designFieldSet.contains(oname)) {
+                dynamicFields.add(runtimeField);
+            }
+        }
+
+        int dynPosition = Integer.valueOf(designSchema.getProp(TALEND6_DYNAMIC_COLUMN_POSITION));
+        return CommonUtils.newSchema(designSchema, designSchema.getName(), dynamicFields, dynPosition - 1);
     }
 
     /**
@@ -226,7 +260,7 @@ public class CommonUtils {
         }
         return result.toString().toUpperCase(Locale.ENGLISH);
     }
-    
+
     public static Schema.Field getField(Schema schema, String fieldName) {
         if (schema == null) {
             return null;

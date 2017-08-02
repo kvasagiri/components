@@ -90,21 +90,27 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
             // querySchema = CommonUtils.getMainSchemaFromOutputConnector((ComponentProperties) properties);
             querySchema = setting.getSchema();
 
-            if (AvroUtils.isSchemaEmpty(querySchema) || AvroUtils.isIncludeAllFields(querySchema)) {
-                /**
-                 * the code above make the action different with the usage in studio,
-                 * as in studio, we only use the design schema if no dynamic column exists.
-                 * Here, we will use the runtime schema too when no valid design schema found,
-                 * it work for data set topic.
-                 * 
-                 * And another thing, the reader or other runtime execution object should be common,
-                 * and not depend on the platform, so should use the same action, so we use the same
-                 * reader for studio and dataprep(now for data store and set) execution platform. And
-                 * need more thinking about it.
-                 */
+            /**
+             * the code above make the action different with the usage in studio,
+             * as in studio, we only use the design schema if no dynamic column exists.
+             * Here, we will use the runtime schema too when no valid design schema found,
+             * it work for data set topic.
+             * 
+             * And another thing, the reader or other runtime execution object should be common,
+             * and not depend on the platform, so should use the same action, so we use the same
+             * reader for studio and dataprep(now for data store and set) execution platform. And
+             * need more thinking about it.
+             */
+            if (AvroUtils.isSchemaEmpty(querySchema)) {
                 querySchema = source.getAvroRegistry().inferSchema(resultSet.getMetaData());
             }
+
+            if (AvroUtils.isIncludeAllFields(querySchema)) {
+                Schema runtimeSchema4ResultSet = source.getAvroRegistry().inferSchema(resultSet.getMetaData());
+                querySchema = CommonUtils.mergeRuntimeSchema2DesignSchema4Dynamic(querySchema, runtimeSchema4ResultSet);
+            }
         }
+
         return querySchema;
     }
 
