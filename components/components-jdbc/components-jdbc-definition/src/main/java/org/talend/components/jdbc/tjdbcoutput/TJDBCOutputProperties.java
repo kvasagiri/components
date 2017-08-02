@@ -28,6 +28,8 @@ import org.talend.components.common.SchemaProperties;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.JdbcRuntimeInfo;
 import org.talend.components.jdbc.RuntimeSettingProvider;
+import org.talend.components.jdbc.module.AdditionalColumnsTable;
+import org.talend.components.jdbc.module.FieldOptionsTable;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.components.jdbc.module.JDBCTableSelectionModule;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
@@ -100,9 +102,11 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
     // advanced
     public Property<Integer> commitEvery = PropertyFactory.newInteger("commitEvery").setRequired();
 
-    // TODO additional columns
+    public AdditionalColumnsTable additionalColumns = new AdditionalColumnsTable("additionalColumns");
 
-    // TODO use field options and table
+    public Property<Boolean> enableFieldOptions = PropertyFactory.newBoolean("enableFieldOptions").setRequired();
+
+    public FieldOptionsTable fieldOptions = new FieldOptionsTable("fieldOptions");
 
     public Property<Boolean> debug = PropertyFactory.newBoolean("debug").setRequired();
 
@@ -160,6 +164,12 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
 
         Form advancedForm = CommonUtils.addForm(this, Form.ADVANCED);
         advancedForm.addRow(commitEvery);
+
+        advancedForm.addRow(Widget.widget(additionalColumns).setWidgetType(Widget.TABLE_WIDGET_TYPE));
+
+        advancedForm.addRow(enableFieldOptions);
+        advancedForm.addRow(Widget.widget(fieldOptions).setWidgetType(Widget.TABLE_WIDGET_TYPE));
+
         advancedForm.addRow(debug);
         advancedForm.addRow(useBatch);
         advancedForm.addRow(batchSize);
@@ -199,8 +209,9 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
         }
 
         if (form.getName().equals(Form.ADVANCED)) {
-            form.getWidget(batchSize.getName()).setHidden(!useBatch.getValue());
             form.getWidget(commitEvery.getName()).setHidden(useOtherConnection);
+            form.getWidget(batchSize.getName()).setHidden(!useBatch.getValue());
+            form.getWidget(fieldOptions.getName()).setVisible(enableFieldOptions.getValue());
         }
     }
 
@@ -214,6 +225,10 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
     }
 
     public void afterUseBatch() {
+        refreshLayout(getForm(Form.ADVANCED));
+    }
+
+    public void afterEnableFieldOptions() {
         refreshLayout(getForm(Form.ADVANCED));
     }
 

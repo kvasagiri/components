@@ -23,6 +23,7 @@ import org.apache.avro.Schema;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
+import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.JDBCTemplate;
 import org.talend.components.jdbc.RuntimeSettingProvider;
@@ -59,6 +60,11 @@ public class JDBCRowSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
     @Override
     public ValidationResult validate(RuntimeContainer runtime) {
+        if (runtime != null) {
+            runtime.setComponentData(runtime.getCurrentComponentId(),
+                    CommonUtils.getStudioNameFromProperty(ComponentConstants.RETURN_QUERY), setting.getSql());
+        }
+
         ValidationResultMutable vr = new ValidationResultMutable();
 
         AllSetting setting = properties.getRuntimeSetting();
@@ -114,8 +120,6 @@ public class JDBCRowSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         // TODO now we use routines.system.TalendDataSource to get the data connection from the ESB runtime, but now we
         // can't
         // refer it by the new framework, so will fix it later
-
-        // TODO routines.system.SharedDBConnectionLog4j, the same with the TODO above
 
         // using another component's connection
         if (useExistedConnection) {

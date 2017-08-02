@@ -19,6 +19,7 @@ import org.talend.components.api.component.AbstractComponentDefinition;
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.properties.ComponentProperties;
+import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.JdbcRuntimeInfo;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
@@ -34,6 +35,8 @@ public class TJDBCOutputDefinition extends AbstractComponentDefinition {
 
     public TJDBCOutputDefinition() {
         super(COMPONENT_NAME, ExecutionEngine.DI);
+        setupI18N(new Property<?>[] { RETURN_INSERT_RECORD_COUNT_PROP, RETURN_UPDATE_RECORD_COUNT_PROP,
+                RETURN_DELETE_RECORD_COUNT_PROP, RETURN_QUERY_PROP });
     }
 
     @Override
@@ -46,7 +49,6 @@ public class TJDBCOutputDefinition extends AbstractComponentDefinition {
         return new String[] { "Databases/DB_JDBC" };
     }
 
-    // TODO can't i18n
     public static final String RETURN_INSERT_RECORD_COUNT = "insertRecordCount";
 
     public static final String RETURN_UPDATE_RECORD_COUNT = "updateRecordCount";
@@ -62,14 +64,15 @@ public class TJDBCOutputDefinition extends AbstractComponentDefinition {
     public static final Property<Integer> RETURN_DELETE_RECORD_COUNT_PROP = PropertyFactory
             .newInteger(RETURN_DELETE_RECORD_COUNT);
 
+    public static final Property<String> RETURN_QUERY_PROP = PropertyFactory.newString(ComponentConstants.RETURN_QUERY);
+
+    // TODO the rejcet line key and format is not right, need to change
     @SuppressWarnings("rawtypes")
     @Override
     public Property[] getReturnProperties() {
-        setupI18N(new Property<?>[] { RETURN_INSERT_RECORD_COUNT_PROP, RETURN_UPDATE_RECORD_COUNT_PROP,
-                RETURN_DELETE_RECORD_COUNT_PROP });
-        return new Property[] { RETURN_ERROR_MESSAGE_PROP, RETURN_TOTAL_RECORD_COUNT_PROP, RETURN_SUCCESS_RECORD_COUNT_PROP,
-                RETURN_REJECT_RECORD_COUNT_PROP, RETURN_INSERT_RECORD_COUNT_PROP, RETURN_UPDATE_RECORD_COUNT_PROP,
-                RETURN_DELETE_RECORD_COUNT_PROP };
+        return new Property[] { RETURN_ERROR_MESSAGE_PROP, RETURN_TOTAL_RECORD_COUNT_PROP, RETURN_INSERT_RECORD_COUNT_PROP,
+                RETURN_UPDATE_RECORD_COUNT_PROP, RETURN_DELETE_RECORD_COUNT_PROP, RETURN_REJECT_RECORD_COUNT_PROP,
+                RETURN_QUERY_PROP };
     }
 
     @Override
