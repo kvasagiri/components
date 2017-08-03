@@ -93,6 +93,8 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
     protected int updateCount;
 
     protected int deleteCount;
+    
+    protected List<JDBCSQLBuilder.Column> columnList;
 
     public JDBCOutputWriter(WriteOperation<Result> writeOperation, RuntimeContainer runtime) {
         this.writeOperation = writeOperation;
@@ -122,6 +124,9 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
 
     @Override
     public void open(String uId) throws IOException {
+        columnList = JDBCSQLBuilder.getInstance().createColumnList(setting,
+                CommonUtils.getMainSchemaFromInputConnector((ComponentProperties) properties));
+        
         if (!setting.getClearDataInTable()) {
             return;
         }

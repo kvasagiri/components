@@ -14,9 +14,9 @@ package org.talend.components.jdbc.runtime.writer;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.IndexedRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,6 @@ import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
-import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.runtime.setting.JDBCSQLBuilder;
 import org.talend.components.jdbc.runtime.type.JDBCMapping;
@@ -44,8 +43,7 @@ public class JDBCOutputInsertWriter extends JDBCOutputWriter {
         super.open(uId);
         try {
             conn = sink.getConnection(runtime);
-            sql = JDBCSQLBuilder.getInstance().generateSQL4Insert(setting.getTablename(),
-                    CommonUtils.getMainSchemaFromInputConnector((ComponentProperties) properties));
+            sql = JDBCSQLBuilder.getInstance().generateSQL4Insert(setting.getTablename(), columnList);
             statement = conn.prepareStatement(sql);
         } catch (SQLException | ClassNotFoundException e) {
             throw new ComponentException(e);
@@ -58,11 +56,21 @@ public class JDBCOutputInsertWriter extends JDBCOutputWriter {
 
         IndexedRecord input = this.getFactory(datum).convertToAvro(datum);
 
-        List<Schema.Field> fields = input.getSchema().getFields();
+        Schema inputSchema = input.getSchema();
 
         try {
             int index = 0;
-            for (Schema.Field f : fields) {
+            for (JDBCSQLBuilder.Column column : columnList) {
+                if (column.addCol || (column.isReplaced())) {
+                    continue;
+                }
+
+                if (!column.insertable) {
+                    continue;
+                }
+
+                // TODO low preformance
+                Field f = CommonUtils.getField(inputSchema, column.columnLabel);
                 JDBCMapping.setValue(++index, statement, f, input.get(f.pos()));
             }
         } catch (SQLException e) {

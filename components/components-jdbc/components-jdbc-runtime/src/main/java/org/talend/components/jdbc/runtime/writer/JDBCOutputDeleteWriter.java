@@ -14,9 +14,9 @@ package org.talend.components.jdbc.runtime.writer;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.IndexedRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +24,9 @@ import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
-import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.CommonUtils;
-import org.talend.components.jdbc.JDBCTemplate;
 import org.talend.components.jdbc.runtime.setting.JDBCSQLBuilder;
+import org.talend.components.jdbc.runtime.setting.JDBCSQLBuilder.Column;
 import org.talend.components.jdbc.runtime.type.JDBCMapping;
 
 public class JDBCOutputDeleteWriter extends JDBCOutputWriter {
@@ -45,8 +44,7 @@ public class JDBCOutputDeleteWriter extends JDBCOutputWriter {
         super.open(uId);
         try {
             conn = sink.getConnection(runtime);
-            sql = JDBCSQLBuilder.getInstance().generateSQL4Delete(setting.getTablename(),
-                    CommonUtils.getMainSchemaFromInputConnector((ComponentProperties) properties));
+            sql = JDBCSQLBuilder.getInstance().generateSQL4Delete(setting.getTablename(), columnList);
             statement = conn.prepareStatement(sql);
         } catch (ClassNotFoundException | SQLException e) {
             throw new ComponentException(e);
@@ -59,13 +57,21 @@ public class JDBCOutputDeleteWriter extends JDBCOutputWriter {
         super.write(datum);
 
         IndexedRecord input = this.getFactory(datum).convertToAvro(datum);
-
-        List<Schema.Field> keys = JDBCTemplate.getKeyColumns(input.getSchema().getFields());
+        Schema inputSchema = input.getSchema();
 
         try {
             int index = 0;
-            for (Schema.Field key : keys) {
-                JDBCMapping.setValue(++index, statement, key, input.get(key.pos()));
+            for (Column column : columnList) {
+                if (column.addCol || column.isReplaced()) {
+                    continue;
+                }
+
+                if (!column.deletionKey) {
+                    continue;
+                }
+
+                Field field = CommonUtils.getField(inputSchema, column.columnLabel);
+                JDBCMapping.setValue(++index, statement, field, input.get(field.pos()));
             }
         } catch (SQLException e) {
             throw new ComponentException(e);

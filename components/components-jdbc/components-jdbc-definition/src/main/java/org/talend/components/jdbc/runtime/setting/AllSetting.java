@@ -19,6 +19,7 @@ import java.util.Map;
 import org.apache.avro.Schema;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.common.avro.JDBCAvroRegistryInfluencer;
+import org.talend.components.jdbc.module.AdditionalColumnsTable;
 import org.talend.components.jdbc.module.DBTypes;
 import org.talend.components.jdbc.module.SPParameterTable;
 import org.talend.components.jdbc.tjdbcoutput.TJDBCOutputProperties.DataAction;
@@ -458,11 +459,111 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
 
     @Override
     public boolean isTrim(int index) {
-        if(trimMap == null) {
+        if (trimMap == null) {
             return false;
         }
-        
+
         return trimMap.get(index);
+    }
+
+    private List<String> newDBColumnNames4AdditionalParameters;
+
+    private List<String> sqlExpressions4AdditionalParameters;
+
+    private List<AdditionalColumnsTable.Position> positions4AdditionalParameters;
+
+    private List<String> referenceColumns4AdditionalParameters;
+
+    private Boolean enableFieldOptions;
+
+    private List<String> schemaColumns4FieldOption;
+
+    private List<Boolean> updateKey4FieldOption;
+
+    private List<Boolean> deletionKey4FieldOption;
+
+    private List<Boolean> updatable4FieldOption;
+
+    private List<Boolean> insertable4FieldOption;
+
+    public List<String> getNewDBColumnNames4AdditionalParameters() {
+        return newDBColumnNames4AdditionalParameters;
+    }
+
+    public void setNewDBColumnNames4AdditionalParameters(List<String> newDBColumnNames4AdditionalParameters) {
+        this.newDBColumnNames4AdditionalParameters = newDBColumnNames4AdditionalParameters;
+    }
+
+    public List<String> getSqlExpressions4AdditionalParameters() {
+        return sqlExpressions4AdditionalParameters;
+    }
+
+    public void setSqlExpressions4AdditionalParameters(List<String> sqlExpressions4AdditionalParameters) {
+        this.sqlExpressions4AdditionalParameters = sqlExpressions4AdditionalParameters;
+    }
+
+    public List<AdditionalColumnsTable.Position> getPositions4AdditionalParameters() {
+        return positions4AdditionalParameters;
+    }
+
+    public void setPositions4AdditionalParameters(List<AdditionalColumnsTable.Position> positions4AdditionalParameters) {
+        this.positions4AdditionalParameters = positions4AdditionalParameters;
+    }
+
+    public List<String> getReferenceColumns4AdditionalParameters() {
+        return referenceColumns4AdditionalParameters;
+    }
+
+    public void setReferenceColumns4AdditionalParameters(List<String> referenceColumns4AdditionalParameters) {
+        this.referenceColumns4AdditionalParameters = referenceColumns4AdditionalParameters;
+    }
+
+    public List<String> getSchemaColumns4FieldOption() {
+        return schemaColumns4FieldOption;
+    }
+
+    public void setSchemaColumns4FieldOption(List<String> schemaColumns4FieldOption) {
+        this.schemaColumns4FieldOption = schemaColumns4FieldOption;
+    }
+
+    public List<Boolean> getUpdateKey4FieldOption() {
+        return updateKey4FieldOption;
+    }
+
+    public void setUpdateKey4FieldOption(List<Boolean> updateKey4FieldOption) {
+        this.updateKey4FieldOption = updateKey4FieldOption;
+    }
+
+    public List<Boolean> getDeletionKey4FieldOption() {
+        return deletionKey4FieldOption;
+    }
+
+    public void setDeletionKey4FieldOption(List<Boolean> deletionKey4FieldOption) {
+        this.deletionKey4FieldOption = deletionKey4FieldOption;
+    }
+
+    public List<Boolean> getUpdatable4FieldOption() {
+        return updatable4FieldOption;
+    }
+
+    public void setUpdatable4FieldOption(List<Boolean> updatable4FieldOption) {
+        this.updatable4FieldOption = updatable4FieldOption;
+    }
+
+    public List<Boolean> getInsertable4FieldOption() {
+        return insertable4FieldOption;
+    }
+
+    public void setInsertable4FieldOption(List<Boolean> insertable4FieldOption) {
+        this.insertable4FieldOption = insertable4FieldOption;
+    }
+
+    public Boolean getEnableFieldOptions() {
+        return enableFieldOptions;
+    }
+
+    public void setEnableFieldOptions(Boolean enableFieldOptions) {
+        this.enableFieldOptions = enableFieldOptions;
     }
 
 }
