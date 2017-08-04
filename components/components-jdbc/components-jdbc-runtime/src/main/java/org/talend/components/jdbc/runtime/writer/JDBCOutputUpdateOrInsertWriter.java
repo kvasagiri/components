@@ -15,9 +15,9 @@ package org.talend.components.jdbc.runtime.writer;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.List;
 
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.IndexedRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,10 +25,9 @@ import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
-import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.CommonUtils;
-import org.talend.components.jdbc.JDBCTemplate;
 import org.talend.components.jdbc.runtime.setting.JDBCSQLBuilder;
+import org.talend.components.jdbc.runtime.setting.JDBCSQLBuilder.Column;
 import org.talend.components.jdbc.runtime.type.JDBCMapping;
 
 public class JDBCOutputUpdateOrInsertWriter extends JDBCOutputWriter {
@@ -53,12 +52,10 @@ public class JDBCOutputUpdateOrInsertWriter extends JDBCOutputWriter {
         try {
             conn = sink.getConnection(runtime);
 
-            sqlInsert = JDBCSQLBuilder.getInstance().generateSQL4Insert(setting.getTablename(),
-                    CommonUtils.getMainSchemaFromInputConnector((ComponentProperties) properties));
+            sqlInsert = JDBCSQLBuilder.getInstance().generateSQL4Insert(setting.getTablename(), columnList);
             statementInsert = conn.prepareStatement(sqlInsert);
 
-            sqlUpdate = JDBCSQLBuilder.getInstance().generateSQL4Update(setting.getTablename(),
-                    CommonUtils.getMainSchemaFromInputConnector((ComponentProperties) properties));
+            sqlUpdate = JDBCSQLBuilder.getInstance().generateSQL4Update(setting.getTablename(), columnList);
             statementUpdate = conn.prepareStatement(sqlUpdate);
 
         } catch (ClassNotFoundException | SQLException e) {
@@ -73,18 +70,30 @@ public class JDBCOutputUpdateOrInsertWriter extends JDBCOutputWriter {
 
         IndexedRecord input = this.getFactory(datum).convertToAvro(datum);
 
-        List<Schema.Field> allFields = input.getSchema().getFields();
-        List<Schema.Field> keys = JDBCTemplate.getKeyColumns(allFields);
-        List<Schema.Field> values = JDBCTemplate.getValueColumns(allFields);
+        Schema inputSchema = input.getSchema();
 
         try {
             int index = 0;
-            for (Schema.Field value : values) {
-                JDBCMapping.setValue(++index, statementUpdate, value, input.get(value.pos()));
+            for (Column column : columnList) {
+                if (column.addCol || column.isReplaced()) {
+                    continue;
+                }
+
+                if (column.updatable) {
+                    Field field = CommonUtils.getField(inputSchema, column.columnLabel);
+                    JDBCMapping.setValue(++index, statementUpdate, field, input.get(field.pos()));
+                }
             }
 
-            for (Schema.Field key : keys) {
-                JDBCMapping.setValue(++index, statementUpdate, key, input.get(key.pos()));
+            for (Column column : columnList) {
+                if (column.addCol || column.isReplaced()) {
+                    continue;
+                }
+
+                if (column.updateKey) {
+                    Field field = CommonUtils.getField(inputSchema, column.columnLabel);
+                    JDBCMapping.setValue(++index, statementUpdate, field, input.get(field.pos()));
+                }
             }
         } catch (SQLException e) {
             throw new ComponentException(e);
@@ -99,8 +108,15 @@ public class JDBCOutputUpdateOrInsertWriter extends JDBCOutputWriter {
 
             if (noDataUpdate) {
                 int index = 0;
-                for (Schema.Field field : allFields) {
-                    JDBCMapping.setValue(++index, statementInsert, field, input.get(field.pos()));
+                for (Column column : columnList) {
+                    if (column.addCol || column.isReplaced()) {
+                        continue;
+                    }
+
+                    if (column.insertable) {
+                        Field field = CommonUtils.getField(inputSchema, column.columnLabel);
+                        JDBCMapping.setValue(++index, statementInsert, field, input.get(field.pos()));
+                    }
                 }
 
                 insertCount += execute(input, statementInsert);

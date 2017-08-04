@@ -1,5 +1,7 @@
 package org.talend.components.jdbc.runtime.setting;
 
+import java.util.List;
+
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.junit.Assert;
@@ -15,6 +17,8 @@ public class JDBCSQLBuilderTest {
             .prop(SchemaConstants.TALEND_COLUMN_IS_KEY, "true").type(AvroUtils._string()).noDefault().name("NAME")
             .prop(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME, "NAME").type(AvroUtils._string()).noDefault().name("ADDRESS")
             .prop(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME, "ADDRESS").type(AvroUtils._string()).noDefault().endRecord();
+    
+    List<JDBCSQLBuilder.Column> columnList = JDBCSQLBuilder.getInstance().createColumnList(new AllSetting(), schema);
 
     @Test
     public void testGetInstance() {
@@ -46,19 +50,19 @@ public class JDBCSQLBuilderTest {
     @Test
     public void testGenerateSQL4Delete() {
         Assert.assertEquals("DELETE FROM TEST WHERE ID1 = ? AND ID2 = ?",
-                JDBCSQLBuilder.getInstance().generateSQL4Delete("TEST", schema));
+                JDBCSQLBuilder.getInstance().generateSQL4Delete("TEST", columnList));
     }
 
     @Test
     public void testGenerateSQL4Update() {
         Assert.assertEquals("UPDATE TEST SET NAME = ?,ADDRESS = ? WHERE ID1 = ? AND ID2 = ?",
-                JDBCSQLBuilder.getInstance().generateSQL4Update("TEST", schema));
+                JDBCSQLBuilder.getInstance().generateSQL4Update("TEST", columnList));
     }
 
     @Test
     public void testGenerateQuerySQL4InsertOrUpdate() {
         Assert.assertEquals("SELECT COUNT(1) FROM TEST WHERE ID1 = ? AND ID2 = ?",
-                JDBCSQLBuilder.getInstance().generateQuerySQL4InsertOrUpdate("TEST", schema));
+                JDBCSQLBuilder.getInstance().generateQuerySQL4InsertOrUpdate("TEST", columnList));
     }
 
 }

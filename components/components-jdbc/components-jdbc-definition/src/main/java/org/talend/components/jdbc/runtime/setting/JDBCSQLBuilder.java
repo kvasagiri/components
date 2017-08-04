@@ -19,8 +19,6 @@ import java.util.Map;
 
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
-import org.talend.components.jdbc.CommonUtils;
-import org.talend.components.jdbc.JDBCTemplate;
 import org.talend.components.jdbc.module.AdditionalColumnsTable;
 import org.talend.daikon.avro.SchemaConstants;
 
@@ -108,19 +106,12 @@ public class JDBCSQLBuilder {
         List<String> dbColumnNames = new ArrayList<>();
         List<String> expressions = new ArrayList<>();
 
-        for (Column column : columnList) {
-            if (column.replacements != null && !column.replacements.isEmpty()) {
-                for (Column replacement : column.replacements) {
-                    if (replacement.insertable) {
-                        dbColumnNames.add(replacement.dbColumnName);
-                        expressions.add(replacement.sqlStmt);
-                    }
-                }
-            } else {
-                if (column.insertable) {
-                    dbColumnNames.add(column.dbColumnName);
-                    expressions.add(column.sqlStmt);
-                }
+        List<Column> all = getAllColumns(columnList);
+
+        for (Column column : all) {
+            if (column.insertable) {
+                dbColumnNames.add(column.dbColumnName);
+                expressions.add(column.sqlStmt);
             }
         }
 
@@ -232,6 +223,47 @@ public class JDBCSQLBuilder {
         return columnList;
     }
 
+    public String generateSQL4Insert(String tablename, Schema schema) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("INSERT INTO ").append(getProtectedChar()).append(tablename).append(getProtectedChar()).append(" ");
+
+        sb.append("(");
+        
+        List<Schema.Field> fields = schema.getFields();
+        
+        boolean firstOne = true;
+        for (Schema.Field field : fields) {
+            if (firstOne) {
+                firstOne = false;
+            } else {
+                sb.append(",");
+            }
+
+            String dbColumnName = field.getProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME);
+            sb.append(dbColumnName);
+        }
+        sb.append(")");
+
+        sb.append(" VALUES ");
+
+        sb.append("(");
+
+        firstOne = true;
+        for (@SuppressWarnings("unused")
+        Schema.Field field : fields) {
+            if (firstOne) {
+                firstOne = false;
+            } else {
+                sb.append(",");
+            }
+
+            sb.append("?");
+        }
+        sb.append(")");
+
+        return sb.toString();
+    }
+
     private String generateSQL4Insert(String tablename, List<String> insertableDBColumns, List<String> expressions) {
         StringBuilder sb = new StringBuilder();
         sb.append("INSERT INTO ").append(getProtectedChar()).append(tablename).append(getProtectedChar()).append(" ");
@@ -253,59 +285,17 @@ public class JDBCSQLBuilder {
 
         sb.append("(");
 
-        if (expressions != null && !expressions.isEmpty()) {
-            firstOne = true;
-            for (String expression : expressions) {
-                if (firstOne) {
-                    firstOne = false;
-                } else {
-                    sb.append(",");
-                }
-
-                sb.append(expression);
-            }
-            sb.append(")");
-
-            return sb.toString();
-        }
-
         firstOne = true;
-        for (@SuppressWarnings("unused")
-        String dbColumnName : insertableDBColumns) {
+        for (String expression : expressions) {
             if (firstOne) {
                 firstOne = false;
             } else {
                 sb.append(",");
             }
 
-            sb.append("?");
+            sb.append(expression);
         }
         sb.append(")");
-
-        return sb.toString();
-
-    }
-
-    public String generateSQL4Insert(String tablename, Schema schema) {
-        return generateSQL4Insert(tablename, CommonUtils.getAllSchemaFieldDBNames(schema), null);
-    }
-
-    public String generateSQL4Delete(String tablename, Schema schema) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("DELETE FROM ").append(getProtectedChar()).append(tablename).append(getProtectedChar()).append(" WHERE ");
-
-        List<Schema.Field> keys = JDBCTemplate.getKeyColumns(schema.getFields());
-        boolean firstOne = true;
-        for (Schema.Field key : keys) {
-            if (firstOne) {
-                firstOne = false;
-            } else {
-                sb.append(" AND ");
-            }
-
-            String dbColumnName = key.getProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME);
-            sb.append(getProtectedChar()).append(dbColumnName).append(getProtectedChar()).append(" = ").append("?");
-        }
 
         return sb.toString();
     }
@@ -314,26 +304,19 @@ public class JDBCSQLBuilder {
         List<String> deleteKeys = new ArrayList<>();
         List<String> expressions = new ArrayList<>();
 
-        for (Column column : columnList) {
-            if (column.replacements != null && !column.replacements.isEmpty()) {
-                for (Column replacement : column.replacements) {
-                    if (replacement.deletionKey) {
-                        deleteKeys.add(replacement.dbColumnName);
-                        expressions.add(replacement.sqlStmt);
-                    }
-                }
-            } else {
-                if (column.deletionKey) {
-                    deleteKeys.add(column.dbColumnName);
-                    expressions.add(column.sqlStmt);
-                }
+        List<Column> all = getAllColumns(columnList);
+
+        for (Column column : all) {
+            if (column.deletionKey) {
+                deleteKeys.add(column.dbColumnName);
+                expressions.add(column.sqlStmt);
             }
         }
 
-        return generateSQL4Insert(tablename, deleteKeys, expressions);
+        return generateSQL4Delete(tablename, deleteKeys, expressions);
     }
 
-    public String generateSQL4Delete(String tablename, List<String> deleteKeys, List<String> expressions) {
+    private String generateSQL4Delete(String tablename, List<String> deleteKeys, List<String> expressions) {
         StringBuilder sb = new StringBuilder();
         sb.append("DELETE FROM ").append(getProtectedChar()).append(tablename).append(getProtectedChar()).append(" WHERE ");
 
@@ -354,42 +337,7 @@ public class JDBCSQLBuilder {
         return sb.toString();
     }
 
-    public String generateSQL4Update(String tablename, Schema schema) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("UPDATE ").append(getProtectedChar()).append(tablename).append(getProtectedChar()).append(" SET ");
-
-        List<Schema.Field> values = JDBCTemplate.getValueColumns(schema.getFields());
-        boolean firstOne = true;
-        for (Schema.Field value : values) {
-            if (firstOne) {
-                firstOne = false;
-            } else {
-                sb.append(",");
-            }
-
-            String dbColumnName = value.getProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME);
-            sb.append(getProtectedChar()).append(dbColumnName).append(getProtectedChar()).append(" = ").append("?");
-        }
-
-        sb.append(" WHERE ");
-
-        List<Schema.Field> keys = JDBCTemplate.getKeyColumns(schema.getFields());
-        firstOne = true;
-        for (Schema.Field key : keys) {
-            if (firstOne) {
-                firstOne = false;
-            } else {
-                sb.append(" AND ");
-            }
-
-            String dbColumnName = key.getProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME);
-            sb.append(getProtectedChar()).append(dbColumnName).append(getProtectedChar()).append(" = ").append("?");
-        }
-
-        return sb.toString();
-    }
-
-    public String generateSQL4Update(String tablename, List<String> updateValues, List<String> updateKeys,
+    private String generateSQL4Update(String tablename, List<String> updateValues, List<String> updateKeys,
             List<String> updateExpressions) {
         StringBuilder sb = new StringBuilder();
         sb.append("UPDATE ").append(getProtectedChar()).append(tablename).append(getProtectedChar()).append(" SET ");
@@ -430,54 +378,74 @@ public class JDBCSQLBuilder {
         List<String> updateKeys = new ArrayList<>();
         List<String> updateExpressions = new ArrayList<>();
 
-        for (Column column : columnList) {
-            if (column.replacements != null && !column.replacements.isEmpty()) {
-                for (Column replacement : column.replacements) {
-                    if (replacement.updatable) {
-                        updateValues.add(replacement.dbColumnName);
-                        updateExpressions.add(replacement.sqlStmt);
-                    }
+        List<Column> all = getAllColumns(columnList);
 
-                    if (replacement.updateKey) {
-                        updateKeys.add(replacement.dbColumnName);
-                        updateExpressions.add(replacement.sqlStmt);
-                    }
-                }
-            } else {
-                if (column.updatable) {
-                    updateValues.add(column.dbColumnName);
-                    updateExpressions.add(column.sqlStmt);
-                }
+        for (Column column : all) {
+            if (column.updatable) {
+                updateValues.add(column.dbColumnName);
+                updateExpressions.add(column.sqlStmt);
+            }
 
-                if (column.updateKey) {
-                    updateKeys.add(column.dbColumnName);
-                    updateExpressions.add(column.sqlStmt);
-                }
+            if (column.updateKey) {
+                updateKeys.add(column.dbColumnName);
+                updateExpressions.add(column.sqlStmt);
             }
         }
 
         return generateSQL4Update(tablename, updateValues, updateKeys, updateExpressions);
     }
 
-    public String generateQuerySQL4InsertOrUpdate(String tablename, Schema schema) {
+    private String generateQuerySQL4InsertOrUpdate(String tablename, List<String> updateKeys, List<String> updateKeyExpressions) {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT COUNT(1) FROM ").append(getProtectedChar()).append(tablename).append(getProtectedChar())
                 .append(" WHERE ");
 
-        List<Schema.Field> keys = JDBCTemplate.getKeyColumns(schema.getFields());
+        int i = 0;
+
         boolean firstOne = true;
-        for (Schema.Field key : keys) {
+        for (String dbColumnName : updateKeys) {
             if (firstOne) {
                 firstOne = false;
             } else {
                 sb.append(" AND ");
             }
 
-            String dbColumnName = key.getProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME);
-            sb.append(getProtectedChar()).append(dbColumnName).append(getProtectedChar()).append(" = ").append("?");
+            sb.append(getProtectedChar()).append(dbColumnName).append(getProtectedChar()).append(" = ")
+                    .append(updateKeyExpressions.get(i++));
         }
 
         return sb.toString();
+    }
+
+    public String generateQuerySQL4InsertOrUpdate(String tablename, List<Column> columnList) {
+        List<String> updateKeys = new ArrayList<>();
+        List<String> updateKeyExpressions = new ArrayList<>();
+
+        List<Column> all = getAllColumns(columnList);
+
+        for (Column column : all) {
+            if (column.updateKey) {
+                updateKeys.add(column.dbColumnName);
+                updateKeyExpressions.add(column.sqlStmt);
+            }
+        }
+
+        return generateQuerySQL4InsertOrUpdate(tablename, updateKeys, updateKeyExpressions);
+    }
+
+    private List<Column> getAllColumns(List<Column> columnList) {
+        List<Column> result = new ArrayList<Column>();
+        for (Column column : columnList) {
+            if (column.replacements != null && !column.replacements.isEmpty()) {
+                for (Column replacement : column.replacements) {
+                    result.add(replacement);
+                }
+            } else {
+                result.add(column);
+            }
+        }
+
+        return result;
     }
 
 }

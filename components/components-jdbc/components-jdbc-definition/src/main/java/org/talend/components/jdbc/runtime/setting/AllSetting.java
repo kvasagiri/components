@@ -13,6 +13,7 @@
 package org.talend.components.jdbc.runtime.setting;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -511,7 +512,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public List<String> getReferenceColumns4AdditionalParameters() {
-        return referenceColumns4AdditionalParameters;
+        return referenceColumns4AdditionalParameters == null ? new ArrayList<String>() : referenceColumns4AdditionalParameters;
     }
 
     public void setReferenceColumns4AdditionalParameters(List<String> referenceColumns4AdditionalParameters) {
@@ -558,8 +559,8 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         this.insertable4FieldOption = insertable4FieldOption;
     }
 
-    public Boolean getEnableFieldOptions() {
-        return enableFieldOptions;
+    public boolean getEnableFieldOptions() {
+        return enableFieldOptions != null && enableFieldOptions;
     }
 
     public void setEnableFieldOptions(Boolean enableFieldOptions) {
