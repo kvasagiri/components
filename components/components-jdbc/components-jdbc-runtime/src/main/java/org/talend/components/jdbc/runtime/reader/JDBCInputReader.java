@@ -28,6 +28,7 @@ import org.talend.components.api.component.runtime.Reader;
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
+import org.talend.components.common.avro.JDBCResultSetIndexedRecordConverter;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.JdbcComponentErrorsCode;
@@ -114,10 +115,17 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
         return querySchema;
     }
 
-    private IndexedRecordConverter<ResultSet, IndexedRecord> getConverter() throws IOException, SQLException {
+    private IndexedRecordConverter<ResultSet, IndexedRecord> getConverter(ResultSet resultSet) throws IOException, SQLException {
         if (converter == null) {
             converter = source.getConverter();
             converter.setSchema(getSchema());
+            
+            int sizeInResultSet = resultSet.getMetaData().getColumnCount();
+            
+            if(converter instanceof JDBCResultSetIndexedRecordConverter) {
+                ((JDBCResultSetIndexedRecordConverter) converter).setSizeInResultSet(sizeInResultSet);
+            }
+            
         }
         return converter;
     }
@@ -168,7 +176,7 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
 
         if (haveNext) {
             result.totalCount++;
-            currentRecord = getConverter().convertToAvro(resultSet);
+            currentRecord = getConverter(resultSet).convertToAvro(resultSet);
         }
 
         return haveNext;
