@@ -106,7 +106,11 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public List<String> getDriverPaths() {
-        return driverPaths;
+        return emptyListIfNull(driverPaths);
+    }
+    
+    private List emptyListIfNull(List list) {
+        return list == null ? new ArrayList() : list;
     }
 
     // we have a bug in the upriver from tup part or tcomp, a table widget may return a string value but we expect a list in fact,
@@ -289,7 +293,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public List<Integer> getIndexs() {
-        return indexs;
+        return emptyListIfNull(indexs);
     }
 
     public void setIndexs(Object indexs) {
@@ -297,7 +301,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public List<String> getTypes() {
-        return types;
+        return emptyListIfNull(types);
     }
 
     public void setTypes(Object types) {
@@ -305,7 +309,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public List<Object> getValues() {
-        return values;
+        return emptyListIfNull(values);
     }
 
     public void setValues(Object values) {
@@ -380,7 +384,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public List<String> getSchemaColumns() {
-        return schemaColumns;
+        return emptyListIfNull(schemaColumns);
     }
 
     public void setSchemaColumns(Object schemaColumns) {
@@ -388,7 +392,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public List<SPParameterTable.ParameterType> getParameterTypes() {
-        return parameterTypes;
+        return emptyListIfNull(parameterTypes);
     }
 
     public void setParameterTypes(Object parameterTypes) {
@@ -504,7 +508,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     private List<Boolean> insertable4FieldOption;
 
     public List<String> getNewDBColumnNames4AdditionalParameters() {
-        return newDBColumnNames4AdditionalParameters;
+        return emptyListIfNull(newDBColumnNames4AdditionalParameters);
     }
 
     public void setNewDBColumnNames4AdditionalParameters(List<String> newDBColumnNames4AdditionalParameters) {
@@ -512,7 +516,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public List<String> getSqlExpressions4AdditionalParameters() {
-        return sqlExpressions4AdditionalParameters;
+        return emptyListIfNull(sqlExpressions4AdditionalParameters);
     }
 
     public void setSqlExpressions4AdditionalParameters(List<String> sqlExpressions4AdditionalParameters) {
@@ -520,7 +524,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public List<AdditionalColumnsTable.Position> getPositions4AdditionalParameters() {
-        return positions4AdditionalParameters;
+        return emptyListIfNull(positions4AdditionalParameters);
     }
 
     public void setPositions4AdditionalParameters(List<AdditionalColumnsTable.Position> positions4AdditionalParameters) {
@@ -528,7 +532,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public List<String> getReferenceColumns4AdditionalParameters() {
-        return referenceColumns4AdditionalParameters;
+        return emptyListIfNull(referenceColumns4AdditionalParameters);
     }
 
     public void setReferenceColumns4AdditionalParameters(List<String> referenceColumns4AdditionalParameters) {
@@ -536,7 +540,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public List<String> getSchemaColumns4FieldOption() {
-        return schemaColumns4FieldOption;
+        return emptyListIfNull(schemaColumns4FieldOption);
     }
 
     public void setSchemaColumns4FieldOption(List<String> schemaColumns4FieldOption) {
@@ -544,7 +548,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public List<Boolean> getUpdateKey4FieldOption() {
-        return updateKey4FieldOption;
+        return emptyListIfNull(updateKey4FieldOption);
     }
 
     public void setUpdateKey4FieldOption(List<Boolean> updateKey4FieldOption) {
@@ -552,7 +556,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public List<Boolean> getDeletionKey4FieldOption() {
-        return deletionKey4FieldOption;
+        return emptyListIfNull(deletionKey4FieldOption);
     }
 
     public void setDeletionKey4FieldOption(List<Boolean> deletionKey4FieldOption) {
@@ -560,7 +564,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public List<Boolean> getUpdatable4FieldOption() {
-        return updatable4FieldOption;
+        return emptyListIfNull(updatable4FieldOption);
     }
 
     public void setUpdatable4FieldOption(List<Boolean> updatable4FieldOption) {
@@ -568,7 +572,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public List<Boolean> getInsertable4FieldOption() {
-        return insertable4FieldOption;
+        return emptyListIfNull(insertable4FieldOption);
     }
 
     public void setInsertable4FieldOption(List<Boolean> insertable4FieldOption) {
