@@ -61,7 +61,7 @@ public class JDBCSPIndexedRecordCreator {
             outputFieldLocation2AvroConverter.put(outputField.pos(), JDBCAvroRegistry.get().getConverter(outputField, 1));
         }
 
-        List<String> parameterColumns = setting.getSchemaColumns();
+        List<String> parameterColumns = setting.getSchemaColumns4SPParameters();
         List<SPParameterTable.ParameterType> pts = setting.getParameterTypes();
         if (pts != null) {
             int i = setting.isFunction() ? 2 : 1;

@@ -110,7 +110,7 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
                 cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(outputField));
             }
 
-            List<String> columns = setting.getSchemaColumns();
+            List<String> columns = setting.getSchemaColumns4SPParameters();
             List<SPParameterTable.ParameterType> pts = setting.getParameterTypes();
             if (pts != null) {
                 int i = setting.isFunction() ? 2 : 1;

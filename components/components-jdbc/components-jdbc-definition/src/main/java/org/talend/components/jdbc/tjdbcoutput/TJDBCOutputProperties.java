@@ -276,10 +276,25 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
         setting.setClearDataInTable(this.clearDataInTable.getValue());
         setting.setDieOnError(this.dieOnError.getValue());
 
+        setting.setUseAutoCommit(this.useDataSource.getValue());
+        setting.setDataSource(this.dataSource.getValue());
+
         setting.setCommitEvery(this.commitEvery.getValue());
         setting.setDebug(this.debug.getValue());
         setting.setUseBatch(this.useBatch.getValue());
         setting.setBatchSize(this.batchSize.getValue());
+
+        setting.setNewDBColumnNames4AdditionalParameters(this.additionalColumns.names.getValue());
+        setting.setSqlExpressions4AdditionalParameters(this.additionalColumns.sqlExpressions.getValue());
+        setting.setPositions4AdditionalParameters(this.additionalColumns.positions.getValue());
+        setting.setReferenceColumns4AdditionalParameters(this.additionalColumns.referenceColumns.getValue());
+
+        setting.setEnableFieldOptions(this.enableFieldOptions.getValue());
+        setting.setSchemaColumns4FieldOption(this.fieldOptions.schemaColumns.getValue());
+        setting.setInsertable4FieldOption(this.fieldOptions.insertable.getValue());
+        setting.setUpdatable4FieldOption(this.fieldOptions.updatable.getValue());
+        setting.setUpdateKey4FieldOption(this.fieldOptions.updateKey.getValue());
+        setting.setDeletionKey4FieldOption(this.fieldOptions.deletionKey.getValue());
 
         return setting;
     }

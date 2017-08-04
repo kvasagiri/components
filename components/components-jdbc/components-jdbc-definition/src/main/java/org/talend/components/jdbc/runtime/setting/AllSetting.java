@@ -14,7 +14,6 @@ package org.talend.components.jdbc.runtime.setting;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +29,8 @@ import org.talend.components.jdbc.tjdbcoutput.TJDBCOutputProperties.DataAction;
  * All the runtime setting for JDBC components
  *
  */
-// Maybe we need to split it?
+// Maybe we need to split it? maybe need to remove this and use properties directly as it's too verbose and no need to keep away
+// for runtime class and properties class, that's TODO
 public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
 
     private static final long serialVersionUID = 8998606157752865371L;
@@ -108,7 +108,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     public List<String> getDriverPaths() {
         return emptyListIfNull(driverPaths);
     }
-    
+
     private List emptyListIfNull(List list) {
         return list == null ? new ArrayList() : list;
     }
@@ -160,8 +160,8 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         this.tablename = tablename;
     }
 
-    public Boolean getUseCursor() {
-        return useCursor && cursor != null;
+    public boolean getUseCursor() {
+        return useCursor != null && useCursor;
     }
 
     public void setUseCursor(Boolean useCursor) {
@@ -180,16 +180,16 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         this.trimStringOrCharColumns = trimStringOrCharColumns;
     }
 
-    public Boolean getUseAutoCommit() {
-        return useAutoCommit;
+    public boolean getUseAutoCommit() {
+        return useAutoCommit != null && useAutoCommit;
     }
 
     public void setUseAutoCommit(Boolean useAutoCommit) {
         this.useAutoCommit = useAutoCommit;
     }
 
-    public Boolean getAutocommit() {
-        return autocommit;
+    public boolean getAutocommit() {
+        return autocommit != null && autocommit;
     }
 
     public void setAutocommit(Boolean autocommit) {
@@ -212,16 +212,16 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         this.dataAction = dataAction;
     }
 
-    public Boolean getClearDataInTable() {
-        return clearDataInTable;
+    public boolean getClearDataInTable() {
+        return clearDataInTable != null && clearDataInTable;
     }
 
     public void setClearDataInTable(Boolean clearDataInTable) {
         this.clearDataInTable = clearDataInTable;
     }
 
-    public Boolean getDieOnError() {
-        return dieOnError;
+    public boolean getDieOnError() {
+        return dieOnError != null && dieOnError;
     }
 
     public void setDieOnError(Boolean dieOnError) {
@@ -236,16 +236,16 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         this.commitEvery = commitEvery;
     }
 
-    public Boolean getDebug() {
-        return debug;
+    public boolean getDebug() {
+        return debug != null && debug;
     }
 
     public void setDebug(Boolean debug) {
         this.debug = debug;
     }
 
-    public Boolean getUseBatch() {
-        return useBatch;
+    public boolean getUseBatch() {
+        return useBatch != null && debug;
     }
 
     public void setUseBatch(Boolean useBatch) {
@@ -260,16 +260,16 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         this.batchSize = batchSize;
     }
 
-    public Boolean getCloseConnection() {
-        return closeConnection;
+    public boolean getCloseConnection() {
+        return closeConnection != null && closeConnection;
     }
 
     public void setCloseConnection(Boolean closeConnection) {
         this.closeConnection = closeConnection;
     }
 
-    public Boolean getPropagateQueryResultSet() {
-        return propagateQueryResultSet;
+    public boolean getPropagateQueryResultSet() {
+        return propagateQueryResultSet != null && propagateQueryResultSet;
     }
 
     public void setPropagateQueryResultSet(Boolean propagateQueryResultSet) {
@@ -284,8 +284,8 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         this.useColumn = useColumn;
     }
 
-    public Boolean getUsePreparedStatement() {
-        return usePreparedStatement;
+    public boolean getUsePreparedStatement() {
+        return usePreparedStatement != null && usePreparedStatement;
     }
 
     public void setUsePreparedStatement(Boolean usePreparedStatement) {
@@ -334,7 +334,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
 
     @Override
     public boolean trim() {
-        return trimStringOrCharColumns;
+        return trimStringOrCharColumns != null && trimStringOrCharColumns;
     }
 
     // TODO this is a temp fix, need to remove it after the CommonUtils.getMainSchemaFromOutputConnector can work for datastore
@@ -353,17 +353,17 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         this.readOnly = readOnly;
     }
 
-    public Boolean isReadOnly() {
-        return readOnly;
+    public boolean isReadOnly() {
+        return readOnly != null && readOnly;
     }
 
     private String spName;
 
-    private boolean isFunction;
+    private Boolean isFunction;
 
     private String returnResultIn;
 
-    private List<String> schemaColumns;
+    private List<String> schemaColumns4SPParameters;
 
     private List<SPParameterTable.ParameterType> parameterTypes;
 
@@ -383,12 +383,12 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         this.returnResultIn = returnResultIn;
     }
 
-    public List<String> getSchemaColumns() {
-        return emptyListIfNull(schemaColumns);
+    public List<String> getSchemaColumns4SPParameters() {
+        return emptyListIfNull(schemaColumns4SPParameters);
     }
 
-    public void setSchemaColumns(Object schemaColumns) {
-        this.schemaColumns = wrap(schemaColumns);
+    public void setSchemaColumns4SPParameters(Object schemaColumns) {
+        this.schemaColumns4SPParameters = wrap(schemaColumns);
     }
 
     public List<SPParameterTable.ParameterType> getParameterTypes() {
@@ -400,7 +400,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public boolean isFunction() {
-        return isFunction;
+        return isFunction != null && isFunction;
     }
 
     public void setIsFunction(boolean isFunction) {
@@ -415,8 +415,8 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
 
     private String dataSource;
 
-    public Boolean getShareConnection() {
-        return shareConnection;
+    public boolean getShareConnection() {
+        return shareConnection != null && shareConnection;
     }
 
     public void setShareConnection(Boolean shareConnection) {
@@ -431,8 +431,8 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         this.sharedConnectionName = sharedConnectionName;
     }
 
-    public Boolean getUseDataSource() {
-        return useDataSource;
+    public boolean getUseDataSource() {
+        return useDataSource != null && useDataSource;
     }
 
     public void setUseDataSource(Boolean useDataSource) {
@@ -451,8 +451,8 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
 
     private DBTypes dbMapping;
 
-    public Boolean getEnableDBMapping() {
-        return enableDBMapping;
+    public boolean getEnableDBMapping() {
+        return enableDBMapping != null && enableDBMapping;
     }
 
     public void setEnableDBMapping(Boolean enableDBMapping) {
@@ -469,13 +469,28 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
 
     private Map<Integer, Boolean> trimMap;
 
-    public void setTrims(Object trims) {
-        List<Boolean> ts = wrap(trims);
-        int index = 0;
-        for (Boolean trim : ts) {
-            Map<Integer, Boolean> trimMap = new HashMap<>();
-            trimMap.put(++index, trim);
-        }
+    private List<Boolean> trims;
+
+    private List<String> trimColumns;
+
+    public List<Boolean> getTrims() {
+        return emptyListIfNull(trims);
+    }
+
+    public void setTrims(List<Boolean> trims) {
+        this.trims = wrap(trims);
+    }
+
+    public List<String> getTrimColumns() {
+        return emptyListIfNull(trimColumns);
+    }
+
+    public void setTrimColumns(List<String> trimColumns) {
+        this.trimColumns = wrap(trimColumns);
+    }
+
+    public void setTrimMap(Map<Integer, Boolean> trimMap) {
+        this.trimMap = trimMap;
     }
 
     @Override

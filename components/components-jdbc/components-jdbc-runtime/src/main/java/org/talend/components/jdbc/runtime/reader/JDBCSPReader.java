@@ -101,7 +101,7 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
                 cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(field));
             }
 
-            List<String> columns = setting.getSchemaColumns();
+            List<String> columns = setting.getSchemaColumns4SPParameters();
             List<SPParameterTable.ParameterType> pts = setting.getParameterTypes();
             if (pts != null) {
                 int i = setting.isFunction() ? 2 : 1;

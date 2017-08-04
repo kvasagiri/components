@@ -273,16 +273,14 @@ public class TJDBCRowProperties extends FixedConnectorsComponentProperties imple
 
         setting.setPropagateQueryResultSet(this.propagateQueryResultSet.getValue());
         setting.setUseColumn(this.useColumn.getValue());
+
         setting.setUsePreparedStatement(this.usePreparedStatement.getValue());
         setting.setIndexs(this.preparedStatementTable.indexs.getValue());
-        
-        //TODO some bug exists in the upriver, we have to write like this now
-        Object typeValue = this.preparedStatementTable.types.getValue();
-        if(typeValue!=null && typeValue instanceof List) {
-            setting.setTypes((List<String>)typeValue);
-        }
-        
+        setting.setTypes(this.preparedStatementTable.types.getValue());
         setting.setValues(this.preparedStatementTable.values.getValue());
+
+        setting.setUseDataSource(this.useDataSource.getValue());
+        setting.setDataSource(this.dataSource.getValue());
 
         return setting;
     }

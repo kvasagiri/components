@@ -15,7 +15,6 @@ package org.talend.components.jdbc.tjdbcsp;
 import static org.talend.daikon.properties.presentation.Widget.widget;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.avro.Schema;
@@ -175,15 +174,11 @@ public class TJDBCSPProperties extends FixedConnectorsComponentProperties implem
         setting.setIsFunction(isFunction.getValue());
         setting.setReturnResultIn(returnResultIn.getValue());
 
-        Object v1 = spParameterTable.schemaColumns.getValue();
-        if (v1 != null && v1 instanceof List) {
-            setting.setSchemaColumns(spParameterTable.schemaColumns.getValue());
-        }
+        setting.setSchemaColumns4SPParameters(spParameterTable.schemaColumns.getValue());
+        setting.setParameterTypes(spParameterTable.parameterTypes.getValue());
 
-        Object v2 = spParameterTable.parameterTypes.getValue();
-        if (v2 != null && v2 instanceof List) {
-            setting.setParameterTypes(spParameterTable.parameterTypes.getValue());
-        }
+        setting.setUseDataSource(this.useDataSource.getValue());
+        setting.setDataSource(this.dataSource.getValue());
 
         return setting;
     }
