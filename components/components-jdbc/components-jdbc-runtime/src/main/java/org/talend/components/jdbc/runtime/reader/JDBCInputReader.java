@@ -18,10 +18,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.IndexedRecord;
 import org.talend.components.api.component.runtime.AbstractBoundedReader;
 import org.talend.components.api.component.runtime.Reader;
@@ -107,8 +110,36 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
             }
 
             if (AvroUtils.isIncludeAllFields(querySchema)) {
+                List<String> trimColumnLabels = setting.getTrimColumns();
+                List<Boolean> trims = setting.getTrims();
+                String dynamicColumnLabel = querySchema.getProp(ComponentConstants.TALEND6_DYNAMIC_COLUMN_NAME);
+                int dynamicColumnPosition = Integer
+                        .valueOf(querySchema.getProp(ComponentConstants.TALEND6_DYNAMIC_COLUMN_POSITION));
+                Map<Integer, Boolean> trimMap = new HashMap<>();
+
+                boolean defaultTrim = trims.get(dynamicColumnPosition);
+
                 Schema runtimeSchema4ResultSet = source.getAvroRegistry().inferSchema(resultSet.getMetaData());
                 querySchema = CommonUtils.mergeRuntimeSchema2DesignSchema4Dynamic(querySchema, runtimeSchema4ResultSet);
+
+                int i = 0;
+                for (Field field : querySchema.getFields()) {
+                    i++;
+                    int j = 0;
+                    trimMap.put(i, defaultTrim);
+
+                    for (String trimColumnLabel : trimColumnLabels) {
+                        if (trimColumnLabel.equals(field.name())) {
+                            Boolean trim = trims.get(j);
+                            trimMap.put(i, trim);
+                            break;
+                        }
+
+                        j++;
+                    }
+                }
+
+                setting.setTrimMap(trimMap);
             }
         }
 
@@ -119,13 +150,13 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
         if (converter == null) {
             converter = source.getConverter();
             converter.setSchema(getSchema());
-            
+
             int sizeInResultSet = resultSet.getMetaData().getColumnCount();
-            
-            if(converter instanceof JDBCResultSetIndexedRecordConverter) {
+
+            if (converter instanceof JDBCResultSetIndexedRecordConverter) {
                 ((JDBCResultSetIndexedRecordConverter) converter).setSizeInResultSet(sizeInResultSet);
             }
-            
+
         }
         return converter;
     }
