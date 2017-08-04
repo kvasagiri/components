@@ -149,7 +149,7 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
                 statement = conn.createStatement();
             }
 
-            if (setting.getUseCursor() != null && setting.getUseCursor()) {
+            if (setting.getUseCursor()) {
                 statement.setFetchSize(setting.getCursor());
             }
 
