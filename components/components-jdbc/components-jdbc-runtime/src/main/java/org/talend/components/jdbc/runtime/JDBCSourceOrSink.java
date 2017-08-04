@@ -135,7 +135,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
     public Schema getEndpointSchema(RuntimeContainer runtime, String tableName) throws IOException {
         try (Connection conn = connect(runtime);
                 ResultSet resultset = conn.getMetaData().getColumns(null, null, tableName, null)) {
-            return JDBCAvroRegistryString.get().inferSchema(resultset);
+            return avroRegistry.inferSchema(resultset);
         } catch (Exception e) {
             throw new ComponentException(e);
         }
@@ -146,7 +146,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
                 Statement statement = conn.createStatement();
                 ResultSet resultset = statement.executeQuery(query)) {
             ResultSetMetaData metadata = resultset.getMetaData();
-            return JDBCAvroRegistryString.get().inferSchema(metadata);
+            return avroRegistry.inferSchema(metadata);
         } catch (SQLSyntaxErrorException sqlSyntaxException) {
             throw new ComponentException(JdbcComponentErrorsCode.SQL_SYNTAX_ERROR, sqlSyntaxException);
         } catch (SQLException e) {
