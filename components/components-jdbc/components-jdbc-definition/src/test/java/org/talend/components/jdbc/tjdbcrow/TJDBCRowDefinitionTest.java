@@ -106,11 +106,11 @@ public class TJDBCRowDefinitionTest {
         assertEquals("java.lang.String", result[0].getType());
 
         assertNotNull(result[1]);
-        assertEquals("Number of line", result[1].getDisplayName());
-        assertEquals("Property: totalRecordCount", result[1].toString());
-        assertEquals("totalRecordCount", result[1].getName());
+        assertEquals("Query", result[1].getDisplayName());
+        assertEquals("Property: query", result[1].toString());
+        assertEquals("query", result[1].getName());
         assertEquals(null, result[1].getValue());
-        assertEquals("java.lang.Integer", result[1].getType());
+        assertEquals("java.lang.String", result[1].getType());
     }
 
     /**

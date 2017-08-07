@@ -26,8 +26,7 @@ import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
-public class TJDBCRollbackProperties extends ComponentPropertiesImpl
-        implements RuntimeSettingProvider {
+public class TJDBCRollbackProperties extends ComponentPropertiesImpl implements RuntimeSettingProvider {
 
     public TJDBCRollbackProperties(String name) {
         super(name);
@@ -48,6 +47,11 @@ public class TJDBCRollbackProperties extends ComponentPropertiesImpl
         Widget compListWidget = widget(referencedComponent).setWidgetType(Widget.COMPONENT_REFERENCE_WIDGET_TYPE);
         mainForm.addRow(compListWidget);
         mainForm.addRow(closeConnection);
+    }
+
+    @Override
+    public void setupProperties() {
+        closeConnection.setValue(true);
     }
 
     @Override

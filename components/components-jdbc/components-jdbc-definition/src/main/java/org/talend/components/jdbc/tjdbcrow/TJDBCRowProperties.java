@@ -138,6 +138,7 @@ public class TJDBCRowProperties extends FixedConnectorsComponentProperties imple
         super.setupProperties();
 
         commitEvery.setValue(10000);
+        sql.setValue("select id, name from employee");
         tableSelection.setConnection(this);
     }
 
