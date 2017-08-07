@@ -24,13 +24,13 @@ public class FieldOptionsTable extends ComponentPropertiesImpl {
 
     public Property<List<String>> schemaColumns = newProperty(LIST_STRING_TYPE, "schemaColumns");
 
-    public Property<List<Boolean>> updateKey = newProperty(LIST_BOOLEAN_TYPE, "trim");
+    public Property<List<Boolean>> updateKey = newProperty(LIST_BOOLEAN_TYPE, "updateKey");
 
-    public Property<List<Boolean>> deletionKey = newProperty(LIST_BOOLEAN_TYPE, "trim");
+    public Property<List<Boolean>> deletionKey = newProperty(LIST_BOOLEAN_TYPE, "deletionKey");
 
-    public Property<List<Boolean>> updatable = newProperty(LIST_BOOLEAN_TYPE, "trim");
+    public Property<List<Boolean>> updatable = newProperty(LIST_BOOLEAN_TYPE, "updatable");
 
-    public Property<List<Boolean>> insertable = newProperty(LIST_BOOLEAN_TYPE, "trim");
+    public Property<List<Boolean>> insertable = newProperty(LIST_BOOLEAN_TYPE, "insertable");
 
     @Override
     public void setupLayout() {
