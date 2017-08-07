@@ -49,7 +49,7 @@ public class JDBCDatasetTestIT {
         Schema schema = dataset.main.schema.getValue();
 
         Assert.assertNotNull(schema);
-        DBTestUtils.testMetadata(schema.getFields());
+        DBTestUtils.testMetadata(schema.getFields(), true);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class JDBCDatasetTestIT {
         Schema schema = runtime.getSchema();
 
         Assert.assertNotNull(schema);
-        DBTestUtils.testMetadata(schema.getFields());
+        DBTestUtils.testMetadata(schema.getFields(), true);
     }
 
     @Test
