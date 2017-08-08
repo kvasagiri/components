@@ -99,7 +99,7 @@ public class JdbcRowTestIT {
                 DBTestUtils.createTestSchema(), definition1, properties1);
 
         assertThat(records, hasSize(4));
-        Assert.assertEquals("4", records.get(3).get(0));
+        Assert.assertEquals(new Integer(4), records.get(3).get(0));
         Assert.assertEquals("momo", records.get(3).get(1));
     }
 
@@ -134,7 +134,7 @@ public class JdbcRowTestIT {
                 DBTestUtils.createTestSchema(), definition1, properties1);
 
         assertThat(records, hasSize(4));
-        Assert.assertEquals("4", records.get(3).get(0));
+        Assert.assertEquals(new Integer(4), records.get(3).get(0));
         Assert.assertEquals("momo", records.get(3).get(1));
     }
 
@@ -382,9 +382,9 @@ public class JdbcRowTestIT {
                 properties1);
 
         assertThat(records, hasSize(5));
-        Assert.assertEquals("4", records.get(3).get(0));
+        Assert.assertEquals(new Integer(4), records.get(3).get(0));
         Assert.assertEquals("momo", records.get(3).get(1));
-        Assert.assertEquals("4", records.get(4).get(0));
+        Assert.assertEquals(new Integer(4), records.get(4).get(0));
         Assert.assertEquals("momo", records.get(4).get(1));
     }
 
