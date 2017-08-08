@@ -54,19 +54,7 @@ public class CommonUtils {
      * @return
      */
     public static Schema getMainSchemaFromOutputConnector(ComponentProperties properties) {
-        Set<? extends Connector> outputConnectors = properties.getPossibleConnectors(true);
-
-        if (outputConnectors == null) {
-            return null;
-        }
-
-        for (Connector connector : outputConnectors) {
-            if (Connector.MAIN_NAME.equals(connector.getName())) {
-                return properties.getSchema(connector, true);
-            }
-        }
-
-        return null;
+        return getOutputSchema(properties);
     }
 
     /**

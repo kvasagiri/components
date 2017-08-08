@@ -112,15 +112,14 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
             if (AvroUtils.isIncludeAllFields(querySchema)) {
                 List<String> trimColumnLabels = setting.getTrimColumns();
                 List<Boolean> trims = setting.getTrims();
-                String dynamicColumnLabel = querySchema.getProp(ComponentConstants.TALEND6_DYNAMIC_COLUMN_NAME);
                 int dynamicColumnPosition = Integer
                         .valueOf(querySchema.getProp(ComponentConstants.TALEND6_DYNAMIC_COLUMN_POSITION));
-                Map<Integer, Boolean> trimMap = new HashMap<>();
-
-                boolean defaultTrim = trims.get(dynamicColumnPosition);
 
                 Schema runtimeSchema4ResultSet = source.getAvroRegistry().inferSchema(resultSet.getMetaData());
                 querySchema = CommonUtils.mergeRuntimeSchema2DesignSchema4Dynamic(querySchema, runtimeSchema4ResultSet);
+
+                Map<Integer, Boolean> trimMap = new HashMap<>();
+                boolean defaultTrim = trims.get(dynamicColumnPosition);
 
                 int i = 0;
                 for (Field field : querySchema.getFields()) {
