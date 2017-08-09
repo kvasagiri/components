@@ -14,9 +14,10 @@ package org.talend.components.jdbc.runtime.writer;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.avro.Schema;
-import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.IndexedRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +25,8 @@ import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
-import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.runtime.setting.JDBCSQLBuilder;
-import org.talend.components.jdbc.runtime.type.JDBCMapping;
+import org.talend.components.jdbc.runtime.type.RowWriter;
 
 public class JDBCOutputInsertWriter extends JDBCOutputWriter {
 
@@ -50,6 +50,25 @@ public class JDBCOutputInsertWriter extends JDBCOutputWriter {
         }
     }
 
+    private RowWriter rowWriter = null;
+
+    private void initRowWriterIfNot(List<JDBCSQLBuilder.Column> columnList, Schema inputSchema, Schema componentSchema) {
+        if (rowWriter == null) {
+            List<JDBCSQLBuilder.Column> columnList4Statement = new ArrayList<>();
+            for (JDBCSQLBuilder.Column column : columnList) {
+                if (column.addCol || (column.isReplaced())) {
+                    continue;
+                }
+
+                if (column.insertable) {
+                    columnList4Statement.add(column);
+                }
+            }
+
+            rowWriter = new RowWriter(columnList4Statement, inputSchema, componentSchema, statement);
+        }
+    }
+
     @Override
     public void write(Object datum) throws IOException {
         super.write(datum);
@@ -58,21 +77,10 @@ public class JDBCOutputInsertWriter extends JDBCOutputWriter {
 
         Schema inputSchema = input.getSchema();
 
+        initRowWriterIfNot(columnList, inputSchema, componentSchema);
+
         try {
-            int index = 0;
-            for (JDBCSQLBuilder.Column column : columnList) {
-                if (column.addCol || (column.isReplaced())) {
-                    continue;
-                }
-
-                if (!column.insertable) {
-                    continue;
-                }
-
-                // TODO low preformance
-                Field f = CommonUtils.getField(inputSchema, column.columnLabel);
-                JDBCMapping.setValue(++index, statement, f, input.get(f.pos()));
-            }
+            rowWriter.write(input);
         } catch (SQLException e) {
             throw new ComponentException(e);
         }
