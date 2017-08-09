@@ -98,6 +98,8 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
 
     protected Schema componentSchema;
 
+    protected Schema rejectSchema;
+
     public JDBCOutputWriter(WriteOperation<Result> writeOperation, RuntimeContainer runtime) {
         this.writeOperation = writeOperation;
         this.runtime = runtime;
@@ -127,6 +129,7 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
     @Override
     public void open(String uId) throws IOException {
         componentSchema = CommonUtils.getMainSchemaFromInputConnector((ComponentProperties) properties);
+        rejectSchema = CommonUtils.getRejectSchema((ComponentProperties) properties);
         columnList = JDBCSQLBuilder.getInstance().createColumnList(setting, componentSchema);
 
         if (!setting.getClearDataInTable()) {
@@ -214,27 +217,27 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
         successfulWrites.add(input);
     }
 
+    // TODO low performance maybe as in loop
     protected void handleReject(IndexedRecord input, SQLException e) throws IOException {
         if (useBatch) {
             return;
         }
 
         rejectCount++;
-        Schema outSchema = CommonUtils.getRejectSchema((ComponentProperties) properties);
-        IndexedRecord reject = new GenericData.Record(outSchema);
-        for (Schema.Field outField : reject.getSchema().getFields()) {
-            Object outValue = null;
-            Schema.Field inField = input.getSchema().getField(outField.name());
+        IndexedRecord reject = new GenericData.Record(rejectSchema);
+        for (Schema.Field rejectField : rejectSchema.getFields()) {
+            Object rejectValue = null;
+            Schema.Field inField = input.getSchema().getField(rejectField.name());
 
             if (inField != null) {
-                outValue = input.get(inField.pos());
-            } else if ("errorCode".equals(outField.name())) {
-                outValue = e.getSQLState();
-            } else if ("errorMessage".equals(outField.name())) {
-                outValue = e.getMessage();
+                rejectValue = input.get(inField.pos());
+            } else if ("errorCode".equals(rejectField.name())) {
+                rejectValue = e.getSQLState();
+            } else if ("errorMessage".equals(rejectField.name())) {
+                rejectValue = e.getMessage() + " - Line: " + result.totalCount;
             }
 
-            reject.put(outField.pos(), outValue);
+            reject.put(rejectField.pos(), rejectValue);
         }
         rejectedWrites.add(reject);
     }

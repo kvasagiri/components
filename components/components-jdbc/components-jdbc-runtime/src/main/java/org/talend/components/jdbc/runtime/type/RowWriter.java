@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.avro.Schema;
@@ -142,8 +143,11 @@ public class RowWriter {
             if (inputValue == null) {
                 statement.setNull(statementIndex, java.sql.Types.TIMESTAMP);
             } else {
-                // TODO check if it always be Long value for date type
-                statement.setTimestamp(statementIndex, new Timestamp((long) inputValue));
+                if (inputValue instanceof Date) {
+                    statement.setTimestamp(statementIndex, new Timestamp(((Date) inputValue).getTime()));
+                } else {
+                    statement.setTimestamp(statementIndex, new Timestamp((long) inputValue));
+                }
             }
         }
 
@@ -176,7 +180,7 @@ public class RowWriter {
         public void write(IndexedRecord input) throws SQLException {
             Object inputValue = input.get(inputValueLocation);
             if (inputValue == null) {
-                statement.setNull(statementIndex, java.sql.Types.BIGINT);
+                statement.setNull(statementIndex, java.sql.Types.INTEGER);
             } else {
                 statement.setLong(statementIndex, (long) inputValue);
             }
@@ -244,7 +248,7 @@ public class RowWriter {
         public void write(IndexedRecord input) throws SQLException {
             Object inputValue = input.get(inputValueLocation);
             if (inputValue == null) {
-                statement.setNull(statementIndex, java.sql.Types.SMALLINT);
+                statement.setNull(statementIndex, java.sql.Types.INTEGER);
             } else {
                 statement.setShort(statementIndex, (short) inputValue);
             }
@@ -261,7 +265,7 @@ public class RowWriter {
         public void write(IndexedRecord input) throws SQLException {
             Object inputValue = input.get(inputValueLocation);
             if (inputValue == null) {
-                statement.setNull(statementIndex, java.sql.Types.SMALLINT);
+                statement.setNull(statementIndex, java.sql.Types.INTEGER);
             } else {
                 statement.setByte(statementIndex, (byte) inputValue);
             }
