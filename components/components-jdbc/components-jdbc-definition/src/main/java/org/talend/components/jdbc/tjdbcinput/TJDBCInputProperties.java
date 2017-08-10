@@ -212,7 +212,7 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
         refreshLayout(getForm(Form.ADVANCED));
     }
 
-    public void afterDbMapping() {
+    public void afterEnableDBMapping() {
         refreshLayout(getForm(Form.ADVANCED));
     }
 
