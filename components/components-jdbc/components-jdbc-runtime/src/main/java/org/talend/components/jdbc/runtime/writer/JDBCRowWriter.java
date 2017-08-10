@@ -35,6 +35,7 @@ import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.common.avro.JDBCAvroRegistry;
 import org.talend.components.jdbc.CommonUtils;
+import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.JDBCTemplate;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.runtime.JDBCRowSink;
@@ -295,7 +296,7 @@ public class JDBCRowWriter implements WriterWithFeedback<Result, IndexedRecord, 
             } else if ("errorCode".equals(outField.name())) {
                 outValue = e.getSQLState();
             } else if ("errorMessage".equals(outField.name())) {
-                outValue = e.getMessage();
+                outValue = e.getMessage() + " - Line: " + result.totalCount;
             }
 
             reject.put(outField.pos(), outValue);
@@ -328,11 +329,13 @@ public class JDBCRowWriter implements WriterWithFeedback<Result, IndexedRecord, 
     }
 
     private void constructResult() {
-        // TODO need to adjust the key
         if (runtime != null) {
-            runtime.setComponentData(runtime.getCurrentComponentId(), "NB_LINE_DELETED", deleteCount);
-            runtime.setComponentData(runtime.getCurrentComponentId(), "NB_LINE_INSERTED", insertCount);
-            runtime.setComponentData(runtime.getCurrentComponentId(), "NB_LINE_UPDATED", updateCount);
+            runtime.setComponentData(runtime.getCurrentComponentId(),
+                    CommonUtils.getStudioNameFromProperty(ComponentConstants.RETURN_DELETE_RECORD_COUNT), deleteCount);
+            runtime.setComponentData(runtime.getCurrentComponentId(),
+                    CommonUtils.getStudioNameFromProperty(ComponentConstants.RETURN_INSERT_RECORD_COUNT), insertCount);
+            runtime.setComponentData(runtime.getCurrentComponentId(),
+                    CommonUtils.getStudioNameFromProperty(ComponentConstants.RETURN_UPDATE_RECORD_COUNT), updateCount);
         }
 
         result.successCount = successCount;

@@ -32,6 +32,7 @@ import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.exception.DataRejectException;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.CommonUtils;
+import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.JDBCTemplate;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.runtime.JDBCRowSource;
@@ -77,7 +78,8 @@ public class JDBCRowReader extends AbstractBoundedReader<IndexedRecord> {
     public boolean start() throws IOException {
         // TODO need to adjust the key
         if (container != null) {
-            container.setComponentData(container.getCurrentComponentId(), "QUERY", setting.getSql());
+            container.setComponentData(container.getCurrentComponentId(),
+                    CommonUtils.getStudioNameFromProperty(ComponentConstants.RETURN_QUERY), setting.getSql());
         }
 
         result = new Result();

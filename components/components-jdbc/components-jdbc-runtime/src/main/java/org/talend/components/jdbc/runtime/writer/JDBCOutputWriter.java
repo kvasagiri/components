@@ -35,6 +35,7 @@ import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.common.avro.JDBCAvroRegistry;
 import org.talend.components.jdbc.CommonUtils;
+import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.runtime.JDBCSink;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
@@ -330,11 +331,13 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
     }
 
     protected void constructResult() {
-        // TODO need to adjust the key
         if (runtime != null) {
-            runtime.setComponentData(runtime.getCurrentComponentId(), "NB_LINE_DELETED", deleteCount);
-            runtime.setComponentData(runtime.getCurrentComponentId(), "NB_LINE_INSERTED", insertCount);
-            runtime.setComponentData(runtime.getCurrentComponentId(), "NB_LINE_UPDATED", updateCount);
+            runtime.setComponentData(runtime.getCurrentComponentId(),
+                    CommonUtils.getStudioNameFromProperty(ComponentConstants.RETURN_DELETE_RECORD_COUNT), deleteCount);
+            runtime.setComponentData(runtime.getCurrentComponentId(),
+                    CommonUtils.getStudioNameFromProperty(ComponentConstants.RETURN_INSERT_RECORD_COUNT), insertCount);
+            runtime.setComponentData(runtime.getCurrentComponentId(),
+                    CommonUtils.getStudioNameFromProperty(ComponentConstants.RETURN_UPDATE_RECORD_COUNT), updateCount);
         }
 
         result.successCount = successCount;
