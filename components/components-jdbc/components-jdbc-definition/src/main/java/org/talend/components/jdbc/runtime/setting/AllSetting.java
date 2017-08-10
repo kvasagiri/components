@@ -477,7 +477,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         return emptyListIfNull(trims);
     }
 
-    public void setTrims(List<Boolean> trims) {
+    public void setTrims(Object trims) {
         this.trims = wrap(trims);
     }
 
@@ -485,7 +485,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         return emptyListIfNull(trimColumns);
     }
 
-    public void setTrimColumns(List<String> trimColumns) {
+    public void setTrimColumns(Object trimColumns) {
         this.trimColumns = wrap(trimColumns);
     }
 
@@ -526,7 +526,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         return emptyListIfNull(newDBColumnNames4AdditionalParameters);
     }
 
-    public void setNewDBColumnNames4AdditionalParameters(List<String> newDBColumnNames4AdditionalParameters) {
+    public void setNewDBColumnNames4AdditionalParameters(Object newDBColumnNames4AdditionalParameters) {
         this.newDBColumnNames4AdditionalParameters = wrap(newDBColumnNames4AdditionalParameters);
     }
 
@@ -534,7 +534,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         return emptyListIfNull(sqlExpressions4AdditionalParameters);
     }
 
-    public void setSqlExpressions4AdditionalParameters(List<String> sqlExpressions4AdditionalParameters) {
+    public void setSqlExpressions4AdditionalParameters(Object sqlExpressions4AdditionalParameters) {
         this.sqlExpressions4AdditionalParameters = wrap(sqlExpressions4AdditionalParameters);
     }
 
@@ -542,7 +542,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         return emptyListIfNull(positions4AdditionalParameters);
     }
 
-    public void setPositions4AdditionalParameters(List<AdditionalColumnsTable.Position> positions4AdditionalParameters) {
+    public void setPositions4AdditionalParameters(Object positions4AdditionalParameters) {
         this.positions4AdditionalParameters = wrap(positions4AdditionalParameters);
     }
 
@@ -550,7 +550,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         return emptyListIfNull(referenceColumns4AdditionalParameters);
     }
 
-    public void setReferenceColumns4AdditionalParameters(List<String> referenceColumns4AdditionalParameters) {
+    public void setReferenceColumns4AdditionalParameters(Object referenceColumns4AdditionalParameters) {
         this.referenceColumns4AdditionalParameters = wrap(referenceColumns4AdditionalParameters);
     }
 
@@ -558,7 +558,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         return emptyListIfNull(schemaColumns4FieldOption);
     }
 
-    public void setSchemaColumns4FieldOption(List<String> schemaColumns4FieldOption) {
+    public void setSchemaColumns4FieldOption(Object schemaColumns4FieldOption) {
         this.schemaColumns4FieldOption = wrap(schemaColumns4FieldOption);
     }
 
@@ -566,7 +566,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         return emptyListIfNull(updateKey4FieldOption);
     }
 
-    public void setUpdateKey4FieldOption(List<Boolean> updateKey4FieldOption) {
+    public void setUpdateKey4FieldOption(Object updateKey4FieldOption) {
         this.updateKey4FieldOption = wrap(updateKey4FieldOption);
     }
 
@@ -574,7 +574,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         return emptyListIfNull(deletionKey4FieldOption);
     }
 
-    public void setDeletionKey4FieldOption(List<Boolean> deletionKey4FieldOption) {
+    public void setDeletionKey4FieldOption(Object deletionKey4FieldOption) {
         this.deletionKey4FieldOption = wrap(deletionKey4FieldOption);
     }
 
@@ -582,7 +582,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         return emptyListIfNull(updatable4FieldOption);
     }
 
-    public void setUpdatable4FieldOption(List<Boolean> updatable4FieldOption) {
+    public void setUpdatable4FieldOption(Object updatable4FieldOption) {
         this.updatable4FieldOption = wrap(updatable4FieldOption);
     }
 
@@ -590,7 +590,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         return emptyListIfNull(insertable4FieldOption);
     }
 
-    public void setInsertable4FieldOption(List<Boolean> insertable4FieldOption) {
+    public void setInsertable4FieldOption(Object insertable4FieldOption) {
         this.insertable4FieldOption = wrap(insertable4FieldOption);
     }
 
