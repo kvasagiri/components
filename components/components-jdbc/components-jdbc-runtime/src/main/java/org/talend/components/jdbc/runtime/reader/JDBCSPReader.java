@@ -27,6 +27,7 @@ import org.talend.components.api.component.runtime.AbstractBoundedReader;
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
+import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.avro.JDBCSPIndexedRecordCreator;
@@ -87,17 +88,18 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
     }
 
     private JDBCSPIndexedRecordCreator indexedRecordCreator;
-    
+
     @Override
     public IndexedRecord getCurrent() {
         try {
             cs = conn.prepareCall(source.getSPStatement(setting));
 
-            Schema outputSchema = setting.getSchema();
+            Schema componentSchema = CommonUtils.getMainSchemaFromInputConnector((ComponentProperties) source.properties);
+            Schema outputSchema = CommonUtils.getOutputSchema((ComponentProperties) source.properties);
 
             if (setting.isFunction()) {
                 String columnName = setting.getReturnResultIn();
-                Field field = CommonUtils.getField(outputSchema, columnName);
+                Field field = CommonUtils.getField(componentSchema, columnName);
                 cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(field));
             }
 
@@ -115,7 +117,7 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
                     }
 
                     if (SPParameterTable.ParameterType.OUT == pt) {
-                        Field field = CommonUtils.getField(outputSchema, columnName);
+                        Field field = CommonUtils.getField(componentSchema, columnName);
                         cs.registerOutParameter(i, JDBCMapping.getSQLTypeFromAvroType(field));
                     }
 
@@ -124,14 +126,14 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
             }
 
             cs.execute();
-            
+
             if (indexedRecordCreator == null) {
                 indexedRecordCreator = new JDBCSPIndexedRecordCreator();
-                indexedRecordCreator.init(null, outputSchema, setting);
+                indexedRecordCreator.init(componentSchema, outputSchema, setting);
             }
 
             IndexedRecord outputRecord = indexedRecordCreator.createOutputIndexedRecord(cs.getResultSet(), null);
-            
+
             return outputRecord;
         } catch (SQLException e) {
             throw new ComponentException(e);

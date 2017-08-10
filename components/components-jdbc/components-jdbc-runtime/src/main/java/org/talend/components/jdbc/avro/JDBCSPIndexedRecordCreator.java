@@ -57,8 +57,9 @@ public class JDBCSPIndexedRecordCreator {
         this.setting = setting;
 
         if (setting.isFunction()) {
-            Schema.Field outputField = CommonUtils.getField(outputSchema, setting.getReturnResultIn());
-            outputFieldLocation2AvroConverter.put(outputField.pos(), JDBCAvroRegistry.get().getConverter(outputField, 1));
+            Schema.Field outField = CommonUtils.getField(currentComponentSchema, setting.getReturnResultIn());
+            Schema.Field outFieldInOutputSchema = CommonUtils.getField(outputSchema, setting.getReturnResultIn());
+            outputFieldLocation2AvroConverter.put(outFieldInOutputSchema.pos(), JDBCAvroRegistry.get().getConverter(outField, 1));
         }
 
         List<String> parameterColumns = setting.getSchemaColumns4SPParameters();
@@ -71,14 +72,16 @@ public class JDBCSPIndexedRecordCreator {
                 String columnName = parameterColumns.get(j);
 
                 if (SPParameterTable.ParameterType.RECORDSET == pt) {
-                    Schema.Field outputField = CommonUtils.getField(outputSchema, columnName);
-                    resultSetPostionOfOutputSchema = outputField.pos();
+                    Schema.Field outFieldInOutputSchema = CommonUtils.getField(outputSchema, columnName);
+                    resultSetPostionOfOutputSchema = outFieldInOutputSchema.pos();
                     continue;
                 }
 
                 if (SPParameterTable.ParameterType.OUT == pt || SPParameterTable.ParameterType.INOUT == pt) {
-                    Schema.Field outputField = CommonUtils.getField(outputSchema, columnName);
-                    outputFieldLocation2AvroConverter.put(outputField.pos(), JDBCAvroRegistry.get().getConverter(outputField, i));
+                    Schema.Field outField = CommonUtils.getField(currentComponentSchema, columnName);
+                    Schema.Field outFieldInOutputSchema = CommonUtils.getField(outputSchema, columnName);
+                    outputFieldLocation2AvroConverter.put(outFieldInOutputSchema.pos(),
+                            JDBCAvroRegistry.get().getConverter(outField, i));
                 }
 
                 i++;
@@ -106,7 +109,7 @@ public class JDBCSPIndexedRecordCreator {
                 }
 
                 if (inputSchema == null) {
-                    continue;
+                    break;
                 }
 
                 List<Field> inputFields = inputSchema.getFields();

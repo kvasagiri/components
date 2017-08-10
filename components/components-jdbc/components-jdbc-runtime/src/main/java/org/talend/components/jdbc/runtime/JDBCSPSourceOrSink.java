@@ -19,14 +19,17 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Field;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
+import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.module.SPParameterTable;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSinkDefault;
+import org.talend.components.jdbc.runtime.type.JDBCMapping;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.ValidationResult.Result;
@@ -67,9 +70,43 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
             throw new ComponentException(e);
         }
 
+        Schema componentSchema = CommonUtils.getMainSchemaFromInputConnector((ComponentProperties) properties);
+
         try {
-            try (CallableStatement cs = conn.prepareCall(getSPStatement(setting))) {
+            CallableStatement cs = conn.prepareCall(getSPStatement(setting));
+
+            try {
+                if (setting.isFunction()) {
+                    String columnName = setting.getReturnResultIn();
+                    Field field = CommonUtils.getField(componentSchema, columnName);
+                    cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(field));
+                }
+
+                List<String> columns = setting.getSchemaColumns4SPParameters();
+                List<SPParameterTable.ParameterType> pts = setting.getParameterTypes();
+                if (pts != null) {
+                    int i = setting.isFunction() ? 2 : 1;
+                    int j = -1;
+                    for (SPParameterTable.ParameterType pt : pts) {
+                        j++;
+                        String columnName = columns.get(j);
+
+                        if (SPParameterTable.ParameterType.RECORDSET == pt) {
+                            continue;
+                        }
+
+                        if (SPParameterTable.ParameterType.OUT == pt) {
+                            Field field = CommonUtils.getField(componentSchema, columnName);
+                            cs.registerOutParameter(i, JDBCMapping.getSQLTypeFromAvroType(field));
+                        }
+
+                        i++;
+                    }
+                }
+
                 cs.execute();
+            } finally {
+                cs.close();
             }
 
             if (!useExistedConnection) {

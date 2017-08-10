@@ -31,6 +31,7 @@ import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.component.runtime.WriterWithFeedback;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
+import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.common.avro.JDBCAvroRegistry;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.avro.JDBCSPIndexedRecordCreator;
@@ -99,15 +100,17 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
         rejectedWrites.clear();
 
         IndexedRecord inputRecord = this.getGenericIndexedRecordConverter(datum).convertToAvro(datum);
+
+        Schema componentSchema = CommonUtils.getMainSchemaFromInputConnector((ComponentProperties) sink.properties);
         Schema inputSchema = inputRecord.getSchema();
+        Schema outputSchema = CommonUtils.getOutputSchema((ComponentProperties) sink.properties);
 
         try {
-            Schema outputSchema = setting.getSchema();
 
             if (setting.isFunction()) {
                 String columnName = setting.getReturnResultIn();
-                Field outputField = CommonUtils.getField(outputSchema, columnName);
-                cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(outputField));
+                Field outField = CommonUtils.getField(componentSchema, columnName);
+                cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(outField));
             }
 
             List<String> columns = setting.getSchemaColumns4SPParameters();
@@ -124,13 +127,14 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
                     }
 
                     if (SPParameterTable.ParameterType.OUT == pt || SPParameterTable.ParameterType.INOUT == pt) {
-                        Schema.Field outputField = CommonUtils.getField(outputSchema, columnName);
-                        cs.registerOutParameter(i, JDBCMapping.getSQLTypeFromAvroType(outputField));
+                        Schema.Field outField = CommonUtils.getField(componentSchema, columnName);
+                        cs.registerOutParameter(i, JDBCMapping.getSQLTypeFromAvroType(outField));
                     }
 
                     if (SPParameterTable.ParameterType.IN == pt || SPParameterTable.ParameterType.INOUT == pt) {
-                        Schema.Field inputField = CommonUtils.getField(inputSchema, columnName);
-                        JDBCMapping.setValue(i, cs, inputField, inputRecord.get(inputField.pos()));
+                        Schema.Field inField = CommonUtils.getField(componentSchema, columnName);
+                        Schema.Field inFieldInInput = CommonUtils.getField(inputSchema, columnName);
+                        JDBCMapping.setValue(i, cs, inField, inputRecord.get(inFieldInInput.pos()));
                     }
 
                     i++;
@@ -141,7 +145,7 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
 
             if (indexedRecordCreator == null) {
                 indexedRecordCreator = new JDBCSPIndexedRecordCreator();
-                indexedRecordCreator.init(null, outputSchema, setting);
+                indexedRecordCreator.init(componentSchema, outputSchema, setting);
             }
 
             IndexedRecord outputRecord = indexedRecordCreator.createOutputIndexedRecord(cs.getResultSet(), inputRecord);
