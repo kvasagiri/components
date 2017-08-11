@@ -212,7 +212,24 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
             form.getWidget(commitEvery.getName()).setHidden(useOtherConnection);
             form.getWidget(batchSize.getName()).setHidden(!useBatch.getValue());
             form.getWidget(fieldOptions.getName()).setVisible(enableFieldOptions.getValue());
+
+            updateReferenceColumns();
+            updateFieldOptions();
         }
+    }
+
+    private void updateReferenceColumns() {
+        Schema schema = main.schema.getValue();
+        if (schema == null) {
+            return;
+        }
+
+        List<String> fieldNames = new ArrayList<>();
+        for (Schema.Field f : schema.getFields()) {
+            fieldNames.add(f.name());
+        }
+
+        additionalColumns.referenceColumns.setPossibleValues(fieldNames);
     }
 
     public void afterReferencedComponent() {
@@ -230,6 +247,26 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
 
     public void afterEnableFieldOptions() {
         refreshLayout(getForm(Form.ADVANCED));
+    }
+
+    private void updateFieldOptions() {
+        Schema schema = main.schema.getValue();
+        if (schema == null) {
+            return;
+        }
+
+        List<String> fieldNames = new ArrayList<>();
+        List<Boolean> insertable = new ArrayList<>();
+        List<Boolean> updateable = new ArrayList<>();
+
+        for (Schema.Field f : schema.getFields()) {
+            fieldNames.add(f.name());
+            insertable.add(true);
+            updateable.add(true);
+        }
+        fieldOptions.schemaColumns.setValue(fieldNames);
+        fieldOptions.insertable.setValue(insertable);
+        fieldOptions.updatable.setValue(updateable);
     }
 
     @Override

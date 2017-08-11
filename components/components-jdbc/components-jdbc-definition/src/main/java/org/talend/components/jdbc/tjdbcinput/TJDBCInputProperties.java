@@ -146,7 +146,8 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
 
         dbMapping.setValue(DBTypes.MYSQL);
 
-        // FIXME now the trigger can't work very well, need a check why
+        // FIXME now the trigger can't work very well, so have to call the updateTrimTable method in refreshLayout method directly
+        // though refreshLayout is called at some strange place
         schemaListener = new ISchemaListener() {
 
             @Override
@@ -180,6 +181,8 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
             form.getWidget(cursor.getName()).setHidden(!useCursor.getValue());
             form.getWidget(trimTable.getName()).setHidden(trimStringOrCharColumns.getValue());
             form.getWidget(dbMapping.getName()).setVisible(enableDBMapping.getValue());
+
+            updateTrimTable();
         }
     }
 

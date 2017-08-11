@@ -2,6 +2,7 @@ package org.talend.components.jdbc.module;
 
 import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.reflect.TypeLiteral;
@@ -39,6 +40,16 @@ public class AdditionalColumnsTable extends ComponentPropertiesImpl {
         mainForm.addColumn(sqlExpressions);
         mainForm.addColumn(Widget.widget(positions).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
         mainForm.addColumn(Widget.widget(referenceColumns).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
+    }
+    
+    @Override
+    public void setupProperties() {
+        super.setupProperties();
+        List<Position> values = new ArrayList<>();
+        for (Position type : Position.values()) {
+            values.add(type);
+        }
+        positions.setPossibleValues(values);
     }
 
     public enum Position {

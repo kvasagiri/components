@@ -2,6 +2,7 @@ package org.talend.components.jdbc.module;
 
 import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.reflect.TypeLiteral;
@@ -33,6 +34,16 @@ public class SPParameterTable extends ComponentPropertiesImpl {
         Form mainForm = CommonUtils.addForm(this, Form.MAIN);
         mainForm.addColumn(Widget.widget(schemaColumns).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
         mainForm.addColumn(Widget.widget(parameterTypes).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
+    }
+    
+    @Override
+    public void setupProperties() {
+        super.setupProperties();
+        List<ParameterType> values = new ArrayList<>();
+        for (ParameterType type : ParameterType.values()) {
+            values.add(type);
+        }
+        parameterTypes.setPossibleValues(values);
     }
 
     public enum ParameterType {
