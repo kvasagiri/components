@@ -109,37 +109,37 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
                 querySchema = source.getAvroRegistry().inferSchema(resultSet.getMetaData());
             }
 
-            if (AvroUtils.isIncludeAllFields(querySchema)) {
-                List<String> trimColumnLabels = setting.getTrimColumns();
-                List<Boolean> trims = setting.getTrims();
-                int dynamicColumnPosition = Integer
-                        .valueOf(querySchema.getProp(ComponentConstants.TALEND6_DYNAMIC_COLUMN_POSITION));
-
+            boolean includeDynamic = AvroUtils.isIncludeAllFields(querySchema);
+            if (includeDynamic) {
                 Schema runtimeSchema4ResultSet = source.getAvroRegistry().inferSchema(resultSet.getMetaData());
                 querySchema = CommonUtils.mergeRuntimeSchema2DesignSchema4Dynamic(querySchema, runtimeSchema4ResultSet);
-
-                Map<Integer, Boolean> trimMap = new HashMap<>();
-                boolean defaultTrim = trims.get(dynamicColumnPosition);
-
-                int i = 0;
-                for (Field field : querySchema.getFields()) {
-                    i++;
-                    int j = 0;
-                    trimMap.put(i, defaultTrim);
-
-                    for (String trimColumnLabel : trimColumnLabels) {
-                        if (trimColumnLabel.equals(field.name())) {
-                            Boolean trim = trims.get(j);
-                            trimMap.put(i, trim);
-                            break;
-                        }
-
-                        j++;
-                    }
-                }
-
-                setting.setTrimMap(trimMap);
             }
+
+            List<String> trimColumnLabels = setting.getTrimColumns();
+            List<Boolean> trims = setting.getTrims();
+
+            Map<Integer, Boolean> trimMap = new HashMap<>();
+            boolean defaultTrim = includeDynamic
+                    ? trims.get(Integer.valueOf(querySchema.getProp(ComponentConstants.TALEND6_DYNAMIC_COLUMN_POSITION))) : false;
+
+            int i = 0;
+            for (Field field : querySchema.getFields()) {
+                i++;
+                int j = 0;
+                trimMap.put(i, defaultTrim);
+
+                for (String trimColumnLabel : trimColumnLabels) {
+                    if (trimColumnLabel.equals(field.name())) {
+                        Boolean trim = trims.get(j);
+                        trimMap.put(i, trim);
+                        break;
+                    }
+
+                    j++;
+                }
+            }
+
+            setting.setTrimMap(trimMap);
         }
 
         return querySchema;
@@ -148,6 +148,12 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
     private IndexedRecordConverter<ResultSet, IndexedRecord> getConverter(ResultSet resultSet) throws IOException, SQLException {
         if (converter == null) {
             converter = source.getConverter();
+
+            // this is need to be called before setSchema
+            if (converter instanceof JDBCResultSetIndexedRecordConverter) {
+                ((JDBCResultSetIndexedRecordConverter) converter).setInfluencer(setting);
+            }
+
             converter.setSchema(getSchema());
 
             int sizeInResultSet = resultSet.getMetaData().getColumnCount();
