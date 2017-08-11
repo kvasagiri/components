@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.lang3.reflect.TypeLiteral;
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.jdbc.CommonUtils;
+import org.talend.components.jdbc.ComponentConstants;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
@@ -50,6 +51,8 @@ public class AdditionalColumnsTable extends ComponentPropertiesImpl {
             values.add(type);
         }
         positions.setPossibleValues(values);
+        
+        referenceColumns.setTaggedValue(ComponentConstants.ADD_QUOTES, true);
     }
 
     public enum Position {

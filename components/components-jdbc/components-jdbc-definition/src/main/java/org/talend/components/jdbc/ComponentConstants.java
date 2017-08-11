@@ -36,6 +36,8 @@ public interface ComponentConstants {
     // TOOD use a common one
     String TALEND6_DYNAMIC_COLUMN_POSITION = "di.dynamic.column.position";
 
-    String TALEND6_DYNAMIC_COLUMN_NAME = "di.dynamic.column.name"; //$NON-NLS-1$
+    String TALEND6_DYNAMIC_COLUMN_NAME = "di.dynamic.column.name";
+    
+    String ADD_QUOTES = "ADD_QUOTES";
 
 }

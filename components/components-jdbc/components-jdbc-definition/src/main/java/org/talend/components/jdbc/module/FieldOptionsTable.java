@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.lang3.reflect.TypeLiteral;
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.jdbc.CommonUtils;
+import org.talend.components.jdbc.ComponentConstants;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 
@@ -41,6 +42,12 @@ public class FieldOptionsTable extends ComponentPropertiesImpl {
         mainForm.addColumn(deletionKey);
         mainForm.addColumn(updatable);
         mainForm.addColumn(insertable);
+    }
+
+    @Override
+    public void setupProperties() {
+        super.setupProperties();
+        schemaColumns.setTaggedValue(ComponentConstants.ADD_QUOTES, true);
     }
 
 }
