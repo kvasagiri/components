@@ -45,6 +45,8 @@ import org.talend.daikon.NamedThing;
 import org.talend.daikon.SimpleNamedThing;
 import org.talend.daikon.avro.AvroRegistry;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
+import org.talend.daikon.exception.ExceptionContext;
+import org.talend.daikon.exception.error.CommonErrorCodes;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.ValidationResult.Result;
 import org.talend.daikon.properties.ValidationResultMutable;
@@ -139,7 +141,8 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
             tableMetadata.setDatabaseMetaData(conn.getMetaData()).setTablename(tableName);
             return avroRegistry.inferSchema(tableMetadata);
         } catch (Exception e) {
-            throw new ComponentException(e);
+            throw new ComponentException(CommonErrorCodes.UNEXPECTED_EXCEPTION, e,
+                    ExceptionContext.withBuilder().put("message", e.getMessage()).build());
         }
     }
 
