@@ -338,7 +338,7 @@ public class JDBCSQLBuilder {
     }
 
     private String generateSQL4Update(String tablename, List<String> updateValues, List<String> updateKeys,
-            List<String> updateExpressions) {
+            List<String> updateValueExpressions, List<String> updateKeyExpressions) {
         StringBuilder sb = new StringBuilder();
         sb.append("UPDATE ").append(getProtectedChar()).append(tablename).append(getProtectedChar()).append(" SET ");
 
@@ -353,8 +353,10 @@ public class JDBCSQLBuilder {
             }
 
             sb.append(getProtectedChar()).append(dbColumnName).append(getProtectedChar()).append(" = ")
-                    .append(updateExpressions.get(i++));
+                    .append(updateValueExpressions.get(i++));
         }
+
+        i = 0;
 
         sb.append(" WHERE ");
 
@@ -367,7 +369,7 @@ public class JDBCSQLBuilder {
             }
 
             sb.append(getProtectedChar()).append(dbColumnName).append(getProtectedChar()).append(" = ")
-                    .append(updateExpressions.get(i++));
+                    .append(updateKeyExpressions.get(i++));
         }
 
         return sb.toString();
@@ -375,24 +377,26 @@ public class JDBCSQLBuilder {
 
     public String generateSQL4Update(String tablename, List<Column> columnList) {
         List<String> updateValues = new ArrayList<>();
+        List<String> updateValueExpressions = new ArrayList<>();
+
         List<String> updateKeys = new ArrayList<>();
-        List<String> updateExpressions = new ArrayList<>();
+        List<String> updateKeyExpressions = new ArrayList<>();
 
         List<Column> all = getAllColumns(columnList);
 
         for (Column column : all) {
             if (column.updatable) {
                 updateValues.add(column.dbColumnName);
-                updateExpressions.add(column.sqlStmt);
+                updateValueExpressions.add(column.sqlStmt);
             }
 
             if (column.updateKey) {
                 updateKeys.add(column.dbColumnName);
-                updateExpressions.add(column.sqlStmt);
+                updateKeyExpressions.add(column.sqlStmt);
             }
         }
 
-        return generateSQL4Update(tablename, updateValues, updateKeys, updateExpressions);
+        return generateSQL4Update(tablename, updateValues, updateKeys, updateValueExpressions, updateKeyExpressions);
     }
 
     private String generateQuerySQL4InsertOrUpdate(String tablename, List<String> updateKeys, List<String> updateKeyExpressions) {
