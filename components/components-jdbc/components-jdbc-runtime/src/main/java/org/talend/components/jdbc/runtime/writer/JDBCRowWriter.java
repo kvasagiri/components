@@ -165,6 +165,8 @@ public class JDBCRowWriter implements WriterWithFeedback<Result, IndexedRecord, 
                 throw new ComponentException(e);
             } else {
                 LOG.warn(e.getMessage());
+                // TODO should not print it when reject line, but we can't know the information at the runtime
+                System.out.println(e.getMessage());
             }
 
             handleReject(input, e);

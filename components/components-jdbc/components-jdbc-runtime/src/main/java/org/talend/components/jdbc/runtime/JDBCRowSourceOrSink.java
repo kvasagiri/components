@@ -101,6 +101,7 @@ public class JDBCRowSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
                 vr.setMessage(ex.getMessage());
             } else {
                 // should log it
+                System.err.println(ex.getMessage());
             }
         }
         return vr;

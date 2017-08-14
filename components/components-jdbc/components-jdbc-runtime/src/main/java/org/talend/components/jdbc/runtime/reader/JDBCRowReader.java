@@ -76,7 +76,6 @@ public class JDBCRowReader extends AbstractBoundedReader<IndexedRecord> {
 
     @Override
     public boolean start() throws IOException {
-        // TODO need to adjust the key
         if (container != null) {
             container.setComponentData(container.getCurrentComponentId(),
                     CommonUtils.getStudioNameFromProperty(ComponentConstants.RETURN_QUERY), setting.getSql());
@@ -161,20 +160,10 @@ public class JDBCRowReader extends AbstractBoundedReader<IndexedRecord> {
         Schema outSchema = CommonUtils.getRejectSchema((ComponentProperties) properties);
         IndexedRecord reject = new GenericData.Record(outSchema);
 
-        for (Schema.Field outField : reject.getSchema().getFields()) {
-            Object outValue = null;
-
-            if ("errorCode".equals(outField.name())) {
-                outValue = e.getSQLState();
-            } else if ("errorMessage".equals(outField.name())) {
-                outValue = e.getMessage();
-            }
-
-            reject.put(outField.pos(), outValue);
-        }
-
         Map<String, Object> resultMessage = new HashMap<String, Object>();
         resultMessage.put("error", e.getMessage());
+        resultMessage.put("errorCode", e.getSQLState());
+        resultMessage.put("errorMessage", e.getMessage() + " - Line: " + result.totalCount);
         resultMessage.put("talend_record", reject);
         throw new DataRejectException(resultMessage);
     }
