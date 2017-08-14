@@ -18,16 +18,13 @@ public class SPParameterTable extends ComponentPropertiesImpl {
     private static final TypeLiteral<List<String>> LIST_STRING_TYPE = new TypeLiteral<List<String>>() {
     };
 
-    private static final TypeLiteral<List<ParameterType>> LIST_PARAMETER_TYPE = new TypeLiteral<List<ParameterType>>() {
-    };
-
     public SPParameterTable(String name) {
         super(name);
     }
 
     public Property<List<String>> schemaColumns = newProperty(LIST_STRING_TYPE, "schemaColumns");
 
-    public Property<List<ParameterType>> parameterTypes = newProperty(LIST_PARAMETER_TYPE, "parameterTypes");
+    public Property<List<String>> parameterTypes = newProperty(LIST_STRING_TYPE, "parameterTypes");
 
     @Override
     public void setupLayout() {
@@ -36,19 +33,20 @@ public class SPParameterTable extends ComponentPropertiesImpl {
         mainForm.addColumn(Widget.widget(schemaColumns).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
         mainForm.addColumn(Widget.widget(parameterTypes).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
     }
-    
+
     @Override
     public void setupProperties() {
         super.setupProperties();
-        List<ParameterType> values = new ArrayList<>();
-        for (ParameterType type : ParameterType.values()) {
-            values.add(type);
+
+        List<String> values = new ArrayList<>();
+        for (ParameterType value : ParameterType.values()) {
+            values.add(value.toString());
         }
         parameterTypes.setPossibleValues(values);
-        
+
         schemaColumns.setTaggedValue(ComponentConstants.ADD_QUOTES, true);
     }
-    
+
     public enum ParameterType {
         IN,
         OUT,

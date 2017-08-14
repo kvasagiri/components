@@ -83,14 +83,16 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
                 }
 
                 List<String> columns = setting.getSchemaColumns4SPParameters();
-                List<SPParameterTable.ParameterType> pts = setting.getParameterTypes();
+                List<String> pts = setting.getParameterTypes();
                 if (pts != null) {
                     int i = setting.isFunction() ? 2 : 1;
                     int j = -1;
-                    for (SPParameterTable.ParameterType pt : pts) {
+                    for (String each : pts) {
                         j++;
                         String columnName = columns.get(j);
 
+                        SPParameterTable.ParameterType pt = SPParameterTable.ParameterType.valueOf(each);
+                        
                         if (SPParameterTable.ParameterType.RECORDSET == pt) {
                             continue;
                         }
@@ -123,7 +125,7 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
     public String getSPStatement(AllSetting setting) {
         String spName = setting.getSpName();
         boolean isFunction = setting.isFunction();
-        List<SPParameterTable.ParameterType> parameterTypes = setting.getParameterTypes();
+        List<String> parameterTypes = setting.getParameterTypes();
 
         StringBuilder statementBuilder = new StringBuilder();
         statementBuilder.append("{");
@@ -136,7 +138,9 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
         if (parameterTypes != null) {
             boolean first = true;
-            for (SPParameterTable.ParameterType parameterType : parameterTypes) {
+            for (String each : parameterTypes) {
+                SPParameterTable.ParameterType parameterType = SPParameterTable.ParameterType.valueOf(each);
+                
                 if (parameterType == SPParameterTable.ParameterType.RECORDSET) {
                     continue;
                 }

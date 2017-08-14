@@ -63,14 +63,16 @@ public class JDBCSPIndexedRecordCreator {
         }
 
         List<String> parameterColumns = setting.getSchemaColumns4SPParameters();
-        List<SPParameterTable.ParameterType> pts = setting.getParameterTypes();
+        List<String> pts = setting.getParameterTypes();
         if (pts != null) {
             int i = setting.isFunction() ? 2 : 1;
             int j = -1;
-            for (SPParameterTable.ParameterType pt : pts) {
+            for (String each : pts) {
                 j++;
                 String columnName = parameterColumns.get(j);
 
+                SPParameterTable.ParameterType pt = SPParameterTable.ParameterType.valueOf(each);
+                
                 if (SPParameterTable.ParameterType.RECORDSET == pt) {
                     Schema.Field outFieldInOutputSchema = CommonUtils.getField(outputSchema, columnName);
                     resultSetPostionOfOutputSchema = outFieldInOutputSchema.pos();

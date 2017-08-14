@@ -20,9 +20,7 @@ import java.util.Map;
 import org.apache.avro.Schema;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.common.avro.JDBCAvroRegistryInfluencer;
-import org.talend.components.jdbc.module.AdditionalColumnsTable;
 import org.talend.components.jdbc.module.DBTypes;
-import org.talend.components.jdbc.module.SPParameterTable;
 import org.talend.components.jdbc.tjdbcoutput.TJDBCOutputProperties.DataAction;
 
 /**
@@ -365,7 +363,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
 
     private List<String> schemaColumns4SPParameters;
 
-    private List<SPParameterTable.ParameterType> parameterTypes;
+    private List<String> parameterTypes;
 
     public String getSpName() {
         return spName;
@@ -391,7 +389,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         this.schemaColumns4SPParameters = wrap(schemaColumns);
     }
 
-    public List<SPParameterTable.ParameterType> getParameterTypes() {
+    public List<String> getParameterTypes() {
         return emptyListIfNull(parameterTypes);
     }
 
@@ -506,7 +504,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
 
     private List<String> sqlExpressions4AdditionalParameters;
 
-    private List<AdditionalColumnsTable.Position> positions4AdditionalParameters;
+    private List<String> positions4AdditionalParameters;
 
     private List<String> referenceColumns4AdditionalParameters;
 
@@ -538,7 +536,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
         this.sqlExpressions4AdditionalParameters = wrap(sqlExpressions4AdditionalParameters);
     }
 
-    public List<AdditionalColumnsTable.Position> getPositions4AdditionalParameters() {
+    public List<String> getPositions4AdditionalParameters() {
         return emptyListIfNull(positions4AdditionalParameters);
     }
 

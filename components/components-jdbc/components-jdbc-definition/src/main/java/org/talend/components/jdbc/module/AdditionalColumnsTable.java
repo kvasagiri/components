@@ -29,7 +29,7 @@ public class AdditionalColumnsTable extends ComponentPropertiesImpl {
 
     public Property<List<String>> sqlExpressions = newProperty(LIST_STRING_TYPE, "sqlExpressions");
 
-    public Property<List<Position>> positions = newProperty(LIST_POSITION_TYPE, "positions");
+    public Property<List<String>> positions = newProperty(LIST_STRING_TYPE, "positions");
 
     public Property<List<String>> referenceColumns = newProperty(LIST_STRING_TYPE, "referenceColumns");
 
@@ -46,9 +46,10 @@ public class AdditionalColumnsTable extends ComponentPropertiesImpl {
     @Override
     public void setupProperties() {
         super.setupProperties();
-        List<Position> values = new ArrayList<>();
-        for (Position type : Position.values()) {
-            values.add(type);
+        
+        List<String> values = new ArrayList<>();
+        for (Position value : Position.values()) {
+            values.add(value.toString());
         }
         positions.setPossibleValues(values);
         

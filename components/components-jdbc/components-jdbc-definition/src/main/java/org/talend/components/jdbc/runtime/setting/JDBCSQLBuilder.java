@@ -166,7 +166,7 @@ public class JDBCSQLBuilder {
 
         List<String> newDBColumnNames = setting.getNewDBColumnNames4AdditionalParameters();
         List<String> sqlExpressions = setting.getSqlExpressions4AdditionalParameters();
-        List<AdditionalColumnsTable.Position> positions = setting.getPositions4AdditionalParameters();
+        List<String> positions = setting.getPositions4AdditionalParameters();
         List<String> referenceColumns = setting.getReferenceColumns4AdditionalParameters();
 
         int i = 0;
@@ -184,7 +184,7 @@ public class JDBCSQLBuilder {
             String newDBColumnName = newDBColumnNames.get(i);
             String sqlExpression = sqlExpressions.get(i);
 
-            AdditionalColumnsTable.Position position = positions.get(i);
+            AdditionalColumnsTable.Position position = AdditionalColumnsTable.Position.valueOf(positions.get(i));
             if (position == AdditionalColumnsTable.Position.AFTER) {
                 Column newColumn = new Column();
                 newColumn.columnLabel = newDBColumnName;
@@ -228,9 +228,9 @@ public class JDBCSQLBuilder {
         sb.append("INSERT INTO ").append(getProtectedChar()).append(tablename).append(getProtectedChar()).append(" ");
 
         sb.append("(");
-        
+
         List<Schema.Field> fields = schema.getFields();
-        
+
         boolean firstOne = true;
         for (Schema.Field field : fields) {
             if (firstOne) {
