@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.Connector;
@@ -30,6 +31,7 @@ import org.talend.components.common.FixedConnectorsComponentProperties;
 import org.talend.components.common.SchemaProperties;
 import org.talend.components.common.TrimFieldsTable;
 import org.talend.components.jdbc.CommonUtils;
+import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.JdbcRuntimeInfo;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.module.DBTypes;
@@ -40,6 +42,7 @@ import org.talend.components.jdbc.runtime.setting.JDBCSQLBuilder;
 import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSink;
 import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionDefinition;
 import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionProperties;
+import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.properties.PresentationItem;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
@@ -192,10 +195,28 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
             return;
         }
 
-        List<String> fieldNames = new ArrayList<>();
-        for (Schema.Field f : schema.getFields()) {
-            fieldNames.add(f.name());
+        boolean dynamic = AvroUtils.isIncludeAllFields(schema);
+        int dynamicIndex = -1;
+        String dynamicFieldName = schema.getProp(ComponentConstants.TALEND6_DYNAMIC_COLUMN_NAME);
+        if (dynamic) {
+            dynamicIndex = Integer.valueOf(schema.getProp(ComponentConstants.TALEND6_DYNAMIC_COLUMN_POSITION));
         }
+
+        List<String> fieldNames = new ArrayList<>();
+        int i = 0;
+        List<Field> fields = schema.getFields();
+        for (Schema.Field f : fields) {
+            if (i == dynamicIndex) {
+                fieldNames.add(dynamicFieldName);
+            }
+            fieldNames.add(f.name());
+            i++;
+        }
+
+        if (dynamicIndex == i) {
+            fieldNames.add(dynamicFieldName);
+        }
+
         trimTable.columnName.setValue(fieldNames);
     }
 

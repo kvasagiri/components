@@ -139,15 +139,8 @@ public class CommonUtils {
         Schema newSchema = Schema.createRecord(newSchemaName, metadataSchema.getDoc(), metadataSchema.getNamespace(),
                 metadataSchema.isError());
 
-        List<Schema.Field> copyFieldList = new ArrayList<>();
-        for (Schema.Field se : metadataSchema.getFields()) {
-            Schema.Field field = new Schema.Field(se.name(), se.schema(), se.doc(), se.defaultVal(), se.order());
-            field.getObjectProps().putAll(se.getObjectProps());
-            for (Map.Entry<String, Object> entry : se.getObjectProps().entrySet()) {
-                field.addProp(entry.getKey(), entry.getValue());
-            }
-            copyFieldList.add(field);
-        }
+        List<Field> fields = metadataSchema.getFields();
+        List<Schema.Field> copyFieldList = cloneFieldsAndResetPosition(fields);
 
         copyFieldList.addAll(insertPoint, moreFields);
 
@@ -157,6 +150,19 @@ public class CommonUtils {
         }
 
         return newSchema;
+    }
+
+    private static List<Schema.Field> cloneFieldsAndResetPosition(List<Field> fields) {
+        List<Schema.Field> copyFieldList = new ArrayList<>();
+        for (Schema.Field se : fields) {
+            Schema.Field field = new Schema.Field(se.name(), se.schema(), se.doc(), se.defaultVal(), se.order());
+            field.getObjectProps().putAll(se.getObjectProps());
+            for (Map.Entry<String, Object> entry : se.getObjectProps().entrySet()) {
+                field.addProp(entry.getKey(), entry.getValue());
+            }
+            copyFieldList.add(field);
+        }
+        return copyFieldList;
     }
 
     public static Schema mergeRuntimeSchema2DesignSchema4Dynamic(Schema designSchema, Schema runtimeSchema) {
@@ -175,9 +181,11 @@ public class CommonUtils {
                 dynamicFields.add(runtimeField);
             }
         }
+        
+        dynamicFields = cloneFieldsAndResetPosition(dynamicFields);
 
         int dynPosition = Integer.valueOf(designSchema.getProp(ComponentConstants.TALEND6_DYNAMIC_COLUMN_POSITION));
-        return CommonUtils.newSchema(designSchema, designSchema.getName(), dynamicFields, dynPosition - 1);
+        return CommonUtils.newSchema(designSchema, designSchema.getName(), dynamicFields, dynPosition);
     }
 
     /**

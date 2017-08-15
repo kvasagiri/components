@@ -83,7 +83,6 @@ public class JDBCTemplate {
      */
     public static void setPreparedStatement(final PreparedStatement pstmt, final List<Integer> indexs, final List<String> types,
             final List<Object> values) throws SQLException {
-        // TODO : adjust it
         for (int i = 0; i < indexs.size(); i++) {
             Integer index = indexs.get(i);
             PreparedStatementTable.Type type = PreparedStatementTable.Type.valueOf(types.get(i));
