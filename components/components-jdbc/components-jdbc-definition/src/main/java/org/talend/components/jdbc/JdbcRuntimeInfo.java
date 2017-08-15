@@ -21,6 +21,7 @@ import org.talend.components.api.component.runtime.DependenciesReader;
 import org.talend.components.api.component.runtime.JarRuntimeInfo;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.daikon.exception.error.CommonErrorCodes;
+import org.talend.daikon.runtime.RuntimeInfo;
 import org.talend.daikon.sandbox.SandboxControl;
 
 /**
@@ -55,9 +56,6 @@ public class JdbcRuntimeInfo extends JarRuntimeInfo {
             throw new NullPointerException("props must not be null");
         }
         this.props = props;
-        if (props.getRuntimeSetting().getDriverClass() == null) {
-            throw new NullPointerException("props must provide not null driver class");
-        }
         this.driverClassName = props.getRuntimeSetting().getDriverClass();
     }
 
