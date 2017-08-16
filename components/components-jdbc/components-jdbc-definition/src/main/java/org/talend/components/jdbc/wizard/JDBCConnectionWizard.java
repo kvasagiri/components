@@ -29,15 +29,15 @@ public class JDBCConnectionWizard extends ComponentWizard {
         connectionProperties.init();
         addForm(connectionProperties.getForm(Form.MAIN));
 
-        moduleProperties = new JDBCModuleListWizardProperties("moduleList").setName(connectionProperties.name.getValue())
-                .setConnection(connectionProperties.connection).setRepositoryLocation(getRepositoryLocation());
+        moduleProperties = new JDBCModuleListWizardProperties("moduleList").setConnection(connectionProperties)
+                .setRepositoryLocation(repositoryLocation);
         moduleProperties.init();
         addForm(moduleProperties.getForm(Form.MAIN));
     }
 
     public void setupProperties(JDBCConnectionWizardProperties connectionProperties) {
         this.connectionProperties.copyValuesFrom(connectionProperties);
-        this.moduleProperties.setConnection(connectionProperties.connection);
+        this.moduleProperties.setConnection(connectionProperties);
     }
 
 }

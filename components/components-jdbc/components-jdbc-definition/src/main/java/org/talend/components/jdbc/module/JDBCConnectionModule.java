@@ -45,7 +45,9 @@ public class JDBCConnectionModule extends ComponentPropertiesImpl {
     @Override
     public void setupProperties() {
         super.setupProperties();
-        jdbcUrl.setValue("jdbc:");
+        // TODO when work with wizard, some case will reset the right url to this default one, not know the reason now,so remove
+        // it now
+        // jdbcUrl.setValue("jdbc:");
     }
 
     @Override

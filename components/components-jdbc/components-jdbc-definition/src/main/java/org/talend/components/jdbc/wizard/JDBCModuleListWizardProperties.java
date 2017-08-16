@@ -12,8 +12,8 @@
 // ============================================================================
 package org.talend.components.jdbc.wizard;
 
-import static org.talend.daikon.properties.presentation.Widget.*;
-import static org.talend.daikon.properties.property.PropertyFactory.*;
+import static org.talend.daikon.properties.presentation.Widget.widget;
+import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 
 import java.util.List;
 
@@ -23,7 +23,6 @@ import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.JdbcRuntimeInfo;
 import org.talend.components.jdbc.RuntimeSettingProvider;
-import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSink;
 import org.talend.components.jdbc.tjdbcinput.TJDBCInputProperties;
@@ -39,9 +38,7 @@ import org.talend.daikon.sandbox.SandboxedInstance;
 
 public class JDBCModuleListWizardProperties extends ComponentPropertiesImpl implements RuntimeSettingProvider {
 
-    private String name;
-
-    private JDBCConnectionModule connection;
+    private JDBCConnectionWizardProperties wizardConnectionProperties;
 
     private String repositoryLocation;
 
@@ -54,14 +51,8 @@ public class JDBCModuleListWizardProperties extends ComponentPropertiesImpl impl
         super(name);
     }
 
-    public JDBCModuleListWizardProperties setConnection(JDBCConnectionModule connection) {
-        this.connection = connection;
-        return this;
-    }
-
-    @Override
-    public JDBCModuleListWizardProperties setName(String name) {
-        this.name = name;
+    public JDBCModuleListWizardProperties setConnection(JDBCConnectionWizardProperties connection) {
+        this.wizardConnectionProperties = connection;
         return this;
     }
 
@@ -80,7 +71,7 @@ public class JDBCModuleListWizardProperties extends ComponentPropertiesImpl impl
     public void beforeFormPresentMain() throws Exception {
         JdbcRuntimeInfo jdbcRuntimeInfo = new JdbcRuntimeInfo(this, "org.talend.components.jdbc.runtime.JDBCSourceOrSink");
         try (SandboxedInstance sandboxI = RuntimeUtil.createRuntimeClass(jdbcRuntimeInfo,
-                connection.getClass().getClassLoader())) {
+                wizardConnectionProperties.getClass().getClassLoader())) {
             JdbcRuntimeSourceOrSink sourceOrSink = (JdbcRuntimeSourceOrSink) sandboxI.getInstance();
             sourceOrSink.initialize(null, this);
             moduleNames = sourceOrSink.getSchemaNames(null);
@@ -93,7 +84,7 @@ public class JDBCModuleListWizardProperties extends ComponentPropertiesImpl impl
     public ValidationResult afterFormFinishMain(Repository<Properties> repo) throws Exception {
         JdbcRuntimeInfo jdbcRuntimeInfo = new JdbcRuntimeInfo(this, "org.talend.components.jdbc.runtime.JDBCSourceOrSink");
         try (SandboxedInstance sandboxI = RuntimeUtil.createRuntimeClass(jdbcRuntimeInfo,
-                connection.getClass().getClassLoader())) {
+                wizardConnectionProperties.getClass().getClassLoader())) {
             JdbcRuntimeSourceOrSink sourceOrSink = (JdbcRuntimeSourceOrSink) sandboxI.getInstance();
             sourceOrSink.initialize(null, this);
             ValidationResult vr = sourceOrSink.validate(null);
@@ -101,7 +92,7 @@ public class JDBCModuleListWizardProperties extends ComponentPropertiesImpl impl
                 return vr;
             }
 
-            String connRepLocation = repo.storeProperties(connection, name, repositoryLocation, null);
+            String connRepLocation = repo.storeProperties(wizardConnectionProperties, wizardConnectionProperties.name.getValue(), repositoryLocation, null);
 
             for (NamedThing nl : selectedModuleNames.getValue()) {
                 String tablename = nl.getName();
@@ -112,7 +103,7 @@ public class JDBCModuleListWizardProperties extends ComponentPropertiesImpl impl
                 // it seems that we map the wizard meta data to component properties by the field path
                 // TODO make sure it works
                 TJDBCInputProperties properties = new TJDBCInputProperties(tablename);
-                properties.connection = connection;
+                properties.connection = wizardConnectionProperties.connection;
                 properties.init();
 
                 properties.tableSelection.tablename.setValue(tablename);
@@ -127,7 +118,7 @@ public class JDBCModuleListWizardProperties extends ComponentPropertiesImpl impl
     public AllSetting getRuntimeSetting() {
         AllSetting setting = new AllSetting();
         
-        CommonUtils.setCommonConnectionInfo(setting, connection);
+        CommonUtils.setCommonConnectionInfo(setting, wizardConnectionProperties.connection);
         
         return setting;
     }
