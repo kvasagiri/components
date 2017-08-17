@@ -14,7 +14,6 @@ package org.talend.components.jdbc.wizard;
 
 import static org.talend.daikon.properties.presentation.Widget.widget;
 
-import org.apache.avro.Schema;
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.JdbcRuntimeInfo;
@@ -22,8 +21,6 @@ import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSink;
-import org.talend.components.jdbc.tjdbcinput.TJDBCInputProperties;
-import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.PresentationItem;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.ValidationResult;
@@ -73,9 +70,9 @@ public class JDBCConnectionWizardProperties extends ComponentPropertiesImpl impl
             ValidationResult vr = sourceOrSink.validate(null);
             if (vr.getStatus() == ValidationResult.Result.OK) {
                 vr = new ValidationResult(ValidationResult.Result.OK, "Connection successful");
-                getForm(Form.MAIN).setAllowForward(true);
+                getForm(Form.MAIN).setAllowFinish(true);
             } else {
-                getForm(Form.MAIN).setAllowForward(false);
+                getForm(Form.MAIN).setAllowFinish(false);
             }
             return vr;
         }
