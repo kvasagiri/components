@@ -287,9 +287,7 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
     public AllSetting getRuntimeSetting() {
         AllSetting setting = new AllSetting();
 
-        setting.setReferencedComponentId(referencedComponent.componentInstanceId.getValue());
-        setting.setReferencedComponentProperties(referencedComponent.getReference());
-
+        CommonUtils.setReferenceInfo(setting, referencedComponent);
         CommonUtils.setCommonConnectionInfo(setting, connection);
 
         setting.setTablename(this.tableSelection.tablename.getValue());

@@ -303,8 +303,7 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
     public AllSetting getRuntimeSetting() {
         AllSetting setting = new AllSetting();
 
-        setting.setReferencedComponentId(referencedComponent.componentInstanceId.getValue());
-        setting.setReferencedComponentProperties(referencedComponent.getReference());
+        CommonUtils.setReferenceInfo(setting, referencedComponent);
 
         CommonUtils.setCommonConnectionInfo(setting, connection);
 

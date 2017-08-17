@@ -59,21 +59,18 @@ public class JDBCSource extends JDBCSourceOrSink implements BoundedSource {
     public Connection connect(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
         String refComponentId = setting.getReferencedComponentId();
         // using another component's connection
-        if (refComponentId != null && runtime != null) {
+        if (refComponentId != null) {
             Object existedConn = runtime.getComponentData(ComponentConstants.CONNECTION_KEY, refComponentId);
             if (existedConn == null) {
                 throw new RuntimeException("Referenced component: " + refComponentId + " is not connected");
             }
             return (Connection) existedConn;
-        }
-
-        if (refComponentId == null) {
+        } else {
             // TODO now we use routines.system.TalendDataSource to get the data connection from the ESB runtime, but now we
             // can't
             // refer it by the new framework, so will fix it later
+            return JdbcRuntimeUtils.createConnection(setting);
         }
-
-        return JdbcRuntimeUtils.createConnection(setting);
     }
 
 }

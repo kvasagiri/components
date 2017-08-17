@@ -71,7 +71,7 @@ public class JDBCRowReader extends AbstractBoundedReader<IndexedRecord> {
         this.source = (JDBCRowSource) getCurrentSource();
 
         this.setting = props.getRuntimeSetting();
-
+        this.useExistedConnection = this.setting.getReferencedComponentId() != null;
     }
 
     @Override

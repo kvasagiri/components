@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 
@@ -52,8 +51,6 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
 
     private CallableStatement cs;
 
-    private Statement statement;
-
     private Result result;
 
     private boolean useExistedConnection;
@@ -67,6 +64,7 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
         this.source = (JDBCSPSource) getCurrentSource();
 
         this.setting = props.getRuntimeSetting();
+        this.useExistedConnection = setting.getReferencedComponentId() != null;
     }
 
     @Override
@@ -91,6 +89,7 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
 
     @Override
     public IndexedRecord getCurrent() {
+        result.totalCount++;
         try {
             cs = conn.prepareCall(source.getSPStatement(setting));
 
@@ -113,7 +112,7 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
                     String columnName = columns.get(j);
 
                     SPParameterTable.ParameterType pt = SPParameterTable.ParameterType.valueOf(each);
-                    
+
                     if (SPParameterTable.ParameterType.RECORDSET == pt) {
                         continue;
                     }
@@ -140,7 +139,6 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
         } catch (SQLException e) {
             throw new ComponentException(e);
         }
-
     }
 
     @Override
@@ -151,13 +149,7 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
                 cs = null;
             }
 
-            if (statement != null) {
-                statement.close();
-                statement = null;
-            }
-
             if (!useExistedConnection && conn != null) {
-                conn.commit();
                 conn.close();
                 conn = null;
             }

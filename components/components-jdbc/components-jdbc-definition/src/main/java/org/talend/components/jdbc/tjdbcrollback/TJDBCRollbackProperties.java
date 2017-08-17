@@ -58,8 +58,7 @@ public class TJDBCRollbackProperties extends ComponentPropertiesImpl implements 
     public AllSetting getRuntimeSetting() {
         AllSetting setting = new AllSetting();
 
-        setting.setReferencedComponentId(referencedComponent.componentInstanceId.getValue());
-        setting.setReferencedComponentProperties(referencedComponent.getReference());
+        CommonUtils.setReferenceInfo(setting, referencedComponent);
         setting.setCloseConnection(this.closeConnection.getValue());
 
         return setting;

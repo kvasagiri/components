@@ -63,8 +63,6 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
 
     private boolean useExistedConnection;
 
-    private Statement statement;
-
     private CallableStatement cs;
 
     private final List<IndexedRecord> successfulWrites = new ArrayList<>();
@@ -121,7 +119,7 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
                 for (String each : pts) {
                     j++;
                     String columnName = columns.get(j);
-                    
+
                     SPParameterTable.ParameterType pt = SPParameterTable.ParameterType.valueOf(each);
 
                     if (SPParameterTable.ParameterType.RECORDSET == pt) {
@@ -161,26 +159,22 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
 
     @Override
     public Result close() throws IOException {
-        closeStatementQuietly(statement);
-        statement = null;
+        closeStatementQuietly(cs);
 
-        commitAndCloseAtLast();
+        closeAtLast();
 
         constructResult();
 
         return result;
     }
 
-    private void commitAndCloseAtLast() {
+    private void closeAtLast() {
         if (useExistedConnection) {
             return;
         }
 
         try {
             if (conn != null) {
-                // need to call the commit before close for some database when do some read action like reading the resultset
-                conn.commit();
-
                 conn.close();
                 conn = null;
             }

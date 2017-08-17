@@ -73,9 +73,7 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         Schema componentSchema = CommonUtils.getMainSchemaFromInputConnector((ComponentProperties) properties);
 
         try {
-            CallableStatement cs = conn.prepareCall(getSPStatement(setting));
-
-            try {
+            try (CallableStatement cs = conn.prepareCall(getSPStatement(setting))) {
                 if (setting.isFunction()) {
                     String columnName = setting.getReturnResultIn();
                     Field field = CommonUtils.getField(componentSchema, columnName);
@@ -92,7 +90,7 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
                         String columnName = columns.get(j);
 
                         SPParameterTable.ParameterType pt = SPParameterTable.ParameterType.valueOf(each);
-                        
+
                         if (SPParameterTable.ParameterType.RECORDSET == pt) {
                             continue;
                         }
@@ -107,17 +105,19 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
                 }
 
                 cs.execute();
-            } finally {
-                cs.close();
-            }
-
-            if (!useExistedConnection) {
-                conn.commit();
-                conn.close();
             }
         } catch (Exception ex) {
             vr.setStatus(Result.ERROR);
             vr.setMessage(ex.getMessage());
+        } finally {
+            if (!useExistedConnection) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    System.err.println(
+                            "failed to close the connection in " + runtime.getCurrentComponentId() + " :" + e.getMessage());
+                }
+            }
         }
         return vr;
     }
@@ -140,7 +140,7 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
             boolean first = true;
             for (String each : parameterTypes) {
                 SPParameterTable.ParameterType parameterType = SPParameterTable.ParameterType.valueOf(each);
-                
+
                 if (parameterType == SPParameterTable.ParameterType.RECORDSET) {
                     continue;
                 }
@@ -195,11 +195,6 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
             return JdbcRuntimeUtils.createConnection(setting);
         } else {
             Connection conn = JdbcRuntimeUtils.createConnection(properties.getRuntimeSetting());
-
-            if (conn.getAutoCommit()) {
-                conn.setAutoCommit(false);
-            }
-
             return conn;
         }
     }
