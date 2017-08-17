@@ -20,24 +20,24 @@ public class JDBCConnectionWizard extends ComponentWizard {
 
     JDBCConnectionWizardProperties connectionProperties;
 
-    JDBCModuleListWizardProperties moduleProperties;
+    // JDBCModuleListWizardProperties moduleProperties;
 
     JDBCConnectionWizard(ComponentWizardDefinition def, String repositoryLocation) {
         super(def, repositoryLocation);
 
-        connectionProperties = new JDBCConnectionWizardProperties("connection");
+        connectionProperties = new JDBCConnectionWizardProperties("connection").setRepositoryLocation(repositoryLocation);
         connectionProperties.init();
         addForm(connectionProperties.getForm(Form.MAIN));
 
-        moduleProperties = new JDBCModuleListWizardProperties("moduleList").setConnection(connectionProperties)
-                .setRepositoryLocation(repositoryLocation);
-        moduleProperties.init();
-        addForm(moduleProperties.getForm(Form.MAIN));
+        // moduleProperties = new JDBCModuleListWizardProperties("moduleList").setConnection(connectionProperties)
+        // .setRepositoryLocation(repositoryLocation);
+        // moduleProperties.init();
+        // addForm(moduleProperties.getForm(Form.MAIN));
     }
 
     public void setupProperties(JDBCConnectionWizardProperties connectionProperties) {
         this.connectionProperties.copyValuesFrom(connectionProperties);
-        this.moduleProperties.setConnection(connectionProperties);
+        // this.moduleProperties.setConnection(connectionProperties);
     }
 
 }
