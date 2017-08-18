@@ -35,7 +35,7 @@ import org.talend.daikon.properties.ValidationResult;
 
 public class JDBCloseTestIT {
 
-    private final String refComponentId = "tJDBCConnection1";
+    private final String refComponentId = TJDBCConnectionDefinition.COMPONENT_NAME + "1";
 
     public static AllSetting allSetting;
 

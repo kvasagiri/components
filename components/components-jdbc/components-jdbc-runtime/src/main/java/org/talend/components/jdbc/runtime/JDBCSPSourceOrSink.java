@@ -114,8 +114,7 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
                 try {
                     conn.close();
                 } catch (SQLException e) {
-                    System.err.println(
-                            "failed to close the connection in " + runtime.getCurrentComponentId() + " :" + e.getMessage());
+                    throw new ComponentException(e);
                 }
             }
         }

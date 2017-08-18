@@ -64,6 +64,14 @@ public class JDBCRowReader extends AbstractBoundedReader<IndexedRecord> {
 
     private AllSetting setting;
 
+    private boolean useCommit;
+
+    private Integer commitEvery;
+
+    private Schema outSchema;
+
+    private Schema rejectSchema;
+
     public JDBCRowReader(RuntimeContainer container, JDBCRowSource source, RuntimeSettingProvider props) {
         super(source);
         this.container = container;
@@ -72,6 +80,12 @@ public class JDBCRowReader extends AbstractBoundedReader<IndexedRecord> {
 
         this.setting = props.getRuntimeSetting();
         this.useExistedConnection = this.setting.getReferencedComponentId() != null;
+
+        commitEvery = setting.getCommitEvery();
+        useCommit = !useExistedConnection && commitEvery != null && commitEvery != 0;
+
+        outSchema = CommonUtils.getOutputSchema((ComponentProperties) properties);
+        rejectSchema = CommonUtils.getRejectSchema((ComponentProperties) properties);
     }
 
     @Override
@@ -127,12 +141,17 @@ public class JDBCRowReader extends AbstractBoundedReader<IndexedRecord> {
 
             IndexedRecord output = handleSuccess(propagateQueryResultSet);
 
+            if (useCommit) {
+                conn.commit();
+            }
+
             return output;
         } catch (SQLException e) {
             if (setting.getDieOnError()) {
                 throw new ComponentException(e);
             } else {
-                // TODO : log it
+                // no need to print it as we will print the error message in component_begin.javajet for the reader if no reject
+                // line
             }
 
             handleReject(e);
@@ -141,7 +160,6 @@ public class JDBCRowReader extends AbstractBoundedReader<IndexedRecord> {
     }
 
     private IndexedRecord handleSuccess(boolean propagateQueryResultSet) {
-        Schema outSchema = CommonUtils.getOutputSchema((ComponentProperties) properties);
         IndexedRecord output = new GenericData.Record(outSchema);
 
         if (propagateQueryResultSet) {
@@ -157,8 +175,19 @@ public class JDBCRowReader extends AbstractBoundedReader<IndexedRecord> {
     }
 
     private void handleReject(SQLException e) {
-        Schema outSchema = CommonUtils.getRejectSchema((ComponentProperties) properties);
-        IndexedRecord reject = new GenericData.Record(outSchema);
+        IndexedRecord reject = new GenericData.Record(rejectSchema);
+
+        for (Schema.Field outField : reject.getSchema().getFields()) {
+            Object outValue = null;
+
+            if ("errorCode".equals(outField.name())) {
+                outValue = e.getSQLState();
+            } else if ("errorMessage".equals(outField.name())) {
+                outValue = e.getMessage();
+            }
+
+            reject.put(outField.pos(), outValue);
+        }
 
         Map<String, Object> resultMessage = new HashMap<String, Object>();
         resultMessage.put("error", e.getMessage());
@@ -182,7 +211,10 @@ public class JDBCRowReader extends AbstractBoundedReader<IndexedRecord> {
             }
 
             if (!useExistedConnection && conn != null) {
-                conn.commit();
+                // need to call the commit before close for some database when do some read action like reading the resultset
+                if (useCommit) {
+                    conn.commit();
+                }
                 conn.close();
                 conn = null;
             }

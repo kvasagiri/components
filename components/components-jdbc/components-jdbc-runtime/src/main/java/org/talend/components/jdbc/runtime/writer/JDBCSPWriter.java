@@ -69,6 +69,10 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
 
     private final List<IndexedRecord> rejectedWrites = new ArrayList<>();
 
+    private Schema componentSchema;
+
+    private Schema outputSchema;
+
     public JDBCSPWriter(WriteOperation<Result> writeOperation, RuntimeContainer runtime) {
         this.writeOperation = writeOperation;
         this.runtime = runtime;
@@ -78,6 +82,9 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
         useExistedConnection = setting.getReferencedComponentId() != null;
 
         result = new Result();
+
+        componentSchema = CommonUtils.getMainSchemaFromInputConnector((ComponentProperties) sink.properties);
+        outputSchema = CommonUtils.getOutputSchema((ComponentProperties) sink.properties);
     }
 
     public void open(String uId) throws IOException {
@@ -99,9 +106,7 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
 
         IndexedRecord inputRecord = this.getGenericIndexedRecordConverter(datum).convertToAvro(datum);
 
-        Schema componentSchema = CommonUtils.getMainSchemaFromInputConnector((ComponentProperties) sink.properties);
         Schema inputSchema = inputRecord.getSchema();
-        Schema outputSchema = CommonUtils.getOutputSchema((ComponentProperties) sink.properties);
 
         try {
 
@@ -163,8 +168,6 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
 
         closeAtLast();
 
-        constructResult();
-
         return result;
     }
 
@@ -210,9 +213,6 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
                 // close quietly
             }
         }
-    }
-
-    private void constructResult() {
     }
 
     @Override

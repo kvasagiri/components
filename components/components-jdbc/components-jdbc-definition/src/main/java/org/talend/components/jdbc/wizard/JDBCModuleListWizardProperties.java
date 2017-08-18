@@ -92,7 +92,8 @@ public class JDBCModuleListWizardProperties extends ComponentPropertiesImpl impl
                 return vr;
             }
 
-            String connRepLocation = repo.storeProperties(wizardConnectionProperties, wizardConnectionProperties.name.getValue(), repositoryLocation, null);
+            String connRepLocation = repo.storeProperties(wizardConnectionProperties, wizardConnectionProperties.name.getValue(),
+                    repositoryLocation, null);
 
             for (NamedThing nl : selectedModuleNames.getValue()) {
                 String tablename = nl.getName();
@@ -117,9 +118,11 @@ public class JDBCModuleListWizardProperties extends ComponentPropertiesImpl impl
     @Override
     public AllSetting getRuntimeSetting() {
         AllSetting setting = new AllSetting();
-        
-        CommonUtils.setCommonConnectionInfo(setting, wizardConnectionProperties.connection);
-        
+
+        if (wizardConnectionProperties != null) {
+            CommonUtils.setCommonConnectionInfo(setting, wizardConnectionProperties.connection);
+        }
+
         return setting;
     }
 }

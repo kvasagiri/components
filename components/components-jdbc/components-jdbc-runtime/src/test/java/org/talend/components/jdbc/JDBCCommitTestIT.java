@@ -51,7 +51,7 @@ public class JDBCCommitTestIT {
 
     public static AllSetting allSetting;
 
-    private final String refComponentId = "tJDBCConnection1";
+    private final String refComponentId = TJDBCConnectionDefinition.COMPONENT_NAME + "1";
 
     RuntimeContainer container = new RuntimeContainer() {
 

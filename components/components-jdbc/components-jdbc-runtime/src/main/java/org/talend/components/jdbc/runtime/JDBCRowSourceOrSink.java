@@ -50,11 +50,18 @@ public class JDBCRowSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
     private boolean useExistedConnection;
 
+    private boolean useCommit;
+
+    private Integer commitEvery;
+
     @Override
     public ValidationResult initialize(RuntimeContainer runtime, ComponentProperties properties) {
         this.properties = (RuntimeSettingProvider) properties;
         setting = this.properties.getRuntimeSetting();
         useExistedConnection = setting.getReferencedComponentId() != null;
+
+        commitEvery = setting.getCommitEvery();
+        useCommit = !useExistedConnection && commitEvery != null && commitEvery != 0;
         return ValidationResult.OK;
     }
 
@@ -91,17 +98,23 @@ public class JDBCRowSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
                 }
             }
 
-            if (!useExistedConnection) {
+            if (useCommit) {
                 conn.commit();
-                conn.close();
             }
         } catch (Exception ex) {
             if (dieOnError) {
                 vr.setStatus(Result.ERROR);
                 vr.setMessage(ex.getMessage());
             } else {
-                // should log it
                 System.err.println(ex.getMessage());
+            }
+        } finally {
+            if (!useExistedConnection) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    throw new ComponentException(e);
+                }
             }
         }
         return vr;
@@ -136,6 +149,13 @@ public class JDBCRowSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
             return JdbcRuntimeUtils.createConnection(setting);
         } else {
             Connection conn = JdbcRuntimeUtils.createConnection(properties.getRuntimeSetting());
+
+            if (useCommit) {
+                if (conn.getAutoCommit()) {
+                    conn.setAutoCommit(false);
+                }
+            }
+
             return conn;
         }
     }

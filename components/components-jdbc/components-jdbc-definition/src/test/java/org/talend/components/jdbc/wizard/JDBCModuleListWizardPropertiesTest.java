@@ -30,10 +30,9 @@ public class JDBCModuleListWizardPropertiesTest {
         JDBCModuleListWizardProperties result = new JDBCModuleListWizardProperties(name);
 
         assertNotNull(result.getRuntimeSetting());
-        // FIXME
-        assertEquals("", result.getDisplayName());
-        assertEquals(null, result.getName());
-        assertEquals(null, result.getTitle());
+        assertEquals("properties.wizard.displayName", result.getDisplayName());
+        assertEquals("wizard", result.getName());
+        assertEquals("wizard", result.getTitle());
     }
 
     /**
