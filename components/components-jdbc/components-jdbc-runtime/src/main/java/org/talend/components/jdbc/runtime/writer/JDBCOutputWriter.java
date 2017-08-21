@@ -83,6 +83,8 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
 
     protected int commitCount;
 
+    protected boolean useCommit;
+
     protected boolean useExistedConnection;
 
     protected boolean dieOnError;
@@ -118,8 +120,11 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
         }
 
         useExistedConnection = setting.getReferencedComponentId() != null;
-        if (!useExistedConnection) {
+        if (!useExistedConnection && setting.getCommitEvery() != null) {
             commitEvery = setting.getCommitEvery();
+            if (commitEvery > 0) {
+                useCommit = true;
+            }
         }
 
         dieOnError = setting.getDieOnError();
@@ -164,7 +169,7 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
         }
 
         try {
-            if (commitCount > 0) {
+            if (useCommit && commitCount > 0) {
                 commitCount = 0;
 
                 if (conn != null) {
@@ -246,7 +251,7 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
     protected int executeCommit(PreparedStatement statement) throws SQLException {
         int result = 0;
 
-        if (useExistedConnection) {
+        if (!useCommit) {
             return result;
         }
 
