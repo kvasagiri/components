@@ -21,6 +21,7 @@ import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.JdbcRuntimeInfo;
+import org.talend.components.jdbc.wizard.JDBCConnectionWizardProperties;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 import org.talend.daikon.runtime.RuntimeInfo;
@@ -74,6 +75,11 @@ public class TJDBCInputDefinition extends AbstractComponentDefinition {
     @Override
     public Set<ConnectorTopology> getSupportedConnectorTopologies() {
         return EnumSet.of(ConnectorTopology.OUTGOING);
+    }
+    
+    @Override
+    public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
+        return new Class[] { JDBCConnectionWizardProperties.class };
     }
 
 }
