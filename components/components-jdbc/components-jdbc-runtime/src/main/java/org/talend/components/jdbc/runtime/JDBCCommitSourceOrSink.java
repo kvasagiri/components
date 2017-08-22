@@ -36,11 +36,11 @@ public class JDBCCommitSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
     private static final long serialVersionUID = -7226558840084293603L;
 
-    public ComponentProperties properties;
+    private AllSetting setting;
 
     @Override
     public ValidationResult initialize(RuntimeContainer runtime, ComponentProperties properties) {
-        this.properties = properties;
+        this.setting = ((RuntimeSettingProvider) properties).getRuntimeSetting();
         return ValidationResult.OK;
     }
 
@@ -67,14 +67,13 @@ public class JDBCCommitSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
     }
 
     public void doCommitAction(RuntimeContainer runtime) throws SQLException {
-        String refComponentId = ((RuntimeSettingProvider) properties).getRuntimeSetting().getReferencedComponentId();
+        String refComponentId = setting.getReferencedComponentId();
         if (refComponentId != null && runtime != null) {
             java.sql.Connection conn = (java.sql.Connection) runtime.getComponentData(ComponentConstants.CONNECTION_KEY,
                     refComponentId);
             if (conn != null && !conn.isClosed()) {
                 conn.commit();
 
-                AllSetting setting = ((RuntimeSettingProvider) properties).getRuntimeSetting();
                 if (setting.getCloseConnection()) {
                     conn.close();
                 }
