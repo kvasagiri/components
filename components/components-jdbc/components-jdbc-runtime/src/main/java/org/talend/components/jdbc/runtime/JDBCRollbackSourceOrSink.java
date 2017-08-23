@@ -36,11 +36,11 @@ public class JDBCRollbackSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
     private static final long serialVersionUID = -1301033726721076440L;
 
-    public ComponentProperties properties;
+    private AllSetting setting;
 
     @Override
     public ValidationResult initialize(RuntimeContainer runtime, ComponentProperties properties) {
-        this.properties = properties;
+        this.setting = ((RuntimeSettingProvider) properties).getRuntimeSetting();
         return ValidationResult.OK;
     }
 
@@ -67,14 +67,13 @@ public class JDBCRollbackSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
     }
 
     public void doRollbackAction(RuntimeContainer runtime) throws SQLException {
-        String refComponentId = ((RuntimeSettingProvider) properties).getRuntimeSetting().getReferencedComponentId();
+        String refComponentId = setting.getReferencedComponentId();
         if (refComponentId != null && runtime != null) {
             java.sql.Connection conn = (java.sql.Connection) runtime.getComponentData(ComponentConstants.CONNECTION_KEY,
                     refComponentId);
             if (conn != null && !conn.isClosed()) {
                 conn.rollback();
 
-                AllSetting setting = ((RuntimeSettingProvider) properties).getRuntimeSetting();
                 if (setting.getCloseConnection()) {
                     conn.close();
                 }
