@@ -122,6 +122,7 @@ public class JDBCRollbackTestIT {
         outputProperties.dataAction.setValue(DataAction.INSERT);
 
         outputProperties.referencedComponent.componentInstanceId.setValue(refComponentId);
+        outputProperties.referencedComponent.setReference(connectionProperties);
 
         JDBCSink sink = new JDBCSink();
         sink.initialize(container, outputProperties);
