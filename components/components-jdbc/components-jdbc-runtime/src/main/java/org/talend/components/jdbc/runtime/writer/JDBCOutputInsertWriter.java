@@ -96,6 +96,7 @@ public class JDBCOutputInsertWriter extends JDBCOutputWriter {
                 // System.err.print(e.getMessage());
 
                 // also it seems that we should not use the System.err in future, should use log instead of it.
+                System.err.println(e.getMessage());
                 LOG.warn(e.getMessage());
             }
 

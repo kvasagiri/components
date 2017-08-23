@@ -261,9 +261,7 @@ public class TJDBCRowProperties extends FixedConnectorsComponentProperties imple
     public AllSetting getRuntimeSetting() {
         AllSetting setting = new AllSetting();
 
-        CommonUtils.setReferenceInfo(setting, referencedComponent);
-
-        CommonUtils.setCommonConnectionInfo(setting, connection);
+        CommonUtils.setReferenceInfoAndConnectionInfo(setting, referencedComponent, connection);
 
         setting.setTablename(this.tableSelection.tablename.getValue());
         setting.setSql(this.sql.getValue());

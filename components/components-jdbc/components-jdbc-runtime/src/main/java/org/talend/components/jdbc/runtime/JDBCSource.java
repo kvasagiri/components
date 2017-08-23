@@ -60,11 +60,15 @@ public class JDBCSource extends JDBCSourceOrSink implements BoundedSource {
         String refComponentId = setting.getReferencedComponentId();
         // using another component's connection
         if (refComponentId != null) {
-            Object existedConn = runtime.getComponentData(ComponentConstants.CONNECTION_KEY, refComponentId);
-            if (existedConn == null) {
-                throw new RuntimeException("Referenced component: " + refComponentId + " is not connected");
+            if (runtime != null) {//component runtime part
+                Object existedConn = runtime.getComponentData(ComponentConstants.CONNECTION_KEY, refComponentId);
+                if (existedConn == null) {
+                    throw new RuntimeException("Referenced component: " + refComponentId + " is not connected");
+                }
+                return (Connection) existedConn;
+            } else {//design time which work for the button in component
+                return JdbcRuntimeUtils.createConnection(setting);
             }
-            return (Connection) existedConn;
         } else {
             // TODO now we use routines.system.TalendDataSource to get the data connection from the ESB runtime, but now we
             // can't

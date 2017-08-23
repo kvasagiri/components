@@ -61,7 +61,7 @@ public class JDBCTableSelectionModule extends PropertiesImpl {
     }
 
     public ValidationResult beforeTablename() throws IOException {
-        JdbcRuntimeInfo jdbcRuntimeInfo = new JdbcRuntimeInfo(connection, "org.talend.components.jdbc.runtime.JDBCSourceOrSink");
+        JdbcRuntimeInfo jdbcRuntimeInfo = new JdbcRuntimeInfo(connection, "org.talend.components.jdbc.runtime.JDBCSource");
         try (SandboxedInstance sandboxI = RuntimeUtil.createRuntimeClass(jdbcRuntimeInfo,
                 connection.getClass().getClassLoader())) {
             SourceOrSink ss = (SourceOrSink) sandboxI.getInstance();

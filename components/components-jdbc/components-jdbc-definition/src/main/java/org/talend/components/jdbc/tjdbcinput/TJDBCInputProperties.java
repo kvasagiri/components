@@ -249,7 +249,7 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
     }
 
     public ValidationResult afterFetchSchemaFromQuery() {
-        JdbcRuntimeInfo jdbcRuntimeInfo = new JdbcRuntimeInfo(this, "org.talend.components.jdbc.runtime.JDBCSourceOrSink");
+        JdbcRuntimeInfo jdbcRuntimeInfo = new JdbcRuntimeInfo(this, "org.talend.components.jdbc.runtime.JDBCSource");
         try (SandboxedInstance sandboxI = RuntimeUtil.createRuntimeClass(jdbcRuntimeInfo,
                 connection.getClass().getClassLoader())) {
             JdbcRuntimeSourceOrSink ss = (JdbcRuntimeSourceOrSink) sandboxI.getInstance();
@@ -265,6 +265,7 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
         return ValidationResult.OK;
     }
 
+    // TODO when use existed connection, it doesn't work, seems a bug in the upriver
     public ValidationResult afterGuessQueryFromSchema() {
         String tablename = tableSelection.tablename.getValue();
         Schema schema = main.schema.getValue();
@@ -277,7 +278,7 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
         String query = JDBCSQLBuilder.getInstance().generateSQL4SelectTable(tablename, schema);
         sql.setValue("\"" + query + "\"");
 
-        // TODO : it doesn't work
+        //TODO maybe we need to split it two trigger methods : validate and after
         refreshLayout(getForm(Form.MAIN));
 
         return ValidationResult.OK;
@@ -287,8 +288,7 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
     public AllSetting getRuntimeSetting() {
         AllSetting setting = new AllSetting();
 
-        CommonUtils.setReferenceInfo(setting, referencedComponent);
-        CommonUtils.setCommonConnectionInfo(setting, connection);
+        CommonUtils.setReferenceInfoAndConnectionInfo(setting, referencedComponent, connection);
 
         setting.setTablename(this.tableSelection.tablename.getValue());
         setting.setSql(this.sql.getValue());

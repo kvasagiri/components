@@ -210,10 +210,10 @@ public class CommonUtils {
         setting.setPassword(connection.userPassword.password.getValue());
     }
 
-    public static void setReferenceInfo(AllSetting setting,
+    public static boolean setReferenceInfo(AllSetting setting,
             ComponentReferenceProperties<TJDBCConnectionProperties> referencedComponent) {
         if (referencedComponent == null) {
-            return;
+            return false;
         }
 
         String refComponentIdValue = referencedComponent.componentInstanceId.getStringValue();
@@ -223,6 +223,20 @@ public class CommonUtils {
         if (useOtherConnection) {
             setting.setReferencedComponentId(referencedComponent.componentInstanceId.getValue());
             setting.setReferencedComponentProperties(referencedComponent.getReference());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static void setReferenceInfoAndConnectionInfo(AllSetting setting,
+            ComponentReferenceProperties<TJDBCConnectionProperties> referencedComponent, JDBCConnectionModule connection) {
+        boolean useExistedConnection = setReferenceInfo(setting, referencedComponent);
+
+        if (useExistedConnection) {
+            setCommonConnectionInfo(setting, ((TJDBCConnectionProperties)referencedComponent.getReference()).connection);
+        } else {
+            setCommonConnectionInfo(setting, connection);
         }
     }
 

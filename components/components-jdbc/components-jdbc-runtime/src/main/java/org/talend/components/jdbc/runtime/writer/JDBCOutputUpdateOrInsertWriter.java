@@ -143,6 +143,7 @@ public class JDBCOutputUpdateOrInsertWriter extends JDBCOutputWriter {
             if (dieOnError) {
                 throw new ComponentException(e);
             } else {
+                System.err.println(e.getMessage());
                 LOG.warn(e.getMessage());
             }
 

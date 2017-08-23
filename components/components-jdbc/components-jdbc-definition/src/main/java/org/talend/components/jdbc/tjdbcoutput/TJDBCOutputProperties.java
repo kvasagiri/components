@@ -282,7 +282,7 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
     }
 
     public ValidationResult afterFetchSchemaFromTable() {
-        JdbcRuntimeInfo jdbcRuntimeInfo = new JdbcRuntimeInfo(this, "org.talend.components.jdbc.runtime.JDBCSourceOrSink");
+        JdbcRuntimeInfo jdbcRuntimeInfo = new JdbcRuntimeInfo(this, "org.talend.components.jdbc.runtime.JDBCSource");
         try (SandboxedInstance sandboxI = RuntimeUtil.createRuntimeClass(jdbcRuntimeInfo,
                 connection.getClass().getClassLoader())) {
             JdbcRuntimeSourceOrSink ss = (JdbcRuntimeSourceOrSink) sandboxI.getInstance();
@@ -303,9 +303,7 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
     public AllSetting getRuntimeSetting() {
         AllSetting setting = new AllSetting();
 
-        CommonUtils.setReferenceInfo(setting, referencedComponent);
-
-        CommonUtils.setCommonConnectionInfo(setting, connection);
+        CommonUtils.setReferenceInfoAndConnectionInfo(setting, referencedComponent, connection);
 
         setting.setTablename(this.tableSelection.tablename.getValue());
         setting.setDataAction(this.dataAction.getValue());
