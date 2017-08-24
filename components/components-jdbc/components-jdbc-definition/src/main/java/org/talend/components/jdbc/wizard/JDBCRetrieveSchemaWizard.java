@@ -14,22 +14,31 @@ package org.talend.components.jdbc.wizard;
 
 import org.talend.components.api.wizard.ComponentWizard;
 import org.talend.components.api.wizard.ComponentWizardDefinition;
-import org.talend.daikon.properties.presentation.Form;
 
-public class JDBCConnectionWizard extends ComponentWizard {
+public class JDBCRetrieveSchemaWizard extends ComponentWizard {
 
     JDBCConnectionWizardProperties connectionProperties;
 
-    JDBCConnectionWizard(ComponentWizardDefinition def, String repositoryLocation) {
+    JDBCRetrieveSchemaWizardProperties retrieveSchemaProperties;
+
+    JDBCRetrieveSchemaWizard(ComponentWizardDefinition def, String repositoryLocation) {
         super(def, repositoryLocation);
 
         connectionProperties = new JDBCConnectionWizardProperties("connection").setRepositoryLocation(repositoryLocation);
         connectionProperties.init();
-        addForm(connectionProperties.getForm(Form.MAIN));
+
+        retrieveSchemaProperties = new JDBCRetrieveSchemaWizardProperties("retrieveschema")
+                .setConnection(connectionProperties).setRepositoryLocation(repositoryLocation);
+        retrieveSchemaProperties.init();
+
+        addForm(retrieveSchemaProperties.getForm(JDBCRetrieveSchemaWizardProperties.FORM_PAGE1));
+        addForm(retrieveSchemaProperties.getForm(JDBCRetrieveSchemaWizardProperties.FORM_PAGE2));
+//        addForm(retrieveSchemaProperties.getForm(JDBCRetrieveSchemaWizardProperties.FORM_PAGE3));
     }
 
     public void setupProperties(JDBCConnectionWizardProperties connectionProperties) {
         this.connectionProperties.copyValuesFrom(connectionProperties);
+        this.retrieveSchemaProperties.setConnection(this.connectionProperties);
     }
 
 }

@@ -14,6 +14,8 @@ package org.talend.components.jdbc.wizard;
 
 import static org.talend.daikon.properties.presentation.Widget.widget;
 
+import java.util.List;
+
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.JdbcRuntimeInfo;
@@ -21,6 +23,7 @@ import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSink;
+import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.PresentationItem;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.ValidationResult;
@@ -32,6 +35,12 @@ import org.talend.daikon.properties.service.Repository;
 import org.talend.daikon.runtime.RuntimeUtil;
 import org.talend.daikon.sandbox.SandboxedInstance;
 
+/**
+ * this is the entrance properties for all the wizards(root jdbc wizard, all the right click wizards), we will store it in the
+ * item file as the root properties, the schemas are the sub elements of it, we may also need to store the query as a property of this
+ * properties for the reading and editing query wizard though the query will not be displayed in this properties
+ *
+ */
 public class JDBCConnectionWizardProperties extends ComponentPropertiesImpl implements RuntimeSettingProvider {
 
     public Property<String> name = PropertyFactory.newString("name").setRequired();
@@ -41,6 +50,11 @@ public class JDBCConnectionWizardProperties extends ComponentPropertiesImpl impl
     public JDBCConnectionModule connection = new JDBCConnectionModule("connection");
 
     public PresentationItem testConnection = new PresentationItem("testConnection", "Test connection");
+    
+    //only for store information to item file
+    public List<NamedThing> querys;
+    public String filter;
+    public List<NamedThing> moduleNames;
 
     public JDBCConnectionWizardProperties(String name) {
         super(name);
