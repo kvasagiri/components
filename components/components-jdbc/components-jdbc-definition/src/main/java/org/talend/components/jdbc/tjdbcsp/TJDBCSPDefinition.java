@@ -21,6 +21,7 @@ import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.JdbcRuntimeInfo;
 import org.talend.components.jdbc.wizard.JDBCConnectionWizardProperties;
+import org.talend.components.jdbc.wizard.JDBCSchemaWizardProperties;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
 
@@ -92,6 +93,6 @@ public class TJDBCSPDefinition extends AbstractComponentDefinition {
 
     @Override
     public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
-        return new Class[] { JDBCConnectionWizardProperties.class };
+        return new Class[] { JDBCConnectionWizardProperties.class, JDBCSchemaWizardProperties.class };
     }
 }

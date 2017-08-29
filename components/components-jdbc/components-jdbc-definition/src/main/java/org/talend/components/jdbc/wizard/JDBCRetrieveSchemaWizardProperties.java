@@ -25,8 +25,8 @@ import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.JdbcRuntimeInfo;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
+import org.talend.components.jdbc.runtime.setting.JDBCSQLBuilder;
 import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSink;
-import org.talend.components.jdbc.tjdbcinput.TJDBCInputProperties;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.ValidationResult;
@@ -154,16 +154,12 @@ public class JDBCRetrieveSchemaWizardProperties extends ComponentPropertiesImpl 
                 String tablename = nl.getName();
                 Schema schema = sourceOrSink.getEndpointSchema(null, tablename);
 
-                // only use one properties contains all information(connection info, table name, schema), not have to be
-                // TJDBCInputProperties
-                // it seems that we map the wizard meta data to component properties by the field path
-                // TODO make sure it works
-                TJDBCInputProperties properties = new TJDBCInputProperties(tablename);
-                properties.connection = wizardConnectionProperties.connection;
+                JDBCSchemaWizardProperties properties = new JDBCSchemaWizardProperties(tablename);
                 properties.init();
-
+                
                 properties.tableSelection.tablename.setValue(tablename);
                 properties.main.schema.setValue(schema);
+                properties.sql.setValue(JDBCSQLBuilder.getInstance().generateSQL4SelectTable(tablename, schema));
                 repo.storeProperties(properties, tablename, connRepLocation, "main.schema");
             }
             return ValidationResult.OK;
