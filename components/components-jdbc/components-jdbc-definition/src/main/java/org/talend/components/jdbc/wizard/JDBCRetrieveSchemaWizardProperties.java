@@ -120,7 +120,7 @@ public class JDBCRetrieveSchemaWizardProperties extends ComponentPropertiesImpl 
             } else {
                 List<NamedThing> result = new ArrayList<>();
                 for (NamedThing name : moduleNames) {
-                    if (name.getName().equals(filterValue)) {
+                    if (name.getName().contains(filterValue)) {
                         result.add(name);
                     }
                 }
