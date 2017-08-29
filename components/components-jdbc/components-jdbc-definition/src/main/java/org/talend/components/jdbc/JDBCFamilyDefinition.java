@@ -30,6 +30,7 @@ import org.talend.components.jdbc.tjdbcoutput.TJDBCOutputDefinition;
 import org.talend.components.jdbc.tjdbcrollback.TJDBCRollbackDefinition;
 import org.talend.components.jdbc.tjdbcrow.TJDBCRowDefinition;
 import org.talend.components.jdbc.tjdbcsp.TJDBCSPDefinition;
+import org.talend.components.jdbc.wizard.JDBCConnectionEditWizardDefinition;
 import org.talend.components.jdbc.wizard.JDBCConnectionWizardDefinition;
 import org.talend.components.jdbc.wizard.JDBCRetrieveSchemaWizardDefinition;
 
@@ -85,8 +86,8 @@ public class JDBCFamilyDefinition extends AbstractComponentFamilyDefinition impl
                 new TJDBCInputDefinition(), new TJDBCOutputDefinition(), new TJDBCRollbackDefinition(), new TJDBCRowDefinition(),
                 new TJDBCSPDefinition(),
                 // Component wizards
-                new JDBCConnectionWizardDefinition(), new JDBCRetrieveSchemaWizardDefinition(), // no need to add the edit wizard
-                                                                                                // as studio will provide auto one
+                new JDBCConnectionWizardDefinition(), new JDBCConnectionEditWizardDefinition(),
+                new JDBCRetrieveSchemaWizardDefinition(),
                 // Datastore, Dataset and the component
                 new JDBCDatastoreDefinition(), new JDBCDatasetDefinition(), new JDBCInputDefinition(),
                 new JDBCOutputDefinition());

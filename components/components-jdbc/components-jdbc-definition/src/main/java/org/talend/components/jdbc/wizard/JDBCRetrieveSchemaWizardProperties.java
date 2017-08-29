@@ -106,22 +106,27 @@ public class JDBCRetrieveSchemaWizardProperties extends ComponentPropertiesImpl 
         if (wizardConnectionProperties.moduleNames != null) {
             selectedModuleNames.setValue(wizardConnectionProperties.moduleNames);
         }
-        
+
         JdbcRuntimeInfo jdbcRuntimeInfo = new JdbcRuntimeInfo(this, "org.talend.components.jdbc.runtime.JDBCSourceOrSink");
         try (SandboxedInstance sandboxI = RuntimeUtil.createRuntimeClass(jdbcRuntimeInfo,
                 wizardConnectionProperties.getClass().getClassLoader())) {
             JdbcRuntimeSourceOrSink sourceOrSink = (JdbcRuntimeSourceOrSink) sandboxI.getInstance();
             sourceOrSink.initialize(null, this);
             List<NamedThing> moduleNames = sourceOrSink.getSchemaNames(null);
-            
-            List<NamedThing> result = new ArrayList<>();
-            for(NamedThing name : moduleNames){
-                if(name.getName().equals(filter)) {
-                    result.add(name);
+
+            String filterValue = filter.getValue();
+            if (filterValue == null || filterValue.isEmpty()) {
+                selectedModuleNames.setPossibleValues(moduleNames);
+            } else {
+                List<NamedThing> result = new ArrayList<>();
+                for (NamedThing name : moduleNames) {
+                    if (name.getName().equals(filterValue)) {
+                        result.add(name);
+                    }
                 }
+                selectedModuleNames.setPossibleValues(result);
             }
-            
-            selectedModuleNames.setPossibleValues(result);
+
             getForm(FORM_PAGE2).setAllowBack(true);
             getForm(FORM_PAGE2).setAllowFinish(true);
         }
@@ -144,7 +149,7 @@ public class JDBCRetrieveSchemaWizardProperties extends ComponentPropertiesImpl 
             String connRepLocation = repo.storeProperties(wizardConnectionProperties, wizardConnectionProperties.name.getValue(),
                     repositoryLocation, null);
 
-            //store schemas
+            // store schemas
             for (NamedThing nl : selectedModuleNames.getValue()) {
                 String tablename = nl.getName();
                 Schema schema = sourceOrSink.getEndpointSchema(null, tablename);
