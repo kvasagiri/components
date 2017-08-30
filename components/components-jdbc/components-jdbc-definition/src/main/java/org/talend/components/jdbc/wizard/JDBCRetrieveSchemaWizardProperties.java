@@ -55,6 +55,10 @@ public class JDBCRetrieveSchemaWizardProperties extends ComponentPropertiesImpl 
     public Property<String> filter = PropertyFactory.newString("filter");
 
     // page2
+    // studio will fill the value for the property below after beforeFormPresent and before afterFormFinish method auto, don't
+    // know how
+    // they do that, but it mean we no
+    // need to store it to the item file. But we will store it in fact as it should works with the filter property above together
     public Property<List<NamedThing>> selectedModuleNames = newProperty(new TypeLiteral<List<NamedThing>>() {
     }, "selectedModuleNames");
 
