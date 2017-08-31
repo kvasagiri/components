@@ -16,7 +16,9 @@ import static org.talend.daikon.properties.presentation.Widget.widget;
 import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.avro.Schema;
 import org.apache.commons.lang3.reflect.TypeLiteral;
@@ -97,19 +99,16 @@ public class JDBCRetrieveSchemaWizardProperties extends ComponentPropertiesImpl 
     }
 
     public void beforeFormPresentPage1() throws Exception {
-        if (wizardConnectionProperties.filter != null) {
-            filter.setValue(wizardConnectionProperties.filter);
-        }
-
         getForm(FORM_PAGE1).setAllowBack(true);
         getForm(FORM_PAGE1).setAllowForward(true);
         getForm(FORM_PAGE1).setAllowFinish(true);
     }
 
+    // we use this to make sure not lost modules
+    private Set<NamedThing> checkedModulesButWillNotShow = new HashSet<>();
+
     public void beforeFormPresentPage2() throws Exception {
-        if (wizardConnectionProperties.moduleNames != null) {
-            selectedModuleNames.setValue(wizardConnectionProperties.moduleNames);
-        }
+        checkedModulesButWillNotShow.clear();
 
         JdbcRuntimeInfo jdbcRuntimeInfo = new JdbcRuntimeInfo(this, "org.talend.components.jdbc.runtime.JDBCSourceOrSink");
         try (SandboxedInstance sandboxI = RuntimeUtil.createRuntimeClass(jdbcRuntimeInfo,
@@ -119,17 +118,27 @@ public class JDBCRetrieveSchemaWizardProperties extends ComponentPropertiesImpl 
             List<NamedThing> moduleNames = sourceOrSink.getSchemaNames(null);
 
             String filterValue = filter.getValue();
+            final List<NamedThing> result;
             if (filterValue == null || filterValue.isEmpty()) {
-                selectedModuleNames.setPossibleValues(moduleNames);
+                result = moduleNames;
             } else {
-                List<NamedThing> result = new ArrayList<>();
+                result = new ArrayList<>();
                 for (NamedThing name : moduleNames) {
                     if (name.getName().contains(filterValue)) {
                         result.add(name);
                     }
                 }
-                selectedModuleNames.setPossibleValues(result);
             }
+
+            if (wizardConnectionProperties.moduleNames != null) {
+                for (NamedThing moduleName : wizardConnectionProperties.moduleNames) {
+                    if (!result.contains(moduleName)) {
+                        checkedModulesButWillNotShow.add(moduleName);
+                    }
+                }
+            }
+
+            selectedModuleNames.setPossibleValues(result);
 
             getForm(FORM_PAGE2).setAllowBack(true);
             getForm(FORM_PAGE2).setAllowFinish(true);
@@ -137,8 +146,12 @@ public class JDBCRetrieveSchemaWizardProperties extends ComponentPropertiesImpl 
     }
 
     public ValidationResult afterFormFinishPage2(Repository<Properties> repo) throws Exception {
+        // store them to item file
         wizardConnectionProperties.filter = filter.getValue();
-        wizardConnectionProperties.moduleNames = selectedModuleNames.getValue();
+
+        List<NamedThing> currentSelectedModules = selectedModuleNames.getValue();
+        currentSelectedModules.addAll(checkedModulesButWillNotShow);
+        wizardConnectionProperties.moduleNames = currentSelectedModules;
 
         JdbcRuntimeInfo jdbcRuntimeInfo = new JdbcRuntimeInfo(this, "org.talend.components.jdbc.runtime.JDBCSourceOrSink");
         try (SandboxedInstance sandboxI = RuntimeUtil.createRuntimeClass(jdbcRuntimeInfo,
@@ -154,13 +167,13 @@ public class JDBCRetrieveSchemaWizardProperties extends ComponentPropertiesImpl 
                     repositoryLocation, null);
 
             // store schemas
-            for (NamedThing nl : selectedModuleNames.getValue()) {
+            for (NamedThing nl : wizardConnectionProperties.moduleNames) {
                 String tablename = nl.getName();
                 Schema schema = sourceOrSink.getEndpointSchema(null, tablename);
 
                 JDBCSchemaWizardProperties properties = new JDBCSchemaWizardProperties(tablename);
                 properties.init();
-                
+
                 properties.tableSelection.tablename.setValue(tablename);
                 properties.main.schema.setValue(schema);
                 properties.sql.setValue(JDBCSQLBuilder.getInstance().generateSQL4SelectTable(tablename, schema));

@@ -27,17 +27,31 @@ public class JDBCRetrieveSchemaWizard extends ComponentWizard {
         connectionProperties = new JDBCConnectionWizardProperties("connection").setRepositoryLocation(repositoryLocation);
         connectionProperties.init();
 
-        retrieveSchemaProperties = new JDBCRetrieveSchemaWizardProperties("retrieveschema")
-                .setConnection(connectionProperties).setRepositoryLocation(repositoryLocation);
+        retrieveSchemaProperties = new JDBCRetrieveSchemaWizardProperties("retrieveschema").setConnection(connectionProperties)
+                .setRepositoryLocation(repositoryLocation);
         retrieveSchemaProperties.init();
 
         addForm(retrieveSchemaProperties.getForm(JDBCRetrieveSchemaWizardProperties.FORM_PAGE1));
         addForm(retrieveSchemaProperties.getForm(JDBCRetrieveSchemaWizardProperties.FORM_PAGE2));
-//        addForm(retrieveSchemaProperties.getForm(JDBCRetrieveSchemaWizardProperties.FORM_PAGE3));
+        // addForm(retrieveSchemaProperties.getForm(JDBCRetrieveSchemaWizardProperties.FORM_PAGE3));
     }
 
     public void setupProperties(JDBCConnectionWizardProperties connectionProperties) {
         this.connectionProperties.copyValuesFrom(connectionProperties);
+        // TODO the copyValuesFrom method only can copy the property or properties object, will ignore others, so need to the copy
+        // below
+        if (connectionProperties.querys != null) {
+            this.connectionProperties.querys = connectionProperties.querys;
+        }
+
+        if (connectionProperties.filter != null) {
+            this.connectionProperties.filter = connectionProperties.filter;
+        }
+
+        if (connectionProperties.moduleNames != null) {
+            this.connectionProperties.moduleNames = connectionProperties.moduleNames;
+        }
+
         this.retrieveSchemaProperties.setConnection(this.connectionProperties);
     }
 
