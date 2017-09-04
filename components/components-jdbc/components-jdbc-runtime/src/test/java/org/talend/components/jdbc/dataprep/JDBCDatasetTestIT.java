@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.components.jdbc.dataprep;
 
+import java.util.Iterator;
+
 import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
 import org.junit.AfterClass;
@@ -23,8 +25,10 @@ import org.talend.components.jdbc.dataset.JDBCDatasetProperties;
 import org.talend.components.jdbc.datastore.JDBCDatastoreDefinition;
 import org.talend.components.jdbc.datastore.JDBCDatastoreProperties;
 import org.talend.components.jdbc.runtime.dataprep.JDBCDatasetRuntime;
+import org.talend.components.jdbc.runtime.dataprep.JDBCDatastoreRuntime;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.daikon.java8.Consumer;
+import org.talend.daikon.properties.ValidationResult;
 
 public class JDBCDatasetTestIT {
 
@@ -74,6 +78,18 @@ public class JDBCDatasetTestIT {
     public void testGetSampleWithoutDesignSchema() {
         JDBCDatasetProperties dataset = createDatasetProperties(false);
         getSampleAction(dataset);
+    }
+    
+    @Test
+    public void testDoHealthChecks() {
+        JDBCDatasetProperties dataset = createDatasetProperties(true);
+        JDBCDatastoreRuntime runtime = new JDBCDatastoreRuntime();
+        runtime.initialize(null, dataset.getDatastoreProperties());
+        Iterable<ValidationResult> result = runtime.doHealthChecks(null);
+        Assert.assertNotNull(result);
+        Iterator<ValidationResult> iterator = result.iterator();
+        Assert.assertTrue(iterator.hasNext());
+        Assert.assertEquals(ValidationResult.Result.OK, iterator.next().getStatus());
     }
 
     private void getSampleAction(JDBCDatasetProperties dataset) {
