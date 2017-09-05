@@ -153,7 +153,7 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
                 indexedRecordCreator.init(componentSchema, outputSchema, setting);
             }
 
-            IndexedRecord outputRecord = indexedRecordCreator.createOutputIndexedRecord(cs.getResultSet(), inputRecord);
+            IndexedRecord outputRecord = indexedRecordCreator.createOutputIndexedRecord(cs, inputRecord);
 
             successfulWrites.add(outputRecord);
         } catch (Exception e) {

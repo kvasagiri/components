@@ -62,6 +62,8 @@ import org.talend.components.jdbc.tjdbcoutput.TJDBCOutputProperties;
 import org.talend.components.jdbc.tjdbcoutput.TJDBCOutputProperties.DataAction;
 import org.talend.components.jdbc.tjdbcrow.TJDBCRowDefinition;
 import org.talend.components.jdbc.tjdbcrow.TJDBCRowProperties;
+import org.talend.components.jdbc.tjdbcsp.TJDBCSPDefinition;
+import org.talend.components.jdbc.tjdbcsp.TJDBCSPProperties;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
@@ -955,5 +957,60 @@ public class DBTestUtils {
 
     public static void testMetadata(List<Field> columns) {
         testMetadata(columns, false);
+    }
+
+    private static void createAllFunctionOrProcedures(AllSetting allSetting) throws Exception {
+        try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
+            try (Statement statement = conn.createStatement()) {
+                statement.execute("CREATE PROCEDURE p1 ()  INSERT INTO TEST values(4, 'lucky') ");//no in, no out
+                statement.execute("CREATE PROCEDURE p2 (IN a1 CHAR(20), IN a2 CHAR(20)) BEGIN INSERT INTO TEST values(a1, a2); END");//only in
+                statement.execute("CREATE PROCEDURE p3 (OUT a1 INT) BEGIN SELECT COUNT(*) INTO a1 FROM TEST; END");//only out
+                statement.execute("CREATE PROCEDURE p4 (IN a1 CHAR(20), IN a2 CHAR(20), OUT a3 INT) BEGIN INSERT INTO TEST values(a1, a2);SELECT COUNT(*) INTO a3 FROM TEST; END");//in and out
+                statement.execute("CREATE FUNCTION f1 (a CHAR(20)) RETURNS CHAR(50) DETERMINISTIC RETURN CONCAT('Hello, ',a,'!')");//function
+            }
+        }
+    }
+    
+    private static void dropAllFunctionOrProcedures(AllSetting allSetting) throws ClassNotFoundException, SQLException {
+        try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
+            try (Statement statement = conn.createStatement()) {
+                statement.execute("DROP PROCEDURE p1");
+                statement.execute("DROP PROCEDURE p2");
+                statement.execute("DROP PROCEDURE p3");
+                statement.execute("DROP PROCEDURE p4");
+                statement.execute("DROP FUNCTION f1");
+            }
+        }
+    }
+    
+    public static Schema createSPSchema1() {
+        FieldAssembler<Schema> builder = SchemaBuilder.builder().record("TEST").fields();
+
+        Schema schema = AvroUtils._int();
+        schema = wrap(schema);
+        builder = builder.name("PARAMETER").prop(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME, "PARAMETER").type(schema).noDefault();
+
+        return builder.endRecord();
+    }
+    
+    public static Schema createSPSchema2() {
+        FieldAssembler<Schema> builder = SchemaBuilder.builder().record("TEST").fields();
+
+        Schema schema = AvroUtils._string();
+        schema = wrap(schema);
+        builder = builder.name("PARAMETER").prop(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME, "PARAMETER").type(schema).noDefault();
+
+        return builder.endRecord();
+    }
+    
+    public static TJDBCSPProperties createCommonJDBCSPProperties(AllSetting allSetting, TJDBCSPDefinition definition) {
+        TJDBCSPProperties properties = (TJDBCSPProperties) definition.createRuntimeProperties();
+
+        // properties.connection.driverTable.drivers.setValue(Arrays.asList(driverPath));
+        properties.connection.driverClass.setValue(allSetting.getDriverClass());
+        properties.connection.jdbcUrl.setValue(allSetting.getJdbcUrl());
+        properties.connection.userPassword.userId.setValue(allSetting.getUsername());
+        properties.connection.userPassword.password.setValue(allSetting.getPassword());
+        return properties;
     }
 }

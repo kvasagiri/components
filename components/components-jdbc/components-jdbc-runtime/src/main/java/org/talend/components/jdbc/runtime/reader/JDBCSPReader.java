@@ -133,7 +133,7 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
                 indexedRecordCreator.init(componentSchema, outputSchema, setting);
             }
 
-            IndexedRecord outputRecord = indexedRecordCreator.createOutputIndexedRecord(cs.getResultSet(), null);
+            IndexedRecord outputRecord = indexedRecordCreator.createOutputIndexedRecord(cs, null);
 
             return outputRecord;
         } catch (SQLException e) {

@@ -12,7 +12,7 @@
 // ============================================================================
 package org.talend.components.jdbc.avro;
 
-import java.sql.ResultSet;
+import java.sql.CallableStatement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +59,7 @@ public class JDBCSPIndexedRecordCreator {
         if (setting.isFunction()) {
             Schema.Field outField = CommonUtils.getField(currentComponentSchema, setting.getReturnResultIn());
             Schema.Field outFieldInOutputSchema = CommonUtils.getField(outputSchema, setting.getReturnResultIn());
-            outputFieldLocation2AvroConverter.put(outFieldInOutputSchema.pos(), JDBCAvroRegistry.get().getConverter(outField, 1));
+            outputFieldLocation2AvroConverter.put(outFieldInOutputSchema.pos(), JDBCAvroRegistry.get().getSPConverter(outField, 1));
         }
 
         List<String> parameterColumns = setting.getSchemaColumns4SPParameters();
@@ -83,7 +83,7 @@ public class JDBCSPIndexedRecordCreator {
                     Schema.Field outField = CommonUtils.getField(currentComponentSchema, columnName);
                     Schema.Field outFieldInOutputSchema = CommonUtils.getField(outputSchema, columnName);
                     outputFieldLocation2AvroConverter.put(outFieldInOutputSchema.pos(),
-                            JDBCAvroRegistry.get().getConverter(outField, i));
+                            JDBCAvroRegistry.get().getSPConverter(outField, i));
                 }
 
                 i++;
@@ -93,7 +93,7 @@ public class JDBCSPIndexedRecordCreator {
 
     private boolean firstRowHaveCame = false;
 
-    public IndexedRecord createOutputIndexedRecord(ResultSet value, IndexedRecord inputRecord) {
+    public IndexedRecord createOutputIndexedRecord(CallableStatement value, IndexedRecord inputRecord) {
         if (!firstRowHaveCame) {
             firstRowHaveCame = true;
 
@@ -137,19 +137,19 @@ public class JDBCSPIndexedRecordCreator {
 
         private Object[] values;
 
-        public ResultSetIndexedRecord(ResultSet resultSet, IndexedRecord inputRecord) {
+        public ResultSetIndexedRecord(CallableStatement result, IndexedRecord inputRecord) {
             try {
                 List<Field> outputFields = outputSchema.getFields();
                 values = new Object[outputFields.size()];
                 for (int i = 0; i < values.length; i++) {
                     AvroConverter converter = outputFieldLocation2AvroConverter.get(i);
                     if (converter != null) {
-                        values[i] = converter.convertToAvro(resultSet);
+                        values[i] = converter.convertToAvro(result);
                         continue;
                     }
 
                     if (resultSetPostionOfOutputSchema == i) {
-                        values[i] = resultSet;
+                        values[i] = result.getResultSet();
                         continue;
                     }
 
