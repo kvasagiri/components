@@ -137,16 +137,7 @@ public class JDBCRowSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
         // using another component's connection
         if (useExistedConnection) {
-            if (runtime != null) {
-                String refComponentId = setting.getReferencedComponentId();
-                Object existedConn = runtime.getComponentData(ComponentConstants.CONNECTION_KEY, refComponentId);
-                if (existedConn == null) {
-                    throw new RuntimeException("Referenced component: " + refComponentId + " is not connected");
-                }
-                return (Connection) existedConn;
-            }
-
-            return JdbcRuntimeUtils.createConnection(setting);
+            return JdbcRuntimeUtils.fetchConnectionFromContextOrCreateNew(setting, runtime);
         } else {
             Connection conn = JdbcRuntimeUtils.createConnection(properties.getRuntimeSetting());
 

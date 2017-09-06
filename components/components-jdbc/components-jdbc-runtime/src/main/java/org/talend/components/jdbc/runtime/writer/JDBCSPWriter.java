@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.avro.Schema;
-import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.IndexedRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +34,8 @@ import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.common.avro.JDBCAvroRegistry;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.avro.JDBCSPIndexedRecordCreator;
-import org.talend.components.jdbc.module.SPParameterTable;
 import org.talend.components.jdbc.runtime.JDBCSPSink;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
-import org.talend.components.jdbc.runtime.type.JDBCMapping;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 
 /**
@@ -110,41 +107,7 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
 
         try {
 
-            if (setting.isFunction()) {
-                String columnName = setting.getReturnResultIn();
-                Field outField = CommonUtils.getField(componentSchema, columnName);
-                cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(outField));
-            }
-
-            List<String> columns = setting.getSchemaColumns4SPParameters();
-            List<String> pts = setting.getParameterTypes();
-            if (pts != null) {
-                int i = setting.isFunction() ? 2 : 1;
-                int j = -1;
-                for (String each : pts) {
-                    j++;
-                    String columnName = columns.get(j);
-
-                    SPParameterTable.ParameterType pt = SPParameterTable.ParameterType.valueOf(each);
-
-                    if (SPParameterTable.ParameterType.RECORDSET == pt) {
-                        continue;
-                    }
-
-                    if (SPParameterTable.ParameterType.OUT == pt || SPParameterTable.ParameterType.INOUT == pt) {
-                        Schema.Field outField = CommonUtils.getField(componentSchema, columnName);
-                        cs.registerOutParameter(i, JDBCMapping.getSQLTypeFromAvroType(outField));
-                    }
-
-                    if (SPParameterTable.ParameterType.IN == pt || SPParameterTable.ParameterType.INOUT == pt) {
-                        Schema.Field inField = CommonUtils.getField(componentSchema, columnName);
-                        Schema.Field inFieldInInput = CommonUtils.getField(inputSchema, columnName);
-                        JDBCMapping.setValue(i, cs, inField, inputRecord.get(inFieldInInput.pos()));
-                    }
-
-                    i++;
-                }
-            }
+            sink.fillParameters(cs, componentSchema, inputSchema, inputRecord, setting);
 
             cs.execute();
 

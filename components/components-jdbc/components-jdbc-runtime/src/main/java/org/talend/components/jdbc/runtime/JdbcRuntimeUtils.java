@@ -15,6 +15,8 @@ package org.talend.components.jdbc.runtime;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 
 public class JdbcRuntimeUtils {
@@ -30,5 +32,19 @@ public class JdbcRuntimeUtils {
     public static Connection createConnection(AllSetting setting) throws ClassNotFoundException, SQLException {
         java.lang.Class.forName(setting.getDriverClass());
         return java.sql.DriverManager.getConnection(setting.getJdbcUrl(), setting.getUsername(), setting.getPassword());
+    }
+
+    public static Connection fetchConnectionFromContextOrCreateNew(AllSetting setting, RuntimeContainer runtime)
+            throws ClassNotFoundException, SQLException {
+        if (runtime != null) {
+            String refComponentId = setting.getReferencedComponentId();
+            Object existedConn = runtime.getComponentData(ComponentConstants.CONNECTION_KEY, refComponentId);
+            if (existedConn == null) {
+                throw new RuntimeException("Referenced component: " + refComponentId + " is not connected");
+            }
+            return (Connection) existedConn;
+        }
+    
+        return createConnection(setting);
     }
 }

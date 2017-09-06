@@ -1003,6 +1003,20 @@ public class DBTestUtils {
         return builder.endRecord();
     }
     
+    public static Schema createSPSchema3() {
+        FieldAssembler<Schema> builder = SchemaBuilder.builder().record("TEST").fields();
+
+        Schema schema = AvroUtils._int();
+        schema = wrap(schema);
+        builder = builder.name("PARAMETER1").prop(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME, "PARAMETER1").type(schema).noDefault();
+        
+        schema = AvroUtils._string();
+        schema = wrap(schema);
+        builder = builder.name("PARAMETER2").prop(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME, "PARAMETER2").type(schema).noDefault();
+
+        return builder.endRecord();
+    }
+    
     public static TJDBCSPProperties createCommonJDBCSPProperties(AllSetting allSetting, TJDBCSPDefinition definition) {
         TJDBCSPProperties properties = (TJDBCSPProperties) definition.createRuntimeProperties();
 

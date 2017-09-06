@@ -20,17 +20,19 @@ import java.util.List;
 
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
+import org.apache.avro.generic.IndexedRecord;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.CommonUtils;
-import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.module.SPParameterTable;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSinkDefault;
 import org.talend.components.jdbc.runtime.type.JDBCMapping;
 import org.talend.daikon.NamedThing;
+import org.talend.daikon.exception.ExceptionContext;
+import org.talend.daikon.exception.error.CommonErrorCodes;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.ValidationResult.Result;
 import org.talend.daikon.properties.ValidationResultMutable;
@@ -74,35 +76,7 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
         try {
             try (CallableStatement cs = conn.prepareCall(getSPStatement(setting))) {
-                if (setting.isFunction()) {
-                    String columnName = setting.getReturnResultIn();
-                    Field field = CommonUtils.getField(componentSchema, columnName);
-                    cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(field));
-                }
-
-                List<String> columns = setting.getSchemaColumns4SPParameters();
-                List<String> pts = setting.getParameterTypes();
-                if (pts != null) {
-                    int i = setting.isFunction() ? 2 : 1;
-                    int j = -1;
-                    for (String each : pts) {
-                        j++;
-                        String columnName = columns.get(j);
-
-                        SPParameterTable.ParameterType pt = SPParameterTable.ParameterType.valueOf(each);
-
-                        if (SPParameterTable.ParameterType.RECORDSET == pt) {
-                            continue;
-                        }
-
-                        if (SPParameterTable.ParameterType.OUT == pt) {
-                            Field field = CommonUtils.getField(componentSchema, columnName);
-                            cs.registerOutParameter(i, JDBCMapping.getSQLTypeFromAvroType(field));
-                        }
-
-                        i++;
-                    }
-                }
+                fillParameters(cs, componentSchema, null, null, setting);
 
                 cs.execute();
             }
@@ -119,6 +93,50 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
             }
         }
         return vr;
+    }
+
+    public void fillParameters(CallableStatement cs, Schema componentSchema, Schema inputSchema, IndexedRecord inputRecord,
+            AllSetting setting) throws SQLException {
+        if (setting.isFunction()) {
+            String columnName = setting.getReturnResultIn();
+            Field outField = CommonUtils.getField(componentSchema, columnName);
+            cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(outField));
+        }
+
+        List<String> columns = setting.getSchemaColumns4SPParameters();
+        List<String> pts = setting.getParameterTypes();
+        if (pts != null) {
+            int i = setting.isFunction() ? 2 : 1;
+            int j = -1;
+            for (String each : pts) {
+                j++;
+                String columnName = columns.get(j);
+
+                SPParameterTable.ParameterType pt = SPParameterTable.ParameterType.valueOf(each);
+
+                if (SPParameterTable.ParameterType.RECORDSET == pt) {
+                    continue;
+                }
+
+                if (SPParameterTable.ParameterType.OUT == pt || SPParameterTable.ParameterType.INOUT == pt) {
+                    Schema.Field outField = CommonUtils.getField(componentSchema, columnName);
+                    cs.registerOutParameter(i, JDBCMapping.getSQLTypeFromAvroType(outField));
+                }
+
+                if (SPParameterTable.ParameterType.IN == pt || SPParameterTable.ParameterType.INOUT == pt) {
+                    if (inputRecord != null) {
+                        Schema.Field inField = CommonUtils.getField(componentSchema, columnName);
+                        Schema.Field inFieldInInput = CommonUtils.getField(inputSchema, columnName);
+                        JDBCMapping.setValue(i, cs, inField, inputRecord.get(inFieldInInput.pos()));
+                    } else {
+                        throw new ComponentException(CommonErrorCodes.UNEXPECTED_EXCEPTION, ExceptionContext.withBuilder()
+                                .put("message", "input must exists for IN or INOUT parameters").build());
+                    }
+                }
+
+                i++;
+            }
+        }
     }
 
     public String getSPStatement(AllSetting setting) {
@@ -182,16 +200,7 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
         // using another component's connection
         if (useExistedConnection) {
-            if (runtime != null) {
-                String refComponentId = setting.getReferencedComponentId();
-                Object existedConn = runtime.getComponentData(ComponentConstants.CONNECTION_KEY, refComponentId);
-                if (existedConn == null) {
-                    throw new RuntimeException("Referenced component: " + refComponentId + " is not connected");
-                }
-                return (Connection) existedConn;
-            }
-
-            return JdbcRuntimeUtils.createConnection(setting);
+            return JdbcRuntimeUtils.fetchConnectionFromContextOrCreateNew(setting, runtime);
         } else {
             Connection conn = JdbcRuntimeUtils.createConnection(properties.getRuntimeSetting());
             return conn;

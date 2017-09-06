@@ -19,7 +19,6 @@ import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.component.runtime.Sink;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.container.RuntimeContainer;
-import org.talend.components.jdbc.ComponentConstants;
 
 /**
  * JDBC runtime execution object for output action
@@ -39,15 +38,7 @@ public class JDBCSink extends JDBCSourceOrSink implements Sink {
         String refComponentId = setting.getReferencedComponentId();
         // using another component's connection
         if (refComponentId != null) {
-            if (runtime != null) {
-                Object existedConn = runtime.getComponentData(ComponentConstants.CONNECTION_KEY, refComponentId);
-                if (existedConn == null) {
-                    throw new RuntimeException("Referenced component: " + refComponentId + " is not connected");
-                }
-                return (Connection) existedConn;
-            }
-
-            return JdbcRuntimeUtils.createConnection(setting);
+            return JdbcRuntimeUtils.fetchConnectionFromContextOrCreateNew(setting, runtime);
         } else {
             // TODO now we use routines.system.TalendDataSource to get the data connection from the ESB runtime, but now we
             // can't

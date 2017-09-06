@@ -173,6 +173,59 @@ public class JDBCOutputTestIT {
         Assert.assertEquals(new Integer(5), records.get(4).get(0));
         Assert.assertEquals("xiaobai", records.get(4).get(1));
     }
+    
+    @Test
+    public void testBatch() throws Exception {
+        TJDBCOutputDefinition definition = new TJDBCOutputDefinition();
+        TJDBCOutputProperties properties = DBTestUtils.createCommonJDBCOutputProperties(allSetting, definition);
+
+        Schema schema = DBTestUtils.createTestSchema();
+        properties.main.schema.setValue(schema);
+        properties.updateOutputSchemas();
+
+        properties.tableSelection.tablename.setValue(DBTestUtils.getTablename());
+        properties.dataAction.setValue(DataAction.INSERT);
+        properties.dieOnError.setValue(true);
+
+        properties.useBatch.setValue(true);
+        properties.batchSize.setValue(DBTestUtils.randomInt());
+        properties.commitEvery.setValue(DBTestUtils.randomInt());
+
+        JDBCOutputWriter writer = DBTestUtils.createCommonJDBCOutputWriter(definition, properties);
+
+        try {
+            writer.open("wid");
+
+            IndexedRecord r1 = new GenericData.Record(properties.main.schema.getValue());
+            r1.put(0, 4);
+            r1.put(1, "xiaoming");
+            writer.write(r1);
+
+            DBTestUtils.assertSuccessRecord(writer, r1);
+
+            IndexedRecord r2 = new GenericData.Record(properties.main.schema.getValue());
+            r2.put(0, 5);
+            r2.put(1, "xiaobai");
+            writer.write(r2);
+
+            DBTestUtils.assertSuccessRecord(writer, r2);
+
+            writer.close();
+        } finally {
+            writer.close();
+        }
+
+        TJDBCInputDefinition definition1 = new TJDBCInputDefinition();
+        TJDBCInputProperties properties1 = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition1);
+        List<IndexedRecord> records = DBTestUtils.fetchDataByReaderFromTable(DBTestUtils.getTablename(), schema, definition1,
+                properties1);
+
+        assertThat(records, hasSize(5));
+        Assert.assertEquals(new Integer(4), records.get(3).get(0));
+        Assert.assertEquals("xiaoming", records.get(3).get(1));
+        Assert.assertEquals(new Integer(5), records.get(4).get(0));
+        Assert.assertEquals("xiaobai", records.get(4).get(1));
+    }
 
     @Test
     public void testInsertReject() throws Exception {

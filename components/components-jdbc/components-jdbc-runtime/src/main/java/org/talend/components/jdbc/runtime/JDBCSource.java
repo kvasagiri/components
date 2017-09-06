@@ -20,7 +20,6 @@ import java.util.List;
 import org.talend.components.api.component.runtime.BoundedReader;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.container.RuntimeContainer;
-import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.runtime.reader.JDBCInputReader;
 
 /**
@@ -60,15 +59,7 @@ public class JDBCSource extends JDBCSourceOrSink implements BoundedSource {
         String refComponentId = setting.getReferencedComponentId();
         // using another component's connection
         if (refComponentId != null) {
-            if (runtime != null) {//component runtime part
-                Object existedConn = runtime.getComponentData(ComponentConstants.CONNECTION_KEY, refComponentId);
-                if (existedConn == null) {
-                    throw new RuntimeException("Referenced component: " + refComponentId + " is not connected");
-                }
-                return (Connection) existedConn;
-            } else {//design time which work for the button in component
-                return JdbcRuntimeUtils.createConnection(setting);
-            }
+            return JdbcRuntimeUtils.fetchConnectionFromContextOrCreateNew(setting, runtime);
         } else {
             // TODO now we use routines.system.TalendDataSource to get the data connection from the ESB runtime, but now we
             // can't

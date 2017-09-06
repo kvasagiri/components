@@ -14,6 +14,7 @@ package org.talend.components.jdbc;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
@@ -132,6 +133,48 @@ public class JDBCSPTestIT {
             r1.put(0, 0);
             
             writer.write(r1);
+        } finally {
+            writer.close();
+        }
+    }
+    
+    @SuppressWarnings("rawtypes")
+    @Test
+    public void test_basic_as_output_and_input() throws Exception {
+        TJDBCSPDefinition definition = new TJDBCSPDefinition();
+        TJDBCSPProperties properties = DBTestUtils.createCommonJDBCSPProperties(allSetting, definition);
+
+        properties.spName.setValue("SYSCS_UTIL.SYSCS_DISABLE_LOG_ARCHIVE_MODE");
+        Schema schema = DBTestUtils.createSPSchema3();
+        properties.main.schema.setValue(schema);
+        properties.schemaFlow.schema.setValue(schema);
+        properties.spParameterTable.parameterTypes.setValue(Arrays.asList(SPParameterTable.ParameterType.IN.name()));
+        properties.spParameterTable.schemaColumns.setValue(Arrays.asList("PARAMETER1"));
+
+        JDBCSPSink sink = new JDBCSPSink();
+
+        sink.initialize(null, properties);
+        ValidationResult result = sink.validate(null);
+        Assert.assertTrue(result.getStatus() == ValidationResult.Result.OK);
+
+        WriteOperation operation = sink.createWriteOperation();
+        JDBCSPWriter writer = (JDBCSPWriter) operation.createWriter(null);
+
+        try {
+            writer.open("wid");
+
+            IndexedRecord r1 = new GenericData.Record(properties.main.schema.getValue());
+            r1.put(0, 0);
+            r1.put(1, "wangwei");
+            
+            writer.write(r1);
+            
+            List<IndexedRecord> writeResult = writer.getSuccessfulWrites();
+            Assert.assertEquals(1, writeResult.size());
+            
+            IndexedRecord record = writeResult.get(0);
+            Assert.assertEquals(Integer.valueOf(0), record.get(0));
+            Assert.assertEquals("wangwei", record.get(1));
         } finally {
             writer.close();
         }

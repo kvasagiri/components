@@ -16,11 +16,9 @@ import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.avro.Schema;
-import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.IndexedRecord;
 import org.talend.components.api.component.runtime.AbstractBoundedReader;
 import org.talend.components.api.component.runtime.Result;
@@ -30,10 +28,8 @@ import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.avro.JDBCSPIndexedRecordCreator;
-import org.talend.components.jdbc.module.SPParameterTable;
 import org.talend.components.jdbc.runtime.JDBCSPSource;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
-import org.talend.components.jdbc.runtime.type.JDBCMapping;
 
 /**
  * JDBC reader for JDBC SP
@@ -96,35 +92,7 @@ public class JDBCSPReader extends AbstractBoundedReader<IndexedRecord> {
             Schema componentSchema = CommonUtils.getMainSchemaFromInputConnector((ComponentProperties) source.properties);
             Schema outputSchema = CommonUtils.getOutputSchema((ComponentProperties) source.properties);
 
-            if (setting.isFunction()) {
-                String columnName = setting.getReturnResultIn();
-                Field field = CommonUtils.getField(componentSchema, columnName);
-                cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(field));
-            }
-
-            List<String> columns = setting.getSchemaColumns4SPParameters();
-            List<String> pts = setting.getParameterTypes();
-            if (pts != null) {
-                int i = setting.isFunction() ? 2 : 1;
-                int j = -1;
-                for (String each : pts) {
-                    j++;
-                    String columnName = columns.get(j);
-
-                    SPParameterTable.ParameterType pt = SPParameterTable.ParameterType.valueOf(each);
-
-                    if (SPParameterTable.ParameterType.RECORDSET == pt) {
-                        continue;
-                    }
-
-                    if (SPParameterTable.ParameterType.OUT == pt) {
-                        Field field = CommonUtils.getField(componentSchema, columnName);
-                        cs.registerOutParameter(i, JDBCMapping.getSQLTypeFromAvroType(field));
-                    }
-
-                    i++;
-                }
-            }
+            source.fillParameters(cs, componentSchema, null, null, setting);
 
             cs.execute();
 

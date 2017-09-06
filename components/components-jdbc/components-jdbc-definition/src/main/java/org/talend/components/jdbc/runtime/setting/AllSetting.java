@@ -243,7 +243,7 @@ public class AllSetting implements Serializable, JDBCAvroRegistryInfluencer {
     }
 
     public boolean getUseBatch() {
-        return useBatch != null && debug;
+        return useBatch != null && useBatch;
     }
 
     public void setUseBatch(Boolean useBatch) {
