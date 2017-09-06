@@ -19,7 +19,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.avro.Schema;
-import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.IndexedRecord;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
@@ -88,7 +87,7 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
                 try {
                     conn.close();
                 } catch (SQLException e) {
-                    throw new ComponentException(e);
+                    //close quietly
                 }
             }
         }
@@ -99,8 +98,7 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
             AllSetting setting) throws SQLException {
         if (setting.isFunction()) {
             String columnName = setting.getReturnResultIn();
-            Field outField = CommonUtils.getField(componentSchema, columnName);
-            cs.registerOutParameter(1, JDBCMapping.getSQLTypeFromAvroType(outField));
+            fillOutParameter(cs, componentSchema, columnName, 1);
         }
 
         List<String> columns = setting.getSchemaColumns4SPParameters();
@@ -119,8 +117,7 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
                 }
 
                 if (SPParameterTable.ParameterType.OUT == pt || SPParameterTable.ParameterType.INOUT == pt) {
-                    Schema.Field outField = CommonUtils.getField(componentSchema, columnName);
-                    cs.registerOutParameter(i, JDBCMapping.getSQLTypeFromAvroType(outField));
+                    fillOutParameter(cs, componentSchema, columnName, i);
                 }
 
                 if (SPParameterTable.ParameterType.IN == pt || SPParameterTable.ParameterType.INOUT == pt) {
@@ -137,6 +134,11 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
                 i++;
             }
         }
+    }
+
+    private void fillOutParameter(CallableStatement cs, Schema componentSchema, String columnName, int i) throws SQLException {
+        Schema.Field outField = CommonUtils.getField(componentSchema, columnName);
+        cs.registerOutParameter(i, JDBCMapping.getSQLTypeFromAvroType(outField));
     }
 
     public String getSPStatement(AllSetting setting) {

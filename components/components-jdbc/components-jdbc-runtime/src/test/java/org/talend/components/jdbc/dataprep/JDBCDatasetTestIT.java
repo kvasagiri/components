@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.components.jdbc.dataprep;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.avro.Schema;
@@ -24,6 +25,7 @@ import org.talend.components.jdbc.common.DBTestUtils;
 import org.talend.components.jdbc.dataset.JDBCDatasetProperties;
 import org.talend.components.jdbc.datastore.JDBCDatastoreDefinition;
 import org.talend.components.jdbc.datastore.JDBCDatastoreProperties;
+import org.talend.components.jdbc.runtime.JDBCSourceOrSink;
 import org.talend.components.jdbc.runtime.dataprep.JDBCDatasetRuntime;
 import org.talend.components.jdbc.runtime.dataprep.JDBCDatastoreRuntime;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
@@ -66,6 +68,24 @@ public class JDBCDatasetTestIT {
 
         Assert.assertNotNull(schema);
         DBTestUtils.testMetadata(schema.getFields(), true);
+    }
+    
+    @Test
+    public void testGetSchemaFromTable() throws IOException {
+        JDBCDatasetProperties dataset = createDatasetProperties(false);
+
+        JDBCDatasetRuntime runtime = new JDBCDatasetRuntime();
+        runtime.initialize(null, dataset);
+        
+        JDBCSourceOrSink jss = new JDBCSourceOrSink();
+        jss.initialize(null, dataset);
+        Schema schema = jss.getEndpointSchema(null, DBTestUtils.getTablename());
+
+        Assert.assertNotNull(schema);
+        DBTestUtils.testMetadata(schema.getFields(), true);
+        
+        jss.getEndpointSchema(null, DBTestUtils.getAllTypesTablename());
+        //TODO assert the result
     }
 
     @Test

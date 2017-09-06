@@ -12,9 +12,6 @@
 // ============================================================================
 package org.talend.components.jdbc;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -22,6 +19,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
@@ -33,6 +33,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.runtime.Reader;
+import org.talend.components.api.exception.ComponentException;
 import org.talend.components.jdbc.common.DBTestUtils;
 import org.talend.components.jdbc.runtime.JDBCSource;
 import org.talend.components.jdbc.runtime.reader.JDBCInputReader;
@@ -88,7 +89,65 @@ public class JDBCInputTestIT {
 
         assertTrue(exists);
     }
+    
+    @Test(expected = ComponentException.class)
+    public void testGetSchemaNamesWithException() throws Exception {
+        TJDBCInputDefinition definition = new TJDBCInputDefinition();
+        TJDBCInputProperties properties = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition);
 
+        properties.connection.driverClass.setValue("notexist");
+
+        JDBCSource source = DBTestUtils.createCommonJDBCSource(properties);
+
+        source.getSchemaNames(null);
+    }
+
+    @Test(expected = ComponentException.class)
+    public void testGetSchemaWithException() throws Exception {
+        TJDBCInputDefinition definition = new TJDBCInputDefinition();
+        TJDBCInputProperties properties = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition);
+
+        properties.connection.driverClass.setValue("notexist");
+
+        JDBCSource source = DBTestUtils.createCommonJDBCSource(properties);
+
+        source.getEndpointSchema(null, "TEST");
+    }
+    
+    @Test(expected = ComponentException.class)
+    public void testGetSchemaFromQueryWithException1() throws Exception {
+        TJDBCInputDefinition definition = new TJDBCInputDefinition();
+        TJDBCInputProperties properties = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition);
+
+        JDBCSource source = DBTestUtils.createCommonJDBCSource(properties);
+
+        source.getSchemaFromQuery(null, "select * from notexist");
+    }
+    
+    @Test(expected = ComponentException.class)
+    public void testGetSchemaFromQueryWithException2() throws Exception {
+        TJDBCInputDefinition definition = new TJDBCInputDefinition();
+        TJDBCInputProperties properties = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition);
+
+        properties.connection.driverClass.setValue("notexist");
+        
+        JDBCSource source = DBTestUtils.createCommonJDBCSource(properties);
+
+        source.getSchemaFromQuery(null, "select * from TEST");
+    }
+    
+    @Test(expected = ComponentException.class)
+    public void testGetSchemaFromQueryWithException3() throws Exception {
+        TJDBCInputDefinition definition = new TJDBCInputDefinition();
+        TJDBCInputProperties properties = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition);
+
+        properties.connection.jdbcUrl.setValue("wrongone");
+        
+        JDBCSource source = DBTestUtils.createCommonJDBCSource(properties);
+
+        source.getSchemaFromQuery(null, "select * from TEST");
+    }
+    
     @Test
     public void testGetSchema() throws Exception {
         TJDBCInputDefinition definition = new TJDBCInputDefinition();
