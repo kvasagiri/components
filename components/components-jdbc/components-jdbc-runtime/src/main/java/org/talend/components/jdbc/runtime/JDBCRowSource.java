@@ -60,7 +60,7 @@ public class JDBCRowSource extends JDBCRowSourceOrSink implements BoundedSource 
     public ValidationResult validate(RuntimeContainer runtime) {
         ValidationResultMutable vr = new ValidationResultMutable();
         try {
-            connect(runtime);
+            initConnection(runtime);
         } catch (Exception ex) {
             vr.setStatus(Result.ERROR);
             vr.setMessage(ex.getMessage());

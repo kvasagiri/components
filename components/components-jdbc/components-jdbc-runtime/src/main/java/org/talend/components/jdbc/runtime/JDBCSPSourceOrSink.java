@@ -12,7 +12,6 @@
 // ============================================================================
 package org.talend.components.jdbc.runtime;
 
-import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -29,7 +28,6 @@ import org.talend.components.jdbc.module.SPParameterTable;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSinkDefault;
 import org.talend.components.jdbc.runtime.type.JDBCMapping;
-import org.talend.daikon.NamedThing;
 import org.talend.daikon.exception.ExceptionContext;
 import org.talend.daikon.exception.error.CommonErrorCodes;
 import org.talend.daikon.properties.ValidationResult;
@@ -47,8 +45,6 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
     public RuntimeSettingProvider properties;
 
     protected AllSetting setting;
-
-    private Connection conn;
 
     private boolean useExistedConnection;
 
@@ -177,22 +173,6 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         return statementBuilder.toString();
     }
 
-    /**
-     * not necessary for this execution object
-     */
-    @Override
-    public List<NamedThing> getSchemaNames(RuntimeContainer runtime) throws IOException {
-        return null;
-    }
-
-    /**
-     * not necessary for this execution object
-     */
-    @Override
-    public Schema getEndpointSchema(RuntimeContainer runtime, String tableName) throws IOException {
-        return null;
-    }
-
     public Connection connect(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
         // TODO now we use routines.system.TalendDataSource to get the data connection from the ESB runtime, but now we
         // can't
@@ -207,13 +187,6 @@ public class JDBCSPSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
             Connection conn = JdbcRuntimeUtils.createConnection(properties.getRuntimeSetting());
             return conn;
         }
-    }
-
-    public Connection getConnection(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
-        if (conn == null) {
-            conn = connect(runtime);
-        }
-        return conn;
     }
 
 }
