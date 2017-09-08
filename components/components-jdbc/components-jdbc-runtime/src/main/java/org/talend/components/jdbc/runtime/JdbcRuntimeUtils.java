@@ -18,6 +18,10 @@ import java.sql.SQLException;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
+import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSinkDefault;
+import org.talend.daikon.properties.ValidationResult;
+import org.talend.daikon.properties.ValidationResult.Result;
+import org.talend.daikon.properties.ValidationResultMutable;
 
 public class JdbcRuntimeUtils {
 
@@ -46,5 +50,16 @@ public class JdbcRuntimeUtils {
         }
     
         return createConnection(setting);
+    }
+    
+    public static ValidationResult validate(RuntimeContainer runtime, JdbcRuntimeSourceOrSinkDefault ss) {
+        ValidationResultMutable vr = new ValidationResultMutable();
+        try {
+            ss.initConnection(runtime);
+        } catch (Exception ex) {
+            vr.setStatus(Result.ERROR);
+            vr.setMessage(ex.getMessage());
+        }
+        return vr;
     }
 }

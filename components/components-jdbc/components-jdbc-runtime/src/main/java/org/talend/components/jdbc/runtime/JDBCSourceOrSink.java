@@ -48,8 +48,6 @@ import org.talend.daikon.avro.converter.IndexedRecordConverter;
 import org.talend.daikon.exception.ExceptionContext;
 import org.talend.daikon.exception.error.CommonErrorCodes;
 import org.talend.daikon.properties.ValidationResult;
-import org.talend.daikon.properties.ValidationResult.Result;
-import org.talend.daikon.properties.ValidationResultMutable;
 
 /**
  * common JDBC runtime execution object
@@ -107,14 +105,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
     @Override
     public ValidationResult validate(RuntimeContainer runtime) {
-        ValidationResultMutable vr = new ValidationResultMutable();
-        try {
-            initConnection(runtime);
-        } catch (Exception ex) {
-            vr.setStatus(Result.ERROR);
-            vr.setMessage(ex.getMessage());
-        }
-        return vr;
+        return JdbcRuntimeUtils.validate(runtime, this);
     }
 
     @Override
