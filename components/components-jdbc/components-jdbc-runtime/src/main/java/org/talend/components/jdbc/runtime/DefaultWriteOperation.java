@@ -12,27 +12,38 @@
 // ============================================================================
 package org.talend.components.jdbc.runtime;
 
+import java.util.Map;
+
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.component.runtime.Sink;
-import org.talend.components.api.component.runtime.Writer;
+import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.container.RuntimeContainer;
-import org.talend.components.jdbc.runtime.writer.JDBCCommitWriter;
 
 /**
- * JDBC commit write operation
+ * default write operation
  *
  */
-public class JDBCCommitWriteOperation extends DefaultWriteOperation {
+abstract public class DefaultWriteOperation implements WriteOperation<Result> {
 
     private static final long serialVersionUID = 1L;
+    
+    private Sink sink;
 
-    public JDBCCommitWriteOperation(Sink sink) {
-        super(sink);
+    public DefaultWriteOperation(Sink sink) {
+        this.sink = sink;
     }
 
     @Override
-    public Writer<Result> createWriter(RuntimeContainer runtimeContainer) {
-        return new JDBCCommitWriter(this, runtimeContainer);
+    public void initialize(RuntimeContainer runtimeContainer) {
     }
 
+    @Override
+    public Map<String, Object> finalize(Iterable<Result> iterable, RuntimeContainer runtimeContainer) {
+        return Result.accumulateAndReturnMap(iterable);
+    }
+
+    @Override
+    public Sink getSink() {
+        return sink;
+    }
 }
