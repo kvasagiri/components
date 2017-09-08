@@ -59,7 +59,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JDBCSourceOrSink.class);
 
-    private static final long serialVersionUID = -1730391293657968628L;
+    private static final long serialVersionUID = 1L;
 
     public RuntimeSettingProvider properties;
 

@@ -29,7 +29,7 @@ import org.talend.daikon.properties.ValidationResultMutable;
  */
 public class JDBCRowSource extends JDBCRowSourceOrSink implements BoundedSource {
 
-    private static final long serialVersionUID = -9111994542816954024L;
+    private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("rawtypes")
     @Override

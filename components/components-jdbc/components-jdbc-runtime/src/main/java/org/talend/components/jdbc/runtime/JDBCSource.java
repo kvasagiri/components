@@ -28,7 +28,7 @@ import org.talend.components.jdbc.runtime.reader.JDBCInputReader;
  */
 public class JDBCSource extends JDBCSourceOrSink implements BoundedSource {
 
-    private static final long serialVersionUID = -9111994542816954024L;
+    private static final long serialVersionUID = 1L;
 
     @SuppressWarnings("rawtypes")
     @Override

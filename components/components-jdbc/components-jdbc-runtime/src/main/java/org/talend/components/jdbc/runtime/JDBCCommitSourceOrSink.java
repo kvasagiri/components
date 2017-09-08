@@ -34,7 +34,7 @@ import org.talend.daikon.properties.ValidationResultMutable;
  */
 public class JDBCCommitSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
-    private static final long serialVersionUID = -7226558840084293603L;
+    private static final long serialVersionUID = 1L;
 
     private AllSetting setting;
 
