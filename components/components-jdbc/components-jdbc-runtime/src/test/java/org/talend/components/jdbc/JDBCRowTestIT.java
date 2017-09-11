@@ -16,6 +16,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -318,6 +319,30 @@ public class JDBCRowTestIT {
                 .setValue(Arrays.asList(PreparedStatementTable.Type.Int.name(), PreparedStatementTable.Type.String.name()));
         properties.preparedStatementTable.values.setValue(Arrays.<Object> asList(4, "momo"));
 
+        commonAssert(properties, schema);
+    }
+    
+    @SuppressWarnings("rawtypes")
+    @Test
+    public void test_basic_not_use_prepared_statement_as_output() throws Exception {
+        TJDBCRowDefinition definition = new TJDBCRowDefinition();
+        TJDBCRowProperties properties = DBTestUtils.createCommonJDBCRowProperties(allSetting, definition);
+
+        Schema schema = DBTestUtils.createTestSchema();
+        properties.main.schema.setValue(schema);
+        properties.updateOutputSchemas();
+
+        properties.tableSelection.tablename.setValue(DBTestUtils.getTablename());
+        properties.sql.setValue("insert into test values(4,'momo')");
+        properties.dieOnError.setValue(true);
+        randomCommit(properties);
+
+        properties.usePreparedStatement.setValue(false);
+
+        commonAssert(properties, schema);
+    }
+
+    private void commonAssert(TJDBCRowProperties properties, Schema schema) throws IOException {
         JDBCRowSink sink = new JDBCRowSink();
 
         sink.initialize(null, properties);
