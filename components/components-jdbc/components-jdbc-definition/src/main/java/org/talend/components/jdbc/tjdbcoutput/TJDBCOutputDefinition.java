@@ -98,4 +98,9 @@ public class TJDBCOutputDefinition extends AbstractComponentDefinition {
         return new Class[] { JDBCConnectionWizardProperties.class, JDBCSchemaWizardProperties.class };
     }
 
+    @Override
+    public boolean isParallelize() {
+        return true;
+    }
+
 }
