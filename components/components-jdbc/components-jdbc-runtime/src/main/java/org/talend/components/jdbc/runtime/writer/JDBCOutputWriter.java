@@ -106,6 +106,12 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
     public JDBCOutputWriter(WriteOperation<Result> writeOperation, RuntimeContainer runtime) {
         this.writeOperation = writeOperation;
         this.runtime = runtime;
+
+        if (this.runtime != null) {
+            bufferSizeKey4Parallelize = "buffersSizeKey_" + runtime.getCurrentComponentId() + "_"
+                    + Thread.currentThread().getId();
+        }
+
         sink = (JDBCSink) writeOperation.getSink();
         properties = sink.properties;
         setting = properties.getRuntimeSetting();
@@ -154,8 +160,19 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
 
     }
 
+    private String bufferSizeKey4Parallelize;
+
     @Override
     public void write(Object datum) throws IOException {
+        if (runtime != null) {// TODO slow?
+            Object bufferSizeObject = runtime.getGlobalData(bufferSizeKey4Parallelize);
+            if (bufferSizeObject != null) {
+                int bufferSize = (int) bufferSizeObject;
+                commitEvery = bufferSize;
+                batchSize = bufferSize;
+            }
+        }
+
         result.totalCount++;
         cleanWrites();
     }
