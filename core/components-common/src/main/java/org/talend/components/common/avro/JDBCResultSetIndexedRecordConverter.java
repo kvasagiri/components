@@ -62,6 +62,10 @@ public class JDBCResultSetIndexedRecordConverter implements IndexedRecordConvert
     public void setSizeInResultSet(int sizeInResultSet) {
         this.sizeInResultSet = sizeInResultSet;
     }
+    
+    protected void resetSizeByResultSet(ResultSet resultSet) {
+        //do nothing as default
+    }
 
     @Override
     public Class<ResultSet> getDatumClass() {
@@ -89,6 +93,8 @@ public class JDBCResultSetIndexedRecordConverter implements IndexedRecordConvert
         private Object[] values;
 
         public ResultSetIndexedRecord(ResultSet resultSet) {
+            resetSizeByResultSet(resultSet);
+            
             values = new Object[names.length];
             for (int i = 0; i < values.length; i++) {
                 if ((sizeInResultSet > 0) && (i == sizeInResultSet)) {
