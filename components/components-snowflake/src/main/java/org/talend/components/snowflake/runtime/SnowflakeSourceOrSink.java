@@ -36,11 +36,10 @@ import org.talend.components.snowflake.SnowflakeConnectionTableProperties;
 import org.talend.components.snowflake.SnowflakeProvideConnectionProperties;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.SimpleNamedThing;
-<<<<<<< HEAD
+
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
-=======
->>>>>>> 136f771... fix(TDI-37655): TCOMP JDBC component tests mostly don't actual JDBC
+
 import org.talend.daikon.i18n.GlobalI18N;
 import org.talend.daikon.i18n.I18nMessages;
 import org.talend.daikon.properties.ValidationResult;
@@ -225,38 +224,12 @@ public class SnowflakeSourceOrSink extends SnowflakeRuntime implements SourceOrS
 
         SnowflakeConnectionProperties connProps = getEffectiveConnectionProperties(container);
         try {
-<<<<<<< HEAD
-            DatabaseMetaData metaData = connection.getMetaData();
-
-            ResultSet resultSet = metaData.getColumns(getCatalog(connProps), getDbSchema(connProps), tableName, null);
-            tableSchema = getSnowflakeAvroRegistry().inferSchema(resultSet);
-            if (tableSchema == null) {
-                throw new IOException(i18nMessages.getMessage("error.tableNotFound", tableName));
-            }
-
-            // Update the schema with Primary Key details
-            // FIXME - move this into the inferSchema stuff
-            ResultSet keysIter = metaData.getPrimaryKeys(getCatalog(connProps), getDbSchema(connProps), tableName);
-
-            List<String> pkColumns = new ArrayList<>(); // List of Primary Key columns for this table
-            while (keysIter.next()) {
-                pkColumns.add(keysIter.getString("COLUMN_NAME"));
-            }
-
-            for (Field f : tableSchema.getFields()) {
-                if (pkColumns.contains(f.name())) {
-                    f.addProp(SchemaConstants.TALEND_COLUMN_IS_KEY, "true");
-                }
-            }
-
-=======
             JDBCTableMetadata tableMetadata = new JDBCTableMetadata();
             tableMetadata.setDatabaseMetaData(connection.getMetaData()).setCatalog(getCatalog(connProps))
                     .setDbSchema(getDbSchema(connProps)).setTablename(tableName);
             tableSchema = getSnowflakeAvroRegistry().inferSchema(tableMetadata);
             if (tableSchema == null)
                 throw new IOException(i18nMessages.getMessage("error.tableNotFound", tableName));
->>>>>>> 136f771... fix(TDI-37655): TCOMP JDBC component tests mostly don't actual JDBC
         } catch (SQLException se) {
             throw new IOException(se);
         }
