@@ -121,18 +121,7 @@ public class JDBCOutputUpdateWriter extends JDBCOutputWriter {
 
     @Override
     public Result close() throws IOException {
-        if (useBatch && batchCount > 0) {
-            try {
-                batchCount = 0;
-                updateCount += executeBatchAndGetCount(statement);
-            } catch (SQLException e) {
-                if (dieOnError) {
-                    throw new ComponentException(e);
-                } else {
-                    LOG.warn(e.getMessage());
-                }
-            }
-        }
+        updateCount += executeBatchAtLast();
 
         closeStatementQuietly(statement);
         statement = null;

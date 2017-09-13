@@ -365,5 +365,22 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
         result.successCount = successCount;
         result.rejectCount = rejectCount;
     }
+    
+    protected int executeBatchAtLast() {
+        if (useBatch && batchCount > 0) {
+            try {
+                batchCount = 0;
+                return executeBatchAndGetCount(statement);
+            } catch (SQLException e) {
+                if (dieOnError) {
+                    throw new ComponentException(e);
+                } else {
+                    LOG.warn(e.getMessage());
+                }
+            }
+        }
+        
+        return 0;
+    }
 
 }

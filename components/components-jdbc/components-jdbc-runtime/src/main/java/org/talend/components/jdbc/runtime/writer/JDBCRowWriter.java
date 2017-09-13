@@ -153,6 +153,9 @@ public class JDBCRowWriter implements WriterWithFeedback<Result, IndexedRecord, 
 
         IndexedRecord input = this.getFactory(datum).convertToAvro(datum);
 
+        //TODO low performance, but need to reset it by row level
+        setting = sink.properties.getRuntimeSetting();
+        
         try {
             if (usePreparedStatement) {
                 JDBCTemplate.setPreparedStatement(prepared_statement, setting.getIndexs(), setting.getTypes(),

@@ -111,18 +111,7 @@ public class JDBCOutputDeleteWriter extends JDBCOutputWriter {
 
     @Override
     public Result close() throws IOException {
-        if (useBatch && batchCount > 0) {
-            try {
-                batchCount = 0;
-                deleteCount += executeBatchAndGetCount(statement);
-            } catch (SQLException e) {
-                if (dieOnError) {
-                    throw new ComponentException(e);
-                } else {
-                    LOG.warn(e.getMessage());
-                }
-            }
-        }
+        deleteCount += executeBatchAtLast();
 
         closeStatementQuietly(statement);
         statement = null;
@@ -133,5 +122,5 @@ public class JDBCOutputDeleteWriter extends JDBCOutputWriter {
 
         return result;
     }
-
+    
 }

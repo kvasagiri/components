@@ -117,18 +117,7 @@ public class JDBCOutputInsertWriter extends JDBCOutputWriter {
     @Override
     public Result close() throws IOException {
         // execute the batch to make everything is passed to the server side before release the resource
-        if (useBatch && batchCount > 0) {
-            try {
-                batchCount = 0;
-                insertCount += executeBatchAndGetCount(statement);
-            } catch (SQLException e) {
-                if (dieOnError) {
-                    throw new ComponentException(e);
-                } else {
-                    LOG.warn(e.getMessage());
-                }
-            }
-        }
+        insertCount += executeBatchAtLast();
 
         closeStatementQuietly(statement);
         statement = null;

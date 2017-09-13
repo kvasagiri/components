@@ -188,8 +188,8 @@ public class JDBCOutputTestIT {
         properties.dieOnError.setValue(true);
 
         properties.useBatch.setValue(true);
-        properties.batchSize.setValue(DBTestUtils.randomInt());
-        properties.commitEvery.setValue(DBTestUtils.randomInt());
+        properties.batchSize.setValue(2);
+        properties.commitEvery.setValue(3);
 
         JDBCOutputWriter writer = DBTestUtils.createCommonJDBCOutputWriter(definition, properties);
 
@@ -209,6 +209,27 @@ public class JDBCOutputTestIT {
             writer.write(r2);
 
             DBTestUtils.assertSuccessRecord(writer, r2);
+            
+            IndexedRecord r3 = new GenericData.Record(properties.main.schema.getValue());
+            r3.put(0, 6);
+            r3.put(1, "xiaohong");
+            writer.write(r3);
+
+            DBTestUtils.assertSuccessRecord(writer, r3);
+            
+            IndexedRecord r4 = new GenericData.Record(properties.main.schema.getValue());
+            r4.put(0, 7);
+            r4.put(1, "xiaored");
+            writer.write(r4);
+
+            DBTestUtils.assertSuccessRecord(writer, r4);
+            
+            IndexedRecord r5 = new GenericData.Record(properties.main.schema.getValue());
+            r5.put(0, 8);
+            r5.put(1, "xiaohei");
+            writer.write(r5);
+
+            DBTestUtils.assertSuccessRecord(writer, r5);
 
             writer.close();
         } finally {
@@ -220,11 +241,21 @@ public class JDBCOutputTestIT {
         List<IndexedRecord> records = DBTestUtils.fetchDataByReaderFromTable(DBTestUtils.getTablename(), schema, definition1,
                 properties1);
 
-        assertThat(records, hasSize(5));
+        assertThat(records, hasSize(8));
         Assert.assertEquals(new Integer(4), records.get(3).get(0));
         Assert.assertEquals("xiaoming", records.get(3).get(1));
+        
         Assert.assertEquals(new Integer(5), records.get(4).get(0));
         Assert.assertEquals("xiaobai", records.get(4).get(1));
+        
+        Assert.assertEquals(new Integer(6), records.get(5).get(0));
+        Assert.assertEquals("xiaohong", records.get(5).get(1));
+        
+        Assert.assertEquals(new Integer(7), records.get(6).get(0));
+        Assert.assertEquals("xiaored", records.get(6).get(1));
+        
+        Assert.assertEquals(new Integer(8), records.get(7).get(0));
+        Assert.assertEquals("xiaohei", records.get(7).get(1));
     }
 
     @Test
