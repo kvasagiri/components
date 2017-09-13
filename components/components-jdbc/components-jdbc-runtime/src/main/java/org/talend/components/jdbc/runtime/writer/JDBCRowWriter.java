@@ -35,9 +35,9 @@ import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.common.avro.JDBCAvroRegistry;
 import org.talend.components.jdbc.CommonUtils;
-import org.talend.components.jdbc.JDBCTemplate;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.runtime.JDBCRowSink;
+import org.talend.components.jdbc.runtime.JdbcRuntimeUtils;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 
@@ -158,7 +158,7 @@ public class JDBCRowWriter implements WriterWithFeedback<Result, IndexedRecord, 
         
         try {
             if (usePreparedStatement) {
-                JDBCTemplate.setPreparedStatement(prepared_statement, setting.getIndexs(), setting.getTypes(),
+                JdbcRuntimeUtils.setPreparedStatement(prepared_statement, setting.getIndexs(), setting.getTypes(),
                         setting.getValues());
 
                 if (propagateQueryResultSet) {

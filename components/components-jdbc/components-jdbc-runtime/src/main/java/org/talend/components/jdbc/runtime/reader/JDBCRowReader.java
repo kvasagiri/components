@@ -33,9 +33,9 @@ import org.talend.components.api.exception.DataRejectException;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.ComponentConstants;
-import org.talend.components.jdbc.JDBCTemplate;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.runtime.JDBCRowSource;
+import org.talend.components.jdbc.runtime.JdbcRuntimeUtils;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 
 /**
@@ -121,7 +121,7 @@ public class JDBCRowReader extends AbstractBoundedReader<IndexedRecord> {
             if (usePreparedStatement) {
                 prepared_statement = conn.prepareStatement(sql);
 
-                JDBCTemplate.setPreparedStatement(prepared_statement, setting.getIndexs(), setting.getTypes(),
+                JdbcRuntimeUtils.setPreparedStatement(prepared_statement, setting.getIndexs(), setting.getTypes(),
                         setting.getValues());
 
                 if (propagateQueryResultSet) {

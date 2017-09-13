@@ -22,7 +22,6 @@ import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.ComponentConstants;
-import org.talend.components.jdbc.JDBCTemplate;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSinkDefault;
@@ -83,7 +82,7 @@ public class JDBCRowSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         try {
             if (usePreparedStatement) {
                 try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                    JDBCTemplate.setPreparedStatement(pstmt, setting.getIndexs(), setting.getTypes(), setting.getValues());
+                    JdbcRuntimeUtils.setPreparedStatement(pstmt, setting.getIndexs(), setting.getTypes(), setting.getValues());
                     pstmt.execute();
                 }
             } else {
