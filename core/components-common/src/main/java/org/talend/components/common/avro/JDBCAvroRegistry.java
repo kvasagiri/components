@@ -141,8 +141,10 @@ public class JDBCAvroRegistry extends AvroRegistry {
         Set<String> result = new HashSet<>();
 
         try (ResultSet resultSet = databaseMetdata.getPrimaryKeys(catalogName, schemaName, tableName)) {
-            while (resultSet.next()) {
-                result.add(resultSet.getString("COLUMN_NAME"));
+            if (resultSet != null) {
+                while (resultSet.next()) {
+                    result.add(resultSet.getString("COLUMN_NAME"));
+                }
             }
         }
 
@@ -531,7 +533,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
         }
 
     }
-    
+
     public abstract class JDBCSPConverter implements AvroConverter<CallableStatement, Object> {
 
         protected JDBCAvroRegistryInfluencer influencer;
@@ -554,7 +556,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
         }
 
     }
-    
+
     public JDBCSPConverter getSPConverter(final Field f, final int index) {
         Schema basicSchema = AvroUtils.unwrapIfNullable(f.schema());
 

@@ -25,6 +25,11 @@ public class RowWriter {
 
         int statementIndex = 0;
 
+        // work for the case for the rest service
+        if (inputSchema == null || inputSchema.getFields() == null || inputSchema.getFields().isEmpty()) {
+            inputSchema = componentSchema;
+        }
+
         for (JDBCSQLBuilder.Column column : columnList) {
             Field inputField = CommonUtils.getField(inputSchema, column.columnLabel);
 
