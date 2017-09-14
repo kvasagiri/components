@@ -36,12 +36,34 @@ public abstract class JdbcRuntimeSourceOrSinkDefault implements JdbcRuntimeSourc
         }
         return conn;
     }
-    
+
     public void initConnection(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
         conn = connect(runtime);
     }
 
     protected Connection connect(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
+        return null;
+    }
+
+    @Override
+    public List<String> getDBCatalogs(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
+        return null;
+    }
+
+    @Override
+    public List<String> getDBSchemas(RuntimeContainer runtime, String catalog) throws ClassNotFoundException, SQLException {
+        return null;
+    }
+
+    @Override
+    public List<ModuleMetadata> getDBTables(RuntimeContainer runtime, String catalog, String dbschema, String tableNamePattern,
+            String[] tableTypes) throws ClassNotFoundException, SQLException {
+        return null;
+    }
+
+    @Override
+    public List<ModuleMetadata> getDBTables(RuntimeContainer runtime, ModuleMetadata tableid)
+            throws ClassNotFoundException, SQLException {
         return null;
     }
 

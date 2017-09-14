@@ -29,6 +29,7 @@ import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.runtime.setting.JDBCSQLBuilder;
 import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSink;
+import org.talend.components.jdbc.runtime.setting.ModuleMetadata;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.ValidationResult;
@@ -169,16 +170,30 @@ public class JDBCRetrieveSchemaWizardProperties extends ComponentPropertiesImpl 
             // store schemas
             for (NamedThing nl : wizardConnectionProperties.moduleNames) {
                 String tablename = nl.getName();
-                Schema schema = sourceOrSink.getEndpointSchema(null, tablename);
+                // Schema schema = sourceOrSink.getEndpointSchema(null, tablename);
+                List<ModuleMetadata> modules = sourceOrSink.getDBTables(null,
+                        new ModuleMetadata(null/* catalog : need to fetch it from somewhere */,
+                                null/* schema : need to fetch it from somewhere */, tablename,
+                                null/* type : need to fetch it from somewhere */, null, null)// a ID for a
+                                                                                             // database
+                                                                                             // module
+                );
+
+                if (modules == null || modules.isEmpty()) {
+                    continue;
+                }
 
                 JDBCSchemaWizardProperties properties = new JDBCSchemaWizardProperties(tablename);
                 properties.init();
 
                 properties.tableSelection.tablename.setValue(tablename);
+
+                Schema schema = modules.get(0).schema;
                 properties.main.schema.setValue(schema);
                 properties.sql.setValue(JDBCSQLBuilder.getInstance().generateSQL4SelectTable(tablename, schema));
                 repo.storeProperties(properties, tablename, connRepLocation, "main.schema");
             }
+
             return ValidationResult.OK;
         }
     }

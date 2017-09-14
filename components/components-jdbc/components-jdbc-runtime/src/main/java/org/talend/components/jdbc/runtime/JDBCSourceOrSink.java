@@ -41,6 +41,7 @@ import org.talend.components.jdbc.avro.JDBCAvroRegistryString;
 import org.talend.components.jdbc.avro.ResultSetStringRecordConverter;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSinkDefault;
+import org.talend.components.jdbc.runtime.setting.ModuleMetadata;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.SimpleNamedThing;
 import org.talend.daikon.avro.AvroRegistry;
@@ -112,6 +113,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
     public List<NamedThing> getSchemaNames(RuntimeContainer runtime) throws IOException {
         List<NamedThing> result = new ArrayList<>();
         try (Connection conn = connect(runtime);
+                // TODO support all table types, not only TABLE, also VIEW, SYNONYM and so on
                 ResultSet resultset = conn.getMetaData().getTables(null, null, null, new String[] { "TABLE" })) {
             while (resultset.next()) {
                 String tablename = resultset.getString("TABLE_NAME");
@@ -189,6 +191,140 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
     public IndexedRecordConverter<ResultSet, IndexedRecord> getConverter() {
         return converter;
+    }
+
+    // work for the wizard : catalog show, TODO make it common
+    public List<String> getDBCatalogs(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
+        List<String> catalogs = new ArrayList<>();
+
+        try (Connection conn = connect(runtime); ResultSet result = conn.getMetaData().getCatalogs()) {
+            if (result == null) {
+                return catalogs;
+            }
+
+            while (result.next()) {
+                String catalog = result.getString("TABLE_CAT");
+                if (catalog != null) {
+                    catalogs.add(catalog);
+                }
+            }
+        }
+
+        return catalogs;
+    }
+
+    // work for the wizard : schema show after catalog TODO make it common
+    public List<String> getDBSchemas(RuntimeContainer runtime, String catalog) throws ClassNotFoundException, SQLException {
+        List<String> dbschemas = new ArrayList<>();
+
+        try (Connection conn = connect(runtime); ResultSet result = conn.getMetaData().getSchemas()) {
+            if (result == null) {
+                return dbschemas;
+            }
+
+            while (result.next()) {
+                String dbschema = result.getString("TABLE_SCHEM");
+                if (dbschema == null) {
+                    continue;
+                }
+
+                // filter by catalog name
+                if (catalog != null) {
+                    String catalogname = result.getString("TABLE_CATALOG");
+                    if (catalog.equals(catalogname)) {
+                        dbschemas.add(dbschema);
+                    }
+                } else {
+                    dbschemas.add(dbschema);
+                }
+            }
+        }
+
+        return dbschemas;
+    }
+
+    // work for the wizard : table show after schema after catalog TODO make it common
+    public List<ModuleMetadata> getDBTables(RuntimeContainer runtime, String catalog, String dbschema, String tableNamePattern,
+            String[] tableTypes) throws ClassNotFoundException, SQLException {
+        List<ModuleMetadata> tables = new ArrayList<>();
+
+        try (Connection conn = connect(runtime);
+                ResultSet result = conn.getMetaData().getTables(catalog, dbschema, tableNamePattern, tableTypes)) {
+            if (result == null) {
+                return tables;
+            }
+
+            while (result.next()) {
+                String table = result.getString("TABLE_NAME");
+
+                if (table == null) {
+                    continue;
+                }
+
+                String type = result.getString("TABLE_TYPE");
+                String comment = result.getString("REMARKS");
+
+                String dbcatalog = result.getString("TABLE_CAT");
+                String db_schema = result.getString("TABLE_SCHEM");
+
+                tables.add(new ModuleMetadata(dbcatalog, db_schema, table, type, comment, null));
+            }
+        }
+
+        return tables;
+    }
+
+    // work for the schemas store after click finish button TODO make it common
+    public List<ModuleMetadata> getDBTables(RuntimeContainer runtime, ModuleMetadata tableid)
+            throws ClassNotFoundException, SQLException {
+        List<ModuleMetadata> tables = new ArrayList<>();
+
+        try (Connection conn = connect(runtime);
+                ResultSet result = conn.getMetaData().getTables(tableid.catalog, tableid.dbschema, tableid.name,
+                        tableid.type == null ? null : new String[] { tableid.type })) {
+            if (result == null) {
+                return tables;
+            }
+
+            while (result.next()) {
+                String table = result.getString("TABLE_NAME");
+
+                if (table == null) {
+                    continue;
+                }
+
+                String type = result.getString("TABLE_TYPE");
+                String comment = result.getString("REMARKS");
+
+                String dbcatalog = result.getString("TABLE_CAT");
+                String db_schema = result.getString("TABLE_SCHEM");
+
+                JDBCTableMetadata tableMetadata = new JDBCTableMetadata();
+                tableMetadata.setDatabaseMetaData(conn.getMetaData()).setTablename(tableid.name);
+                Schema schema = avroRegistry.inferSchema(tableMetadata);
+
+                // as ModuleMetadata is invisible for TUP, so store the metadata information to schema for TUP team can work on it
+                // use the same key with JDBC api
+                if (dbcatalog != null)
+                    schema.addProp("TABLE_CAT", dbcatalog);
+
+                if (db_schema != null)
+                    schema.addProp("TABLE_SCHEM", db_schema);
+
+                if (table != null)
+                    schema.addProp("TABLE_NAME", table);
+
+                if (type != null)
+                    schema.addProp("TABLE_TYPE", type);
+
+                if (comment != null)
+                    schema.addProp("REMARKS", comment);
+
+                tables.add(new ModuleMetadata(dbcatalog, db_schema, table, type, comment, schema));
+            }
+        }
+
+        return tables;
     }
 
 }

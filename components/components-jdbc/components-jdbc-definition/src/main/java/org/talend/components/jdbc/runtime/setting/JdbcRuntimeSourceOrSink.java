@@ -12,6 +12,9 @@
 // ============================================================================
 package org.talend.components.jdbc.runtime.setting;
 
+import java.sql.SQLException;
+import java.util.List;
+
 import org.apache.avro.Schema;
 import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.container.RuntimeContainer;
@@ -23,4 +26,18 @@ import org.talend.components.api.container.RuntimeContainer;
 public interface JdbcRuntimeSourceOrSink extends SourceOrSink {
 
     public Schema getSchemaFromQuery(RuntimeContainer runtime, String query);
+
+    // work for the wizard : catalog show, TODO make it common
+    public List<String> getDBCatalogs(RuntimeContainer runtime) throws ClassNotFoundException, SQLException;
+
+    // work for the wizard : schema show after catalog TODO make it common
+    public List<String> getDBSchemas(RuntimeContainer runtime, String catalog) throws ClassNotFoundException, SQLException;
+
+    // work for the wizard : table show after schema after catalog TODO make it common
+    public List<ModuleMetadata> getDBTables(RuntimeContainer runtime, String catalog, String dbschema, String tableNamePattern,
+            String[] tableTypes) throws ClassNotFoundException, SQLException;
+
+    // work for the schemas store after click finish button TODO make it common
+    public List<ModuleMetadata> getDBTables(RuntimeContainer runtime, ModuleMetadata tableid)
+            throws ClassNotFoundException, SQLException;
 }
