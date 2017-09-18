@@ -102,7 +102,7 @@ public class JDBCRetrieveSchemaWizardProperties extends ComponentPropertiesImpl 
     public void beforeFormPresentPage1() throws Exception {
         getForm(FORM_PAGE1).setAllowBack(true);
         getForm(FORM_PAGE1).setAllowForward(true);
-        getForm(FORM_PAGE1).setAllowFinish(true);
+        getForm(FORM_PAGE1).setAllowFinish(false);
     }
 
     // we use this to make sure not lost modules
