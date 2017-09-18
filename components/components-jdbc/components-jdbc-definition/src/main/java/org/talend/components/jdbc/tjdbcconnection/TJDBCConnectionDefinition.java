@@ -30,7 +30,7 @@ import org.talend.daikon.runtime.RuntimeInfo;
  */
 public class TJDBCConnectionDefinition extends AbstractComponentDefinition {
 
-    public static final String COMPONENT_NAME = "tJDBCConnectionNew";
+    public static final String COMPONENT_NAME = "tJDBCConnection";
 
     public TJDBCConnectionDefinition() {
         super(COMPONENT_NAME, ExecutionEngine.DI);

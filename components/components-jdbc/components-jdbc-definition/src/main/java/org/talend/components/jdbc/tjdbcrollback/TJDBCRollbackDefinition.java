@@ -29,7 +29,7 @@ import org.talend.daikon.runtime.RuntimeInfo;
  */
 public class TJDBCRollbackDefinition extends AbstractComponentDefinition {
 
-    public static final String COMPONENT_NAME = "tJDBCRollbackNew";
+    public static final String COMPONENT_NAME = "tJDBCRollback";
 
     public TJDBCRollbackDefinition() {
         super(COMPONENT_NAME, ExecutionEngine.DI);

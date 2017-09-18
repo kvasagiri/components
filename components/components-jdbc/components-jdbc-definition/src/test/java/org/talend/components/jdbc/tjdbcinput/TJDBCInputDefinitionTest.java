@@ -36,8 +36,8 @@ public class TJDBCInputDefinitionTest {
         TJDBCInputDefinition result = new TJDBCInputDefinition();
 
         assertEquals(true, result.isSchemaAutoPropagate());
-        assertEquals("tJDBCInputNew", result.getName());
-        assertEquals("tJDBCInputNew_icon32.png", result.getImagePath());
+        assertEquals("tJDBCInput", result.getName());
+        assertEquals("tJDBCInput_icon32.png", result.getImagePath());
         assertEquals(true, result.isStartable());
         assertEquals(null, result.getIconKey());
         assertEquals(null, result.getPartitioning());

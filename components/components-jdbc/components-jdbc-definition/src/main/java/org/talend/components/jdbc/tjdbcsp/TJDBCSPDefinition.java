@@ -31,7 +31,7 @@ import org.talend.daikon.runtime.RuntimeInfo;
  */
 public class TJDBCSPDefinition extends AbstractComponentDefinition {
 
-    public static final String COMPONENT_NAME = "tJDBCSPNew";
+    public static final String COMPONENT_NAME = "tJDBCSP";
 
     public TJDBCSPDefinition() {
         super(COMPONENT_NAME, ExecutionEngine.DI);

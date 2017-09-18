@@ -36,8 +36,8 @@ public class TJDBCOutputDefinitionTest {
         TJDBCOutputDefinition result = new TJDBCOutputDefinition();
 
         assertEquals(true, result.isConditionalInputs());
-        assertEquals("tJDBCOutputNew", result.getName());
-        assertEquals("tJDBCOutputNew_icon32.png", result.getImagePath());
+        assertEquals("tJDBCOutput", result.getName());
+        assertEquals("tJDBCOutput_icon32.png", result.getImagePath());
         assertEquals(false, result.isStartable());
         assertEquals(null, result.getIconKey());
         assertEquals(null, result.getPartitioning());

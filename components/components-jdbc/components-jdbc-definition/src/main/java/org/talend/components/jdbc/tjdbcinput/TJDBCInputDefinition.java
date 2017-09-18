@@ -33,7 +33,7 @@ import org.talend.daikon.runtime.RuntimeInfo;
  */
 public class TJDBCInputDefinition extends AbstractComponentDefinition {
 
-    public static final String COMPONENT_NAME = "tJDBCInputNew";
+    public static final String COMPONENT_NAME = "tJDBCInput";
 
     public TJDBCInputDefinition() {
         super(COMPONENT_NAME, ExecutionEngine.DI);

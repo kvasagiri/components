@@ -35,8 +35,8 @@ public class TJDBCRowDefinitionTest {
         TJDBCRowDefinition result = new TJDBCRowDefinition();
 
         assertEquals(true, result.isConditionalInputs());
-        assertEquals("tJDBCRowNew", result.getName());
-        assertEquals("tJDBCRowNew_icon32.png", result.getImagePath());
+        assertEquals("tJDBCRow", result.getName());
+        assertEquals("tJDBCRow_icon32.png", result.getImagePath());
         assertEquals(true, result.isStartable());
         assertEquals(null, result.getIconKey());
         assertEquals(null, result.getPartitioning());

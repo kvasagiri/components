@@ -33,7 +33,7 @@ import org.talend.daikon.runtime.RuntimeInfo;
  */
 public class TJDBCRowDefinition extends AbstractComponentDefinition {
 
-    public static final String COMPONENT_NAME = "tJDBCRowNew";
+    public static final String COMPONENT_NAME = "tJDBCRow";
 
     public TJDBCRowDefinition() {
         super(COMPONENT_NAME, ExecutionEngine.DI);

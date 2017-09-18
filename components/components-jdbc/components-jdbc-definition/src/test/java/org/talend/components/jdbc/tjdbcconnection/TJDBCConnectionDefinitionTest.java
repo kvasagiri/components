@@ -37,8 +37,8 @@ public class TJDBCConnectionDefinitionTest {
         TJDBCConnectionDefinition result = new TJDBCConnectionDefinition();
 
         assertEquals(true, result.isStartable());
-        assertEquals("tJDBCConnectionNew", result.getName());
-        assertEquals("tJDBCConnectionNew_icon32.png", result.getImagePath());
+        assertEquals("tJDBCConnection", result.getName());
+        assertEquals("tJDBCConnection_icon32.png", result.getImagePath());
         assertEquals(null, result.getIconKey());
         assertEquals(null, result.getPartitioning());
         assertEquals(false, result.isConditionalInputs());

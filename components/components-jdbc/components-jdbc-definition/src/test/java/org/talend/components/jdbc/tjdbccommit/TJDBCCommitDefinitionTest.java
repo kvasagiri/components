@@ -36,8 +36,8 @@ public class TJDBCCommitDefinitionTest {
         TJDBCCommitDefinition result = new TJDBCCommitDefinition();
 
         assertEquals(true, result.isStartable());
-        assertEquals("tJDBCCommitNew", result.getName());
-        assertEquals("tJDBCCommitNew_icon32.png", result.getImagePath());
+        assertEquals("tJDBCCommit", result.getName());
+        assertEquals("tJDBCCommit_icon32.png", result.getImagePath());
         assertEquals(null, result.getIconKey());
         assertEquals(null, result.getPartitioning());
         assertEquals(false, result.isConditionalInputs());

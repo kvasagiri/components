@@ -29,7 +29,7 @@ import org.talend.daikon.runtime.RuntimeInfo;
  */
 public class TJDBCCommitDefinition extends AbstractComponentDefinition {
 
-    public static final String COMPONENT_NAME = "tJDBCCommitNew";
+    public static final String COMPONENT_NAME = "tJDBCCommit";
 
     public TJDBCCommitDefinition() {
         super(COMPONENT_NAME, ExecutionEngine.DI);
