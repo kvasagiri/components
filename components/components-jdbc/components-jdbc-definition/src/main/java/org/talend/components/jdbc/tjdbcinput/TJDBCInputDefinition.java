@@ -67,20 +67,17 @@ public class TJDBCInputDefinition extends AbstractComponentDefinition {
     public RuntimeInfo getRuntimeInfo(ExecutionEngine engine, ComponentProperties properties,
             ConnectorTopology connectorTopology) {
         assertEngineCompatibility(engine);
-        if (connectorTopology == ConnectorTopology.OUTGOING) {
-            return new JdbcRuntimeInfo((TJDBCInputProperties) properties, "org.talend.components.jdbc.runtime.JDBCSource");
-        }
-        return null;
+        return new JdbcRuntimeInfo((TJDBCInputProperties) properties, "org.talend.components.jdbc.runtime.JDBCSource");
     }
 
     @Override
     public Set<ConnectorTopology> getSupportedConnectorTopologies() {
         return EnumSet.of(ConnectorTopology.OUTGOING);
     }
-    
+
     @Override
     public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
-        return new Class[] { JDBCConnectionWizardProperties.class,JDBCSchemaWizardProperties.class };
+        return new Class[] { JDBCConnectionWizardProperties.class, JDBCSchemaWizardProperties.class };
     }
 
 }

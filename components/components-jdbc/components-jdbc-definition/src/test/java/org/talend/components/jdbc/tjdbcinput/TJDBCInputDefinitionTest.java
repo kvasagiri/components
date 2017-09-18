@@ -141,13 +141,13 @@ public class TJDBCInputDefinitionTest {
         assertNotNull(result);
 
         result = fixture.getRuntimeInfo(engine, properties, ConnectorTopology.INCOMING);
-        assertNull(result);
+        assertNotNull(result);
 
         result = fixture.getRuntimeInfo(engine, properties, ConnectorTopology.NONE);
-        assertNull(result);
+        assertNotNull(result);
 
         result = fixture.getRuntimeInfo(engine, properties, ConnectorTopology.INCOMING_AND_OUTGOING);
-        assertNull(result);
+        assertNotNull(result);
     }
 
     /**
