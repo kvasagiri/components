@@ -234,7 +234,9 @@ public class CommonUtils {
         boolean useExistedConnection = setReferenceInfo(setting, referencedComponent);
 
         if (useExistedConnection) {
-            setCommonConnectionInfo(setting, ((TJDBCConnectionProperties)referencedComponent.getReference()).connection);
+            if (referencedComponent.getReference() != null) {//avoid the NPE in JdbcRuntimeInfo
+                setCommonConnectionInfo(setting, ((TJDBCConnectionProperties) referencedComponent.getReference()).connection);
+            }
         } else {
             setCommonConnectionInfo(setting, connection);
         }
