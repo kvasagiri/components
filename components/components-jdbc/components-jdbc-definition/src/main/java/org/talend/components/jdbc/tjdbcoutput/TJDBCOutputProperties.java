@@ -63,8 +63,8 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
     public enum DataAction {
         INSERT,
         UPDATE,
-        INSERTORUPDATE,
-        UPDATEORINSERT,
+        INSERT_OR_UPDATE,
+        UPDATE_OR_INSERT,
         DELETE
     }
 

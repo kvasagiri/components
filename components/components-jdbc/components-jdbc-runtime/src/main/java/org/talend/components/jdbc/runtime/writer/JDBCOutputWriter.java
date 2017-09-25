@@ -118,7 +118,7 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
 
         useBatch = setting.getUseBatch();
         DataAction dataAction = setting.getDataAction();
-        if ((dataAction == DataAction.INSERTORUPDATE) || (dataAction == DataAction.UPDATEORINSERT)) {
+        if ((dataAction == DataAction.INSERT_OR_UPDATE) || (dataAction == DataAction.UPDATE_OR_INSERT)) {
             useBatch = false;
         }
         if (useBatch) {

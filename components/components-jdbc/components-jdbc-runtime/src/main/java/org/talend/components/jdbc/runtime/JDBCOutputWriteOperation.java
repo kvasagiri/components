@@ -49,9 +49,9 @@ public class JDBCOutputWriteOperation extends DefaultWriteOperation {
             return new JDBCOutputUpdateWriter(this, runtimeContainer);
         case DELETE:
             return new JDBCOutputDeleteWriter(this, runtimeContainer);
-        case INSERTORUPDATE:
+        case INSERT_OR_UPDATE:
             return new JDBCOutputInsertOrUpdateWriter(this, runtimeContainer);
-        case UPDATEORINSERT:
+        case UPDATE_OR_INSERT:
             return new JDBCOutputUpdateOrInsertWriter(this, runtimeContainer);
         default:
             return null;

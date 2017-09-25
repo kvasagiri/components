@@ -783,9 +783,9 @@ public class DBTestUtils {
         case 2:
             return DataAction.DELETE;
         case 3:
-            return DataAction.INSERTORUPDATE;
+            return DataAction.INSERT_OR_UPDATE;
         case 4:
-            return DataAction.UPDATEORINSERT;
+            return DataAction.UPDATE_OR_INSERT;
         default:
             return DataAction.INSERT;
         }
@@ -799,9 +799,9 @@ public class DBTestUtils {
         case 1:
             return DataAction.UPDATE;
         case 2:
-            return DataAction.INSERTORUPDATE;
+            return DataAction.INSERT_OR_UPDATE;
         case 3:
-            return DataAction.UPDATEORINSERT;
+            return DataAction.UPDATE_OR_INSERT;
         default:
             return DataAction.INSERT;
         }

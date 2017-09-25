@@ -585,7 +585,7 @@ public class JDBCOutputTestIT {
         properties.updateOutputSchemas();
 
         properties.tableSelection.tablename.setValue(DBTestUtils.getTablename());
-        properties.dataAction.setValue(DataAction.INSERTORUPDATE);
+        properties.dataAction.setValue(DataAction.INSERT_OR_UPDATE);
         properties.dieOnError.setValue(true);
 
         properties.commitEvery.setValue(DBTestUtils.randomInt());
@@ -648,7 +648,7 @@ public class JDBCOutputTestIT {
         properties.updateOutputSchemas();
 
         properties.tableSelection.tablename.setValue(DBTestUtils.getTablename());
-        properties.dataAction.setValue(DataAction.UPDATEORINSERT);
+        properties.dataAction.setValue(DataAction.UPDATE_OR_INSERT);
         properties.dieOnError.setValue(true);
 
         properties.commitEvery.setValue(DBTestUtils.randomInt());
@@ -747,7 +747,7 @@ public class JDBCOutputTestIT {
         List<IndexedRecord> records = DBTestUtils.fetchDataByReaderFromTable(DBTestUtils.getTablename(), schema, definition1,
                 properties1);
 
-        if (action == DataAction.INSERT || action == DataAction.INSERTORUPDATE || action == DataAction.UPDATEORINSERT) {
+        if (action == DataAction.INSERT || action == DataAction.INSERT_OR_UPDATE || action == DataAction.UPDATE_OR_INSERT) {
             assertThat(records, hasSize(2));
             Assert.assertEquals(new Integer(4), records.get(0).get(0));
             Assert.assertEquals("xiaoming", records.get(0).get(1));
