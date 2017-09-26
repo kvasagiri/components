@@ -16,6 +16,7 @@ import static org.talend.daikon.properties.presentation.Widget.widget;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -84,7 +85,7 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
 
     // TODO query type
 
-    public Property<String> sql = PropertyFactory.newString("sql").setRequired(true);
+    public Property<String> sql = PropertyFactory.newString("sql").setRequired(true).setFlags(EnumSet.of(Property.Flags.MULTI_LINE));
 
     public final PresentationItem fetchSchemaFromQuery = new PresentationItem("fetchSchemaFromQuery", "Fetch schema from query");
 
