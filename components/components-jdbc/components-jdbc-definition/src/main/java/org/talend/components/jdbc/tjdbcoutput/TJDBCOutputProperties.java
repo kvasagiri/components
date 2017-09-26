@@ -261,6 +261,7 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
 
         for (Schema.Field f : schema.getFields()) {
             fieldNames.add(f.name());
+            //TODO fix it as this code make some tuj failed
             insertable.add(true);
             updateable.add(true);
         }

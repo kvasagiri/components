@@ -91,6 +91,8 @@ public class JDBCOutputDeleteWriter extends JDBCOutputWriter {
             if (dieOnError) {
                 throw new ComponentException(e);
             } else {
+                result.totalCount++;
+                
                 System.err.println(e.getMessage());
                 LOG.warn(e.getMessage());
             }
