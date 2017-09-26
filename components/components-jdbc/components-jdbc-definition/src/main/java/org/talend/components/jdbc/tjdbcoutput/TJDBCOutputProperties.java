@@ -187,6 +187,8 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
         batchSize.setValue(10000);
 
         tableSelection.setConnection(this);
+        
+        connection.setNotRequired();
     }
 
     @Override

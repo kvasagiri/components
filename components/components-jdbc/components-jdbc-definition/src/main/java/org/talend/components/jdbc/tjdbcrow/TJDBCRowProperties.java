@@ -141,6 +141,8 @@ public class TJDBCRowProperties extends FixedConnectorsComponentProperties imple
         commitEvery.setValue(10000);
         sql.setValue("select id, name from employee");
         tableSelection.setConnection(this);
+        
+        connection.setNotRequired();
     }
 
     @Override

@@ -60,5 +60,12 @@ public class JDBCConnectionModule extends ComponentPropertiesImpl {
         form.addRow(driverClass);
         form.addRow(userPassword.getForm(Form.MAIN));
     }
+    
+    public void setNotRequired() {
+        this.jdbcUrl.setRequired(false);
+        this.driverClass.setRequired(false);
+        this.userPassword.userId.setRequired(false);
+        this.userPassword.password.setRequired(false);
+    }
 
 }

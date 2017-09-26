@@ -160,6 +160,8 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
             }
 
         };
+        
+        connection.setNotRequired();
     }
 
     @Override

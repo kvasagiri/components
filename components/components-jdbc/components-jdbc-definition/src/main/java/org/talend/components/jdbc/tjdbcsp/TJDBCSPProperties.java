@@ -106,6 +106,8 @@ public class TJDBCSPProperties extends FixedConnectorsComponentProperties implem
     @Override
     public void setupProperties() {
         super.setupProperties();
+        
+        connection.setNotRequired();
     }
 
     @Override
