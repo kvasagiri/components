@@ -250,7 +250,7 @@ public class RowWriter {
             if (inputValue == null) {
                 statement.setNull(statementIndex, java.sql.Types.INTEGER);
             } else {
-                statement.setShort(statementIndex, ((Integer) inputValue).shortValue());
+                statement.setShort(statementIndex, ((Number) inputValue).shortValue());
             }
         }
 
@@ -269,7 +269,7 @@ public class RowWriter {
             } else {
                 //please see org.talend.codegen.enforcer.IncomingSchemaEnforcer, it will convert byte(Byte) to int(Integer), not know why, so change here
                 //statement.setByte(statementIndex, (byte) inputValue);
-                statement.setByte(statementIndex, ((Integer) inputValue).byteValue());
+                statement.setByte(statementIndex, ((Number) inputValue).byteValue());
             }
         }
 
