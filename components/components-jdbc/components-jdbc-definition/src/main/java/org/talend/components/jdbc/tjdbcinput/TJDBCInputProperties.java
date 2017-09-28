@@ -268,7 +268,6 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
         return ValidationResult.OK;
     }
 
-    // TODO when use existed connection, it doesn't work, seems a bug in the upriver
     public ValidationResult afterGuessQueryFromSchema() {
         String tablename = tableSelection.tablename.getValue();
         Schema schema = main.schema.getValue();

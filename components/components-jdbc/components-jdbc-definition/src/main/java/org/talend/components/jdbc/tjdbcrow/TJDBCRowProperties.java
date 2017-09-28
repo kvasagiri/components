@@ -237,7 +237,6 @@ public class TJDBCRowProperties extends FixedConnectorsComponentProperties imple
         String query = JDBCSQLBuilder.getInstance().generateSQL4SelectTable(tablename, schema);
         sql.setValue("\"" + query + "\"");
 
-        // TODO : it doesn't work
         refreshLayout(getForm(Form.MAIN));
 
         return ValidationResult.OK;

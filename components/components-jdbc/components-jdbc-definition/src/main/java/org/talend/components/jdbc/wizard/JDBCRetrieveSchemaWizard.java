@@ -38,7 +38,7 @@ public class JDBCRetrieveSchemaWizard extends ComponentWizard {
 
     public void setupProperties(JDBCConnectionWizardProperties connectionProperties) {
         this.connectionProperties.copyValuesFrom(connectionProperties);
-        // TODO the copyValuesFrom method only can copy the property or properties object, will ignore others, so need to the copy
+        // the copyValuesFrom method only can copy the property or properties object, will ignore others, so need to the copy
         // below
         if (connectionProperties.querys != null) {
             this.connectionProperties.querys = connectionProperties.querys;

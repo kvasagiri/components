@@ -59,7 +59,6 @@ public class PreparedStatementTable extends ComponentPropertiesImpl {
         mainForm.addColumn(values);
     }
 
-    // TODO it's necessary, why not use Type type directly?
     @Override
     public void setupProperties() {
         super.setupProperties();

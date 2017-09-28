@@ -45,9 +45,7 @@ public class JDBCConnectionModule extends ComponentPropertiesImpl {
     @Override
     public void setupProperties() {
         super.setupProperties();
-        // TODO when work with wizard, some case will reset the right url to this default one, not know the reason now,so remove
-        // it now
-        // jdbcUrl.setValue("jdbc:");
+        jdbcUrl.setValue("jdbc:");
     }
 
     @Override
@@ -60,7 +58,7 @@ public class JDBCConnectionModule extends ComponentPropertiesImpl {
         form.addRow(driverClass);
         form.addRow(userPassword.getForm(Form.MAIN));
     }
-    
+
     public void setNotRequired() {
         this.jdbcUrl.setRequired(false);
         this.driverClass.setRequired(false);

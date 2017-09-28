@@ -15,8 +15,10 @@ package org.talend.components.jdbc.tjdbcoutput;
 import static org.talend.daikon.properties.presentation.Widget.widget;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.avro.Schema;
@@ -187,7 +189,7 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
         batchSize.setValue(10000);
 
         tableSelection.setConnection(this);
-        
+
         connection.setNotRequired();
     }
 
@@ -257,19 +259,71 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
             return;
         }
 
+        Map<String, FieldOption> oldValues = getOldFieldOptions();
+
         List<String> fieldNames = new ArrayList<>();
         List<Boolean> insertable = new ArrayList<>();
         List<Boolean> updateable = new ArrayList<>();
 
         for (Schema.Field f : schema.getFields()) {
             fieldNames.add(f.name());
-            //TODO fix it as this code make some tuj failed
-            insertable.add(true);
-            updateable.add(true);
+            FieldOption oldValue = null;
+            if (oldValues != null && (oldValue = oldValues.get(f.name())) != null) {
+                // set the old value if the field is old after schema changed
+                insertable.add(oldValue.insertable);
+                updateable.add(oldValue.updatable);
+            } else {
+                // set the default value if the field is new after schema changed
+                insertable.add(true);
+                updateable.add(true);
+            }
         }
         fieldOptions.schemaColumns.setValue(fieldNames);
         fieldOptions.insertable.setValue(insertable);
         fieldOptions.updatable.setValue(updateable);
+    }
+
+    private Map<String, FieldOption> getOldFieldOptions() {
+        Map<String, FieldOption> oldValueMap = null;
+        Object fs = fieldOptions.schemaColumns.getValue();
+        Object is = fieldOptions.insertable.getValue();
+        Object us = fieldOptions.updatable.getValue();
+        if (fs != null && is != null && us != null && (fs instanceof List) && (is instanceof List) && (us instanceof List)) {
+            oldValueMap = new HashMap<>();
+            List<String> names = (List<String>) fs;
+            List<Object> insertables = (List<Object>) is;
+            List<Object> updatables = (List<Object>) us;
+            for (int i = 0; i < names.size(); i++) {
+                FieldOption option = new FieldOption();
+                option.fieldName = names.get(i);
+                Object its = insertables.get(i);
+                Object uts = updatables.get(i);
+                
+                if(its instanceof Boolean) {
+                    option.insertable = (Boolean)its;
+                } else {
+                    option.insertable = Boolean.valueOf((String)its);
+                }
+                
+                if(its instanceof Boolean) {
+                    option.updatable = (Boolean)uts;
+                } else {
+                    option.updatable = Boolean.valueOf((String)uts);
+                }
+                
+                oldValueMap.put(option.fieldName, option);
+            }
+        }
+        return oldValueMap;
+    }
+
+    private class FieldOption {
+
+        String fieldName;
+
+        boolean insertable;
+
+        boolean updatable;
     }
 
     @Override
