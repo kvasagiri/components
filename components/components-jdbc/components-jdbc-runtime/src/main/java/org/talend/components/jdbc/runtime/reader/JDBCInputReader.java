@@ -38,7 +38,6 @@ import org.talend.components.jdbc.JdbcComponentErrorsCode;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.runtime.JDBCSource;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
-import org.talend.daikon.avro.AvroRegistry;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 
@@ -57,8 +56,6 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
     protected Connection conn;
 
     protected ResultSet resultSet;
-
-    private transient AvroRegistry avroRegistry;
 
     private transient IndexedRecordConverter<ResultSet, IndexedRecord> converter;
 
