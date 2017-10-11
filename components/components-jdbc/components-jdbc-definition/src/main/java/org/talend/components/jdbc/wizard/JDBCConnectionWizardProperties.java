@@ -115,7 +115,10 @@ public class JDBCConnectionWizardProperties extends ComponentPropertiesImpl impl
             }
 
             String connRepLocation = repo.storeProperties(this, this.name.getValue(), repositoryLocation, null);
-            // store schemas
+            // we have to store schemas as the implement of storeProperties method, it will overwrite the item every time, so we
+            // have to store old schemas here
+            // as we will use the old way for schema list retrieve, so not sure we need to do this here, maybe should remove it,
+            // and adjust storeProperties, TODO need to discuss with studio team
             if (moduleNames != null) {
                 for (NamedThing nl : moduleNames) {
                     String tablename = nl.getName();

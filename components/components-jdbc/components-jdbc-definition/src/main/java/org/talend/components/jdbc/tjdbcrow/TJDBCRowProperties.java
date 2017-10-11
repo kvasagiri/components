@@ -78,7 +78,7 @@ public class TJDBCRowProperties extends FixedConnectorsComponentProperties imple
 
     public JDBCTableSelectionModule tableSelection = new JDBCTableSelectionModule("tableSelection");
 
-    // TODO query type
+    // TODO query type, will do this with studio team
 
     public Property<String> sql = PropertyFactory.newString("sql").setRequired(true).setFlags(EnumSet.of(Property.Flags.MULTI_LINE));
 

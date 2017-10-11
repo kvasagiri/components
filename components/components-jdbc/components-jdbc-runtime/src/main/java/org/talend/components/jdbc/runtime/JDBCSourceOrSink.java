@@ -109,6 +109,11 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         return JdbcRuntimeUtils.validate(runtime, this);
     }
 
+    // TODO not sure we need this method for JDBC as :
+    // this is only a flat table list, but in fact for database, it's a tree, not list, so this method is not so good
+    // tup team consider to use the old way(if that, we may need to adjust JDBCTableSelectionModule which use this method) for the
+    // tables show, so this method may not be useful now.
+    // so no need to waste time to adjust this method now
     @Override
     public List<NamedThing> getSchemaNames(RuntimeContainer runtime) throws IOException {
         List<NamedThing> result = new ArrayList<>();
@@ -193,6 +198,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         return converter;
     }
 
+    // as studio will do schema list retrieve by the old way, now the method is not useful.
     // work for the wizard : catalog show, TODO make it common
     public List<String> getDBCatalogs(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
         List<String> catalogs = new ArrayList<>();
@@ -213,6 +219,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         return catalogs;
     }
 
+    // as studio will do schema list retrieve by the old way, now the method is not useful.
     // work for the wizard : schema show after catalog TODO make it common
     public List<String> getDBSchemas(RuntimeContainer runtime, String catalog) throws ClassNotFoundException, SQLException {
         List<String> dbschemas = new ArrayList<>();
@@ -243,6 +250,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         return dbschemas;
     }
 
+    // as studio will do schema list retrieve by the old way, now the method is not useful.
     // work for the wizard : table show after schema after catalog TODO make it common
     public List<ModuleMetadata> getDBTables(RuntimeContainer runtime, String catalog, String dbschema, String tableNamePattern,
             String[] tableTypes) throws ClassNotFoundException, SQLException {
@@ -274,6 +282,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         return tables;
     }
 
+    // as studio will do schema list retrieve by the old way, now the method is not useful.
     // work for the schemas store after click finish button TODO make it common
     public List<ModuleMetadata> getDBTables(RuntimeContainer runtime, ModuleMetadata tableid)
             throws ClassNotFoundException, SQLException {

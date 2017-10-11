@@ -41,6 +41,7 @@ import org.talend.daikon.properties.service.Repository;
 import org.talend.daikon.runtime.RuntimeUtil;
 import org.talend.daikon.sandbox.SandboxedInstance;
 
+// we will do the retrieve schema by the old way, so not useful now. TODO remove this
 public class JDBCRetrieveSchemaWizardProperties extends ComponentPropertiesImpl implements RuntimeSettingProvider {
 
     public static final String FORM_PAGE1 = "page1";

@@ -15,6 +15,7 @@ package org.talend.components.jdbc.wizard;
 import org.talend.components.api.wizard.ComponentWizard;
 import org.talend.components.api.wizard.ComponentWizardDefinition;
 
+// we will do the retrieve schema by the old way, so not useful now. TODO remove this
 public class JDBCRetrieveSchemaWizard extends ComponentWizard {
 
     JDBCConnectionWizardProperties connectionProperties;

@@ -45,22 +45,26 @@ public abstract class JdbcRuntimeSourceOrSinkDefault implements JdbcRuntimeSourc
         return null;
     }
 
+    // TODO remove it as not useful now
     @Override
     public List<String> getDBCatalogs(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
         return null;
     }
 
+    // TODO remove it as not useful now
     @Override
     public List<String> getDBSchemas(RuntimeContainer runtime, String catalog) throws ClassNotFoundException, SQLException {
         return null;
     }
 
+    // TODO remove it as not useful now
     @Override
     public List<ModuleMetadata> getDBTables(RuntimeContainer runtime, String catalog, String dbschema, String tableNamePattern,
             String[] tableTypes) throws ClassNotFoundException, SQLException {
         return null;
     }
 
+    // TODO remove it as not useful now
     @Override
     public List<ModuleMetadata> getDBTables(RuntimeContainer runtime, ModuleMetadata tableid)
             throws ClassNotFoundException, SQLException {

@@ -22,6 +22,8 @@ import org.talend.daikon.definition.DefinitionImageType;
  * JDBC wizard for retrieving schema
  *
  */
+
+// we will do the retrieve schema by the old way, so not useful now. TODO remove this
 public class JDBCRetrieveSchemaWizardDefinition extends AbstractComponentWizardDefintion {
 
     public static final String COMPONENT_WIZARD_NAME = "JDBC.retrieveschema";
@@ -52,12 +54,12 @@ public class JDBCRetrieveSchemaWizardDefinition extends AbstractComponentWizardD
     @Override
     public String getPngImagePath(WizardImageType imageType) {
         switch (imageType) {
-            case TREE_ICON_16X16:
-                return getImagePath(DefinitionImageType.TREE_ICON_16X16);
-            case WIZARD_BANNER_75X66:
-                return getImagePath(DefinitionImageType.WIZARD_BANNER_75X66);
-            default:
-                // will return null
+        case TREE_ICON_16X16:
+            return getImagePath(DefinitionImageType.TREE_ICON_16X16);
+        case WIZARD_BANNER_75X66:
+            return getImagePath(DefinitionImageType.WIZARD_BANNER_75X66);
+        default:
+            // will return null
         }
         return null;
     }
@@ -65,12 +67,12 @@ public class JDBCRetrieveSchemaWizardDefinition extends AbstractComponentWizardD
     @Override
     public String getImagePath(DefinitionImageType type) {
         switch (type) {
-            case TREE_ICON_16X16:
-                return "connectionWizardIcon.png"; //$NON-NLS-1$
-            case WIZARD_BANNER_75X66:
-                return "JDBCWizardBanner.png"; //$NON-NLS-1$
-            default:
-                // will return null
+        case TREE_ICON_16X16:
+            return "connectionWizardIcon.png"; //$NON-NLS-1$
+        case WIZARD_BANNER_75X66:
+            return "JDBCWizardBanner.png"; //$NON-NLS-1$
+        default:
+            // will return null
         }
         return null;
     }

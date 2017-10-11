@@ -60,6 +60,7 @@ public class JDBCTableSelectionModule extends PropertiesImpl {
         refreshLayout(referForm);
     }
 
+    // TODO we will use the old way for schemas tree retrieve, not sure it's useful now, will adjust it with studio team
     public ValidationResult beforeTablename() throws IOException {
         JdbcRuntimeInfo jdbcRuntimeInfo = new JdbcRuntimeInfo(connection, "org.talend.components.jdbc.runtime.JDBCSource");
         try (SandboxedInstance sandboxI = RuntimeUtil.createRuntimeClass(jdbcRuntimeInfo,

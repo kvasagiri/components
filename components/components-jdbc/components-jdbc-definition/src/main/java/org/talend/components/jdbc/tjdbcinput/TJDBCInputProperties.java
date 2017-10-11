@@ -83,7 +83,7 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
 
     public JDBCTableSelectionModule tableSelection = new JDBCTableSelectionModule("tableSelection");
 
-    // TODO query type
+    // TODO query type, tup team need to provide the widget and control action
 
     public Property<String> sql = PropertyFactory.newString("sql").setRequired(true).setFlags(EnumSet.of(Property.Flags.MULTI_LINE));
 

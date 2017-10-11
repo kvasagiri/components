@@ -36,6 +36,7 @@ import org.talend.daikon.properties.service.Repository;
 import org.talend.daikon.runtime.RuntimeUtil;
 import org.talend.daikon.sandbox.SandboxedInstance;
 
+// not useful now TODO remove it
 public class JDBCModuleListWizardProperties extends ComponentPropertiesImpl implements RuntimeSettingProvider {
 
     private JDBCConnectionWizardProperties wizardConnectionProperties;

@@ -249,7 +249,6 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
         successfulWrites.add(input);
     }
 
-    // TODO low performance maybe as in loop
     protected void handleReject(IndexedRecord input, SQLException e) throws IOException {
         if (useBatch) {
             return;
@@ -259,6 +258,7 @@ abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, Ind
         IndexedRecord reject = new GenericData.Record(rejectSchema);
         for (Schema.Field rejectField : rejectSchema.getFields()) {
             Object rejectValue = null;
+            //getField is a O(1) method for time, so performance is OK here.
             Schema.Field inField = input.getSchema().getField(rejectField.name());
 
             if (inField != null) {
