@@ -23,6 +23,8 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.module.PreparedStatementTable;
@@ -142,5 +144,40 @@ public class JdbcRuntimeUtils {
                 break;
             }
         }
+    }
+
+    public static Connection createConnectionOrGetFromSharedConnectionPoolOrDataSource(RuntimeContainer runtime, AllSetting setting, boolean readonly)
+            throws SQLException, ClassNotFoundException {
+        Connection conn = null;
+    
+        if (setting.getShareConnection()) {
+            // org.talend.components.common.runtime.SharedConnectionsPool sharedConnectionPool = runtime
+            // .getGlobalData(ComponentConstants.GLOBAL_CONNECTION_POOL_KEY);
+            // conn = sharedConnectionPool.getDBConnection(setting.getDriverClass(), setting.getJdbcUrl(), setting.getUsername(),
+            // setting.getPassword(), setting.getSharedConnectionName());
+        } else if (setting.getUseDataSource()) {
+            java.util.Map<String, DataSource> dataSources = (java.util.Map<String, javax.sql.DataSource>) runtime
+                    .getGlobalData(ComponentConstants.KEY_DB_DATASOURCES_RAW);
+            if (dataSources != null) {
+                DataSource datasource = dataSources.get(setting.getDataSource());
+                if (datasource == null) {
+                    throw new RuntimeException("No DataSource with alias: " + setting.getDataSource() + " available!");
+                }
+                conn = datasource.getConnection();
+                if (conn == null) {
+                    throw new RuntimeException("Unable to get a pooled database connection from pool");
+                }
+            } else {
+                conn = createConnection(setting);
+            }
+        } else {
+            conn = createConnection(setting);
+            // somebody add it for performance for dataprep
+            if (readonly) {
+                conn.setReadOnly(setting.isReadOnly());
+            }
+        }
+        
+        return conn;
     }
 }

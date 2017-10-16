@@ -122,7 +122,8 @@ public class JDBCRowSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         if (useExistedConnection) {
             return JdbcRuntimeUtils.fetchConnectionFromContextOrCreateNew(setting, runtime);
         } else {
-            Connection conn = JdbcRuntimeUtils.createConnection(properties.getRuntimeSetting());
+            Connection conn = JdbcRuntimeUtils.createConnectionOrGetFromSharedConnectionPoolOrDataSource(runtime,
+                    properties.getRuntimeSetting(), false);
 
             if (useCommit) {
                 if (conn.getAutoCommit()) {

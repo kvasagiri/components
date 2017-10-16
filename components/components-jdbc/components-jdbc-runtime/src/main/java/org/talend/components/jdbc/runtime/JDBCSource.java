@@ -61,10 +61,7 @@ public class JDBCSource extends JDBCSourceOrSink implements BoundedSource {
         if (refComponentId != null) {
             return JdbcRuntimeUtils.fetchConnectionFromContextOrCreateNew(setting, runtime);
         } else {
-            // TODO now we use routines.system.TalendDataSource to get the data connection from the ESB runtime, but now we
-            // can't
-            // refer it by the new framework, so will fix it later
-            return JdbcRuntimeUtils.createConnection(setting);
+            return JdbcRuntimeUtils.createConnectionOrGetFromSharedConnectionPoolOrDataSource(runtime, setting, false);
         }
     }
 

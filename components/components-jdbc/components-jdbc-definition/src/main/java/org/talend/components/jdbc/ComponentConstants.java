@@ -37,7 +37,11 @@ public interface ComponentConstants {
     String TALEND6_DYNAMIC_COLUMN_POSITION = "di.dynamic.column.position";
 
     String TALEND6_DYNAMIC_COLUMN_NAME = "di.dynamic.column.name";
-    
+
     String ADD_QUOTES = "ADD_QUOTES";
+
+    String GLOBAL_CONNECTION_POOL_KEY = "GLOBAL_CONNECTION_POOL";
+
+    String KEY_DB_DATASOURCES_RAW = "KEY_DB_DATASOURCES_RAW";
 
 }

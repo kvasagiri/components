@@ -40,11 +40,7 @@ public class JDBCSink extends JDBCSourceOrSink implements Sink {
         if (refComponentId != null) {
             return JdbcRuntimeUtils.fetchConnectionFromContextOrCreateNew(setting, runtime);
         } else {
-            // TODO now we use routines.system.TalendDataSource to get the data connection from the ESB runtime, but now we
-            // can't
-            // refer it by the new framework, so will fix it later
-            
-            Connection conn = JdbcRuntimeUtils.createConnection(setting);
+            Connection conn = JdbcRuntimeUtils.createConnectionOrGetFromSharedConnectionPoolOrDataSource(runtime, setting, false);
 
             Integer commitEvery = setting.getCommitEvery();
             if (commitEvery != null && commitEvery > 0) {
