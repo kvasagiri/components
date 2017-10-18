@@ -52,6 +52,8 @@ public class JDBCConnectionWizardProperties extends ComponentPropertiesImpl impl
     private String repositoryLocation;
 
     public JDBCConnectionModule connection = new JDBCConnectionModule("connection");
+    
+    public Property<String> mappingFile = PropertyFactory.newProperty("mappingFile");
 
     public PresentationItem testConnection = new PresentationItem("testConnection", "Test connection");
 
@@ -78,6 +80,7 @@ public class JDBCConnectionWizardProperties extends ComponentPropertiesImpl impl
         Form wizardForm = CommonUtils.addForm(this, Form.MAIN);
         wizardForm.addRow(name);
         wizardForm.addRow(connection.getForm(Form.MAIN));
+        wizardForm.addRow(widget(mappingFile).setWidgetType("widget.type.mappingType"));
         wizardForm.addRow(widget(testConnection).setLongRunning(true).setWidgetType(Widget.BUTTON_WIDGET_TYPE));
     }
 

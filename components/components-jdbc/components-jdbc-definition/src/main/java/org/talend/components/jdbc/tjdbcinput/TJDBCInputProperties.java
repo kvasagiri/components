@@ -121,7 +121,7 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
         mainForm.addRow(main.getForm(Form.REFERENCE));
 
         mainForm.addRow(tableSelection.getForm(Form.REFERENCE));
-        mainForm.addRow(Widget.widget(sql).setWidgetType(Widget.TEXT_AREA_WIDGET_TYPE));
+        mainForm.addRow(Widget.widget(sql).setWidgetType("widget.type.memoSql"));
 
         mainForm.addRow(Widget.widget(fetchSchemaFromQuery).setWidgetType(Widget.BUTTON_WIDGET_TYPE));
         mainForm.addColumn(Widget.widget(guessQueryFromSchema).setWidgetType(Widget.BUTTON_WIDGET_TYPE));
