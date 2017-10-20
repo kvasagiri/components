@@ -114,9 +114,9 @@ public class TJDBCRowProperties extends FixedConnectorsComponentProperties imple
         mainForm.addRow(main.getForm(Form.REFERENCE));
 
         mainForm.addRow(tableSelection.getForm(Form.REFERENCE));
-        mainForm.addRow(Widget.widget(sql).setWidgetType("widget.type.memoSql"));
 
         mainForm.addRow(Widget.widget(guessQueryFromSchema).setWidgetType(Widget.BUTTON_WIDGET_TYPE));
+        mainForm.addRow(Widget.widget(sql).setWidgetType("widget.type.memoSql"));
 
         mainForm.addRow(useDataSource);
         mainForm.addRow(dataSource);
