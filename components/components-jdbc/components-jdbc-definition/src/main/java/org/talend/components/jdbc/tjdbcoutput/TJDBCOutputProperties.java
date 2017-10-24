@@ -93,7 +93,7 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
 
     public SchemaProperties schemaReject = new SchemaProperties("schemaReject");
 
-    public final PresentationItem fetchSchemaFromTable = new PresentationItem("fetchSchemaFromTable", "Fetch schema from table");
+    public final PresentationItem fetchSchemaFromTable = new PresentationItem("fetchSchemaFromTable", "Guess schema");
 
     public Property<Boolean> dieOnError = PropertyFactory.newBoolean("dieOnError").setRequired();
 
@@ -153,7 +153,7 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
         mainForm.addRow(tableSelection.getForm(Form.REFERENCE));
 
         mainForm.addRow(dataAction);
-        mainForm.addRow(clearDataInTable);
+        mainForm.addColumn(clearDataInTable);
 
         mainForm.addRow(main.getForm(Form.REFERENCE));
 

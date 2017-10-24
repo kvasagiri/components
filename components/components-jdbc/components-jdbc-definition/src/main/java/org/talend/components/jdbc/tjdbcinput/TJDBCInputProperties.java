@@ -83,13 +83,11 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
 
     public JDBCTableSelectionModule tableSelection = new JDBCTableSelectionModule("tableSelection");
 
-    // TODO query type, tup team need to provide the widget and control action
-
     public Property<String> sql = PropertyFactory.newString("sql").setRequired(true).setFlags(EnumSet.of(Property.Flags.MULTI_LINE));
 
-    public final PresentationItem fetchSchemaFromQuery = new PresentationItem("fetchSchemaFromQuery", "Fetch schema from query");
+    public final PresentationItem fetchSchemaFromQuery = new PresentationItem("fetchSchemaFromQuery", "Guess schema");
 
-    public final PresentationItem guessQueryFromSchema = new PresentationItem("guessQueryFromSchema", "Guess query from schema");
+    public final PresentationItem guessQueryFromSchema = new PresentationItem("guessQueryFromSchema", "Guess Query");
 
     public Property<Boolean> useDataSource = PropertyFactory.newBoolean("useDataSource").setRequired();
 
