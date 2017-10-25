@@ -12,7 +12,7 @@
 // ============================================================================
 package org.talend.components.jdbc.module;
 
-import static org.talend.daikon.properties.property.PropertyFactory.*;
+import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 
 import java.util.List;
 
@@ -20,6 +20,7 @@ import org.apache.commons.lang3.reflect.TypeLiteral;
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.daikon.properties.presentation.Form;
+import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 
 /**
@@ -42,7 +43,7 @@ public class DriverTable extends ComponentPropertiesImpl {
     public void setupLayout() {
         super.setupLayout();
         Form mainForm = CommonUtils.addForm(this, Form.MAIN);
-        mainForm.addColumn(drivers);
+        mainForm.addColumn(Widget.widget(drivers).setWidgetType("widget.type.moduleList"));
     }
 
 }

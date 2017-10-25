@@ -81,7 +81,13 @@ public class JdbcRuntimeInfo extends JarRuntimeInfo {
             List<String> driverPaths = props.getRuntimeSetting().getDriverPaths();
             if (driverPaths != null) {
                 for (String driver : driverPaths) {
-                    driverUrls.add(new URL(removeQuote(driver)));
+                    String mavenPath = removeQuote(driver);
+                    // there is some bug in the upriver in studio and the getMavenUrlDependencies is called at some strange time,
+                    // so need to filter like below
+                    if ("newLine".equals(mavenPath)) {
+                        continue;
+                    }
+                    driverUrls.add(new URL(mavenPath));
                 }
             }
             return driverUrls;
