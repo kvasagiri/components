@@ -51,7 +51,7 @@ public class JDBCConnectionWizardProperties extends ComponentPropertiesImpl impl
 
     private String repositoryLocation;
 
-    public JDBCConnectionModule connection = new JDBCConnectionModule("connection");
+    public JDBCConnectionModule connection = new JDBCConnectionModule("connection").useInWizard();
     
     public Property<String> mappingFile = PropertyFactory.newProperty("mappingFile");
 

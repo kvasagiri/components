@@ -42,7 +42,6 @@ public class JDBCConnectionModule extends ComponentPropertiesImpl {
 
     public Property<String> jdbcUrl = PropertyFactory.newProperty("jdbcUrl").setRequired();
 
-    // TODO use the right widget for it
     public DriverTable driverTable = new DriverTable("driverTable");
 
     public Property<String> driverClass = PropertyFactory.newProperty("driverClass").setRequired();
@@ -50,6 +49,8 @@ public class JDBCConnectionModule extends ComponentPropertiesImpl {
     public PresentationItem selectClass = new PresentationItem("selectClass");
 
     public UserPasswordProperties userPassword = new UserPasswordProperties("userPassword");
+
+    private boolean useInWizard = false;
 
     public JDBCConnectionModule(String name) {
         super(name);
@@ -68,9 +69,18 @@ public class JDBCConnectionModule extends ComponentPropertiesImpl {
         Form form = CommonUtils.addForm(this, Form.MAIN);
         form.addRow(jdbcUrl);
         form.addRow(widget(driverTable).setWidgetType(Widget.TABLE_WIDGET_TYPE));
-        form.addRow(driverClass);
-        //hide the button firstly as the ui is not ok now, but the trigger method can work now already
-        form.addColumn(widget(selectClass).setWidgetType(Widget.BUTTON_WIDGET_TYPE).setHidden(true));
+
+        if (useInWizard) {
+            // TODO use the open list widget, but now some bug exists
+            form.addRow(driverClass);
+            // TODO show the button, now hide the button firstly as the ui is not ok, but the trigger method can work now already
+            form.addColumn(widget(selectClass).setWidgetType(Widget.BUTTON_WIDGET_TYPE).setHidden(false));
+        } else {
+            form.addRow(driverClass);
+            //not show it for component
+            form.addColumn(widget(selectClass).setWidgetType(Widget.BUTTON_WIDGET_TYPE).setHidden(true));
+        }
+
         form.addRow(userPassword.getForm(Form.MAIN));
     }
 
@@ -150,6 +160,11 @@ public class JDBCConnectionModule extends ComponentPropertiesImpl {
         this.driverClass.setRequired(false);
         this.userPassword.userId.setRequired(false);
         this.userPassword.password.setRequired(false);
+    }
+
+    public JDBCConnectionModule useInWizard() {// the ui layout is different for component and wizard part
+        useInWizard = true;
+        return this;
     }
 
 }
