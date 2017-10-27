@@ -73,12 +73,10 @@ public class JDBCConnectionModule extends ComponentPropertiesImpl {
         if (useInWizard) {
             // TODO use the open list widget, but now some bug exists
             form.addRow(driverClass);
-            // TODO show the button, now hide the button firstly as the ui is not ok, but the trigger method can work now already
-            form.addColumn(widget(selectClass).setWidgetType(Widget.BUTTON_WIDGET_TYPE).setHidden(false));
+            // TODO now the ui is not ok, but the trigger method can work now already
+            form.addColumn(widget(selectClass).setWidgetType(Widget.BUTTON_WIDGET_TYPE));
         } else {
             form.addRow(driverClass);
-            //not show it for component
-            form.addColumn(widget(selectClass).setWidgetType(Widget.BUTTON_WIDGET_TYPE).setHidden(true));
         }
 
         form.addRow(userPassword.getForm(Form.MAIN));

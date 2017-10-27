@@ -14,9 +14,20 @@
 package org.talend.components.jdbc.runtime;
 
 import java.io.IOException;
-import java.sql.*;
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
+import java.sql.Statement;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.avro.Schema;
 
@@ -115,26 +126,51 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         return JdbcRuntimeUtils.validate(runtime, this);
     }
 
-    // TODO not sure we need this method for JDBC as :
-    // this is only a flat table list, but in fact for database, it's a tree, not list, so this method is not so good
-    // tup team consider to use the old way(if that, we may need to adjust JDBCTableSelectionModule which use this method) for the
-    // tables show, so this method may not be useful now.
-    // so no need to waste time to adjust this method now
     @Override
     public List<NamedThing> getSchemaNames(RuntimeContainer runtime) throws IOException {
         List<NamedThing> result = new ArrayList<>();
-        try (Connection conn = connect(runtime);
-                // TODO support all table types, not only TABLE, also VIEW, SYNONYM and so on
-                ResultSet resultset = conn.getMetaData().getTables(null, null, null, new String[] { "TABLE" })) {
-            while (resultset.next()) {
-                String tablename = resultset.getString("TABLE_NAME");
-                result.add(new SimpleNamedThing(tablename, tablename));
+        try (Connection conn = connect(runtime)) {
+            DatabaseMetaData dbMetaData = conn.getMetaData();
+
+            Set<String> tableTypes = getAvailableTableTypes(dbMetaData);
+
+            try (ResultSet resultset = dbMetaData.getTables(null, null, null, tableTypes.toArray(new String[0]))) {
+                while (resultset.next()) {
+                    String tablename = resultset.getString("TABLE_NAME");
+                    if(tablename == null) {
+                        tablename = resultset.getString("SYNONYM_NAME");
+                    }
+                    result.add(new SimpleNamedThing(tablename, tablename));
+                }
             }
         } catch (Exception e) {
             throw new ComponentException(CommonErrorCodes.UNEXPECTED_EXCEPTION, e,
                     ExceptionContext.withBuilder().put("message", e.getMessage()).build());
         }
         return result;
+    }
+
+    private Set<String> getAvailableTableTypes(DatabaseMetaData dbMetaData) throws SQLException {
+        Set<String> availableTableTypes = new HashSet<String>();
+        List<String> neededTableTypes = Arrays.asList("TABLE", "VIEW", "SYNONYM");
+
+        try (ResultSet rsTableTypes = dbMetaData.getTableTypes()) {
+            while (rsTableTypes.next()) {
+                String currentTableType = rsTableTypes.getString("TABLE_TYPE");
+                if (currentTableType == null) {
+                    currentTableType = "";
+                }
+                currentTableType = currentTableType.trim();
+                if ("BASE TABLE".equalsIgnoreCase(currentTableType)) {
+                    currentTableType = "TABLE";
+                }
+                if (neededTableTypes.contains(currentTableType)) {
+                    availableTableTypes.add(currentTableType);
+                }
+            }
+        }
+
+        return availableTableTypes;
     }
 
     @Override
@@ -174,7 +210,8 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         AllSetting setting = properties.getRuntimeSetting();
 
         // connection component
-        Connection conn = JdbcRuntimeUtils.createConnectionOrGetFromSharedConnectionPoolOrDataSource(runtime, setting, work4dataprep);
+        Connection conn = JdbcRuntimeUtils.createConnectionOrGetFromSharedConnectionPoolOrDataSource(runtime, setting,
+                work4dataprep);
         try {
             conn.setReadOnly(setting.isReadOnly());
         } catch (SQLFeatureNotSupportedException e) {
