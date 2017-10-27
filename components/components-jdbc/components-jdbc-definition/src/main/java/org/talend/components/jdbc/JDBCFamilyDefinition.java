@@ -32,7 +32,6 @@ import org.talend.components.jdbc.tjdbcrow.TJDBCRowDefinition;
 import org.talend.components.jdbc.tjdbcsp.TJDBCSPDefinition;
 import org.talend.components.jdbc.wizard.JDBCConnectionEditWizardDefinition;
 import org.talend.components.jdbc.wizard.JDBCConnectionWizardDefinition;
-import org.talend.components.jdbc.wizard.JDBCRetrieveSchemaWizardDefinition;
 
 import com.google.auto.service.AutoService;
 
@@ -87,7 +86,6 @@ public class JDBCFamilyDefinition extends AbstractComponentFamilyDefinition impl
                 new TJDBCSPDefinition(),
                 // Component wizards
                 new JDBCConnectionWizardDefinition(), new JDBCConnectionEditWizardDefinition(),
-                new JDBCRetrieveSchemaWizardDefinition(),
                 // Datastore, Dataset and the component
                 new JDBCDatastoreDefinition(), new JDBCDatasetDefinition(), new JDBCInputDefinition(),
                 new JDBCOutputDefinition());

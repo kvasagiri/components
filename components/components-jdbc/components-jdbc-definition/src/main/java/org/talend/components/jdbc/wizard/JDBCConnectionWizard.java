@@ -30,19 +30,6 @@ public class JDBCConnectionWizard extends ComponentWizard {
 
     public void setupProperties(JDBCConnectionWizardProperties connectionProperties) {
         this.connectionProperties.copyValuesFrom(connectionProperties);
-        // the copyValuesFrom method only can copy the property or properties object, will ignore others, so need to the copy
-        // below
-        if (connectionProperties.querys != null) {
-            this.connectionProperties.querys = connectionProperties.querys;
-        }
-
-        if (connectionProperties.filter != null) {
-            this.connectionProperties.filter = connectionProperties.filter;
-        }
-
-        if (connectionProperties.moduleNames != null) {
-            this.connectionProperties.moduleNames = connectionProperties.moduleNames;
-        }
     }
 
 }

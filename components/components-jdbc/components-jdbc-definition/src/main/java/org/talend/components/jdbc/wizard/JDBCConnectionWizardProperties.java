@@ -14,19 +14,13 @@ package org.talend.components.jdbc.wizard;
 
 import static org.talend.daikon.properties.presentation.Widget.widget;
 
-import java.util.List;
-
-import org.apache.avro.Schema;
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.JdbcRuntimeInfo;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
-import org.talend.components.jdbc.runtime.setting.JDBCSQLBuilder;
 import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSink;
-import org.talend.components.jdbc.runtime.setting.ModuleMetadata;
-import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.PresentationItem;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.ValidationResult;
@@ -52,17 +46,10 @@ public class JDBCConnectionWizardProperties extends ComponentPropertiesImpl impl
     private String repositoryLocation;
 
     public JDBCConnectionModule connection = new JDBCConnectionModule("connection").useInWizard();
-    
+
     public Property<String> mappingFile = PropertyFactory.newProperty("mappingFile");
 
     public PresentationItem testConnection = new PresentationItem("testConnection", "Test connection");
-
-    // only for store information to item file
-    public List<NamedThing> querys;
-
-    public String filter;
-
-    public List<NamedThing> moduleNames;
 
     public JDBCConnectionWizardProperties(String name) {
         super(name);
@@ -117,38 +104,8 @@ public class JDBCConnectionWizardProperties extends ComponentPropertiesImpl impl
                 return vr;
             }
 
-            String connRepLocation = repo.storeProperties(this, this.name.getValue(), repositoryLocation, null);
-            // we have to store schemas as the implement of storeProperties method, it will overwrite the item every time, so we
-            // have to store old schemas here
-            // as we will use the old way for schema list retrieve, so not sure we need to do this here, maybe should remove it,
-            // and adjust storeProperties, TODO need to discuss with studio team
-            if (moduleNames != null) {
-                for (NamedThing nl : moduleNames) {
-                    String tablename = nl.getName();
-                    // Schema schema = sourceOrSink.getEndpointSchema(null, tablename);
-                    List<ModuleMetadata> modules = sourceOrSink.getDBTables(null,
-                            new ModuleMetadata(null/* catalog : need to fetch it from somewhere */,
-                                    null/* schema : need to fetch it from somewhere */, tablename,
-                                    null/* type : need to fetch it from somewhere */, null, null)// a ID for a
-                                                                                                 // database
-                                                                                                 // module
-                    );
-
-                    if (modules == null || modules.isEmpty()) {
-                        continue;
-                    }
-
-                    JDBCSchemaWizardProperties properties = new JDBCSchemaWizardProperties(tablename);
-                    properties.init();
-
-                    properties.tableSelection.tablename.setValue(tablename);
-
-                    Schema schema = modules.get(0).schema;
-                    properties.main.schema.setValue(schema);
-                    properties.sql.setValue(JDBCSQLBuilder.getInstance().generateSQL4SelectTable(tablename, schema));
-                    repo.storeProperties(properties, tablename, connRepLocation, "main.schema");
-                }
-            }
+            repo.storeProperties(this, this.name.getValue(), repositoryLocation, null);
+            // no need to store the schemas, tup will do it by the old way, so only need to store the connection properties
             return ValidationResult.OK;
         }
     }
