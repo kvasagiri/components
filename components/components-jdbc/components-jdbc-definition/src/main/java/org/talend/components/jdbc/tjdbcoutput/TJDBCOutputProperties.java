@@ -93,7 +93,7 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
 
     public SchemaProperties schemaReject = new SchemaProperties("schemaReject");
 
-    public final PresentationItem fetchSchemaFromTable = new PresentationItem("fetchSchemaFromTable", "Guess schema");
+    public final transient PresentationItem fetchSchemaFromTable = new PresentationItem("fetchSchemaFromTable", "Guess schema");
 
     public Property<Boolean> dieOnError = PropertyFactory.newBoolean("dieOnError").setRequired();
 

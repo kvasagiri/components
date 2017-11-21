@@ -49,7 +49,7 @@ public class JDBCConnectionWizardProperties extends ComponentPropertiesImpl impl
 
     public Property<String> mappingFile = PropertyFactory.newProperty("mappingFile");
 
-    public PresentationItem testConnection = new PresentationItem("testConnection", "Test connection");
+    public transient PresentationItem testConnection = new PresentationItem("testConnection", "Test connection");
 
     public JDBCConnectionWizardProperties(String name) {
         super(name);

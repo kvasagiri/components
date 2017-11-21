@@ -84,9 +84,9 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
 
     public Property<String> sql = PropertyFactory.newString("sql").setRequired(true);
 
-    public final PresentationItem fetchSchemaFromQuery = new PresentationItem("fetchSchemaFromQuery", "Guess schema");
+    public final transient PresentationItem fetchSchemaFromQuery = new PresentationItem("fetchSchemaFromQuery", "Guess schema");
 
-    public final PresentationItem guessQueryFromSchema = new PresentationItem("guessQueryFromSchema", "Guess Query");
+    public final transient PresentationItem guessQueryFromSchema = new PresentationItem("guessQueryFromSchema", "Guess Query");
 
     public Property<Boolean> useDataSource = PropertyFactory.newBoolean("useDataSource").setRequired();
 

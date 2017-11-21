@@ -80,7 +80,7 @@ public class TJDBCRowProperties extends FixedConnectorsComponentProperties imple
 
     public Property<String> sql = PropertyFactory.newString("sql").setRequired(true);
 
-    public final PresentationItem guessQueryFromSchema = new PresentationItem("guessQueryFromSchema", "Guess Query");
+    public final transient PresentationItem guessQueryFromSchema = new PresentationItem("guessQueryFromSchema", "Guess Query");
 
     public Property<Boolean> useDataSource = PropertyFactory.newBoolean("useDataSource").setRequired();
 

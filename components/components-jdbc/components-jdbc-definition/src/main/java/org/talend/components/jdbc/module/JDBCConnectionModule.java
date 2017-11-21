@@ -46,7 +46,7 @@ public class JDBCConnectionModule extends ComponentPropertiesImpl {
 
     public Property<String> driverClass = PropertyFactory.newProperty("driverClass").setRequired();
 
-    public PresentationItem selectClass = new PresentationItem("selectClass");
+    public transient PresentationItem selectClass = new PresentationItem("selectClass");
 
     public UserPasswordProperties userPassword = new UserPasswordProperties("userPassword");
 
