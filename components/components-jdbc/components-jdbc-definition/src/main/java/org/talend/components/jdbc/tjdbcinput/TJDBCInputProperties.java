@@ -16,7 +16,6 @@ import static org.talend.daikon.properties.presentation.Widget.widget;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -67,7 +66,7 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
 
     public JDBCConnectionModule connection = new JDBCConnectionModule("connection");
 
-    public final PropertyPathConnector mainConnector = new PropertyPathConnector(Connector.MAIN_NAME, "main");
+    public final transient PropertyPathConnector mainConnector = new PropertyPathConnector(Connector.MAIN_NAME, "main");
 
     public ISchemaListener schemaListener;
 
@@ -83,7 +82,7 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
 
     public JDBCTableSelectionModule tableSelection = new JDBCTableSelectionModule("tableSelection");
 
-    public Property<String> sql = PropertyFactory.newString("sql").setRequired(true).setFlags(EnumSet.of(Property.Flags.MULTI_LINE));
+    public Property<String> sql = PropertyFactory.newString("sql").setRequired(true);
 
     public final PresentationItem fetchSchemaFromQuery = new PresentationItem("fetchSchemaFromQuery", "Guess schema");
 
@@ -160,6 +159,8 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
         };
         
         connection.setNotRequired();
+        
+        sql.setTaggedValue(org.talend.components.common.ComponentConstants.LINE_SEPARATOR_REPLACED_TO, " ");
     }
 
     @Override

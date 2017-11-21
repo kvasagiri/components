@@ -78,7 +78,7 @@ public class TJDBCRowProperties extends FixedConnectorsComponentProperties imple
 
     public JDBCTableSelectionModule tableSelection = new JDBCTableSelectionModule("tableSelection");
 
-    public Property<String> sql = PropertyFactory.newString("sql").setRequired(true).setFlags(EnumSet.of(Property.Flags.MULTI_LINE));
+    public Property<String> sql = PropertyFactory.newString("sql").setRequired(true);
 
     public final PresentationItem guessQueryFromSchema = new PresentationItem("guessQueryFromSchema", "Guess Query");
 
@@ -141,6 +141,8 @@ public class TJDBCRowProperties extends FixedConnectorsComponentProperties imple
         tableSelection.setConnection(this);
         
         connection.setNotRequired();
+        
+        sql.setTaggedValue(org.talend.components.common.ComponentConstants.LINE_SEPARATOR_REPLACED_TO, " ");
     }
 
     @Override
