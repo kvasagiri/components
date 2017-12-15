@@ -25,6 +25,7 @@ import org.apache.avro.Schema.Field;
 import org.talend.components.api.component.Connector;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.properties.ComponentReferenceProperties;
+import org.talend.components.api.properties.ComponentReferenceProperties.ReferenceType;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 
@@ -217,8 +218,12 @@ public class CommonUtils {
         }
 
         String refComponentIdValue = referencedComponent.componentInstanceId.getStringValue();
+
+        ReferenceType referenceType = referencedComponent.referenceType.getValue();
+
         boolean useOtherConnection = refComponentIdValue != null
-                && refComponentIdValue.startsWith(TJDBCConnectionDefinition.COMPONENT_NAME);
+                && (refComponentIdValue.startsWith(TJDBCConnectionDefinition.COMPONENT_NAME)
+                        || (referenceType != null && (referenceType == ReferenceType.COMPONENT_INSTANCE)));
 
         if (useOtherConnection) {
             setting.setReferencedComponentId(referencedComponent.componentInstanceId.getValue());
@@ -234,7 +239,7 @@ public class CommonUtils {
         boolean useExistedConnection = setReferenceInfo(setting, referencedComponent);
 
         if (useExistedConnection) {
-            if (referencedComponent.getReference() != null) {//avoid the NPE in JdbcRuntimeInfo
+            if (referencedComponent.getReference() != null) {// avoid the NPE in JdbcRuntimeInfo
                 setCommonConnectionInfo(setting, ((TJDBCConnectionProperties) referencedComponent.getReference()).connection);
             }
         } else {
