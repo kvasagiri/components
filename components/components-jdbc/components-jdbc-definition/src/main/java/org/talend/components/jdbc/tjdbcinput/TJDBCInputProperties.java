@@ -37,8 +37,8 @@ import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.module.DBTypes;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.components.jdbc.module.JDBCTableSelectionModule;
+import org.talend.components.jdbc.query.QueryUtils;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
-import org.talend.components.jdbc.runtime.setting.JDBCSQLBuilder;
 import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSink;
 import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionDefinition;
 import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionProperties;
@@ -157,9 +157,9 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
             }
 
         };
-        
+
         connection.setNotRequired();
-        
+
         sql.setTaggedValue(org.talend.components.common.ComponentConstants.LINE_SEPARATOR_REPLACED_TO, " ");
     }
 
@@ -268,19 +268,19 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
     }
 
     public ValidationResult afterGuessQueryFromSchema() {
-        //TODO should use QueryUtils as it consider the context.var
-        String tablename = tableSelection.tablename.getValue();
+        String tablenameDisplayed = tableSelection.tablename.getStoredValue() == null ? null
+                : tableSelection.tablename.getStoredValue().toString();
         Schema schema = main.schema.getValue();
-        if (tablename == null || tablename.isEmpty()) {
+        if (tablenameDisplayed == null || tablenameDisplayed.isEmpty()) {
             return new ValidationResult(ValidationResult.Result.ERROR, "Please set the table name before it");
         }
         if (schema == null || schema.getFields().isEmpty()) {
             return new ValidationResult(ValidationResult.Result.ERROR, "Please set the schema before it");
         }
-        String query = JDBCSQLBuilder.getInstance().generateSQL4SelectTable(tablename, schema);
-        sql.setValue("\"" + query + "\"");
+        String query = QueryUtils.generateNewQuery("General JDBC", null, null, tablenameDisplayed, getRuntimeSetting());
+        sql.setValue(query);
 
-        //TODO maybe we need to split it two trigger methods : validate and after
+        // TODO maybe we need to split it two trigger methods : validate and after
         refreshLayout(getForm(Form.MAIN));
 
         return ValidationResult.OK;
