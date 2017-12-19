@@ -14,12 +14,8 @@ package org.talend.components.jdbc.query;
 
 import org.talend.components.jdbc.query.generator.AS400QueryGenerator;
 import org.talend.components.jdbc.query.generator.DefaultQueryGenerator;
-import org.talend.components.jdbc.query.generator.H2QueryGenerator;
 import org.talend.components.jdbc.query.generator.HiveQueryGenerator;
-import org.talend.components.jdbc.query.generator.ImpalaQueryGenerator;
 import org.talend.components.jdbc.query.generator.NetezzaQueryGenerator;
-import org.talend.components.jdbc.query.generator.OracleQueryGenerator;
-import org.talend.components.jdbc.query.generator.PostgreQueryGenerator;
 
 public final class GenerateQueryFactory {
 
@@ -37,23 +33,10 @@ public final class GenerateQueryFactory {
         switch (dbType) {
         case HIVE:
             return new HiveQueryGenerator(dbType);
-        case H2:
-            return new H2QueryGenerator(dbType);
-        case IMPALA:
-            return new ImpalaQueryGenerator(dbType);
         case NETEZZA:
             return new NetezzaQueryGenerator();
-        case PLUSPSQL:
-        case PSQL:
-            return new PostgreQueryGenerator(dbType);
         case AS400:
             return new AS400QueryGenerator();
-        case ORACLE_OCI:
-        case ORACLEFORSID:
-        case ORACLESN:
-        case SAS:
-        case SAPHana:
-            return new OracleQueryGenerator(dbType);
         case EXASOL:
         case FIREBIRD:
         case GENERAL_JDBC:
@@ -85,6 +68,15 @@ public final class GenerateQueryFactory {
         case MYSQL:
         case AMAZON_AURORA:
         case INGRES:
+        case H2:
+        case PLUSPSQL:
+        case PSQL:
+        case ORACLE_OCI:
+        case ORACLEFORSID:
+        case ORACLESN:
+        case SAS:
+        case SAPHana:
+        case IMPALA:
         default:
             return new DefaultQueryGenerator(dbType);
         }

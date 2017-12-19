@@ -52,7 +52,7 @@ public class SQLTextUtils {
         return getVariableFromCode(nonQuoteStr) != null;
     }
 
-    public static String removeTextFenceForJavaLiteral(String text) {
+    public static String removeJavaTextFence(String text) {
         if (text == null) {
             return null;
         }

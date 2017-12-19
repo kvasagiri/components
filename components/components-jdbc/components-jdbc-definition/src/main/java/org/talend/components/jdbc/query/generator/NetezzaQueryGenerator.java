@@ -14,9 +14,6 @@ package org.talend.components.jdbc.query.generator;
 
 import org.talend.components.jdbc.query.EDatabaseTypeName;
 
-/**
- * ggu class global comment. Detailled comment
- */
 public class NetezzaQueryGenerator extends DefaultQueryGenerator {
 
     public NetezzaQueryGenerator() {
@@ -35,14 +32,14 @@ public class NetezzaQueryGenerator extends DefaultQueryGenerator {
         final StringBuffer tableNameWithDBAndSchema = new StringBuffer();
 
         if (dbName != null && !EMPTY.equals(dbName)) {
-            //TODO no need text fence for database name
-            tableNameWithDBAndSchema.append(checkContextAndAddQuote(dbName));
+            // no need text fence for database name
+            tableNameWithDBAndSchema.append(checkContextAndAddQuote(dbName, false));
             tableNameWithDBAndSchema.append(getSQLFieldConnector());
 
             // schema is special, always empty "."
             tableNameWithDBAndSchema.append(getSQLFieldConnector());
         }
-        tableNameWithDBAndSchema.append(checkContextAndAddQuote(tableName));
+        tableNameWithDBAndSchema.append(checkContextAndAddQuote(tableName, true));
 
         return tableNameWithDBAndSchema.toString();
     }

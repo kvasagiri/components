@@ -20,17 +20,11 @@ public class HiveQueryGenerator extends DefaultQueryGenerator {
         super(dbType);
     }
 
-    // TODO add it back
-    /*
-     * @Override
-     * protected boolean forceAddQuote() {
-     * return false;
-     * }
-     */
-
-    @Override
-    protected String addTextFenceForSQL(String field) {
-        return field;
+    protected boolean needTextFence4SQL() {
+        return false;
     }
 
+    protected boolean needFullName4Column() {
+        return false;
+    }
 }

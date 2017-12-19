@@ -16,7 +16,6 @@ public class QueryUtils {
         final String realDbType = getRealDBType(setting, dbType);
 
         IQueryGenerator generator = GenerateQueryFactory.getGenerator(realDbType);
-        
         generator.setParameters(databaseDisplayed, dbschemaDisplayed, tableDisplayed, setting);
         return generator.generateQuery();
     }
