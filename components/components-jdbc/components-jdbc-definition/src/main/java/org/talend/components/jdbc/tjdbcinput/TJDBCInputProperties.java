@@ -268,6 +268,7 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
     }
 
     public ValidationResult afterGuessQueryFromSchema() {
+        //TODO should use QueryUtils as it consider the context.var
         String tablename = tableSelection.tablename.getValue();
         Schema schema = main.schema.getValue();
         if (tablename == null || tablename.isEmpty()) {

@@ -6,7 +6,7 @@ import org.talend.components.jdbc.runtime.setting.AllSetting;
 
 public class QueryUtils {
 
-    public String generateNewQuery(final String dbType, final String databaseDisplayed/* not used now */,
+    public static String generateNewQuery(final String dbType, final String databaseDisplayed/* not used now */,
             final String dbschemaDisplayed/* not used now */,
             final String tableDisplayed/* "mytable" or context.mytable or more complex */,
             final AllSetting setting/*
@@ -27,7 +27,7 @@ public class QueryUtils {
      * @param dbType
      * @return
      */
-    private String getRealDBType(AllSetting setting, String dbType) {
+    private static String getRealDBType(AllSetting setting, String dbType) {
         if (dbType == null || dbType.equals(EDatabaseTypeName.GENERAL_JDBC.getDisplayName())) {
             String driverClassName = setting.getDriverClass();
 

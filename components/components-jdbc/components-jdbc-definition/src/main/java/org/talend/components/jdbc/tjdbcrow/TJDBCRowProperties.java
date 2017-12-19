@@ -16,7 +16,6 @@ import static org.talend.daikon.properties.presentation.Widget.widget;
 import static org.talend.daikon.properties.property.PropertyFactory.newString;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -139,9 +138,9 @@ public class TJDBCRowProperties extends FixedConnectorsComponentProperties imple
         commitEvery.setValue(10000);
         sql.setValue("select id, name from employee");
         tableSelection.setConnection(this);
-        
+
         connection.setNotRequired();
-        
+
         sql.setTaggedValue(org.talend.components.common.ComponentConstants.LINE_SEPARATOR_REPLACED_TO, " ");
     }
 
@@ -226,6 +225,7 @@ public class TJDBCRowProperties extends FixedConnectorsComponentProperties imple
     }
 
     public ValidationResult afterGuessQueryFromSchema() {
+        // TODO should use QueryUtils as it consider the context.var
         String tablename = tableSelection.tablename.getValue();
         Schema schema = main.schema.getValue();
         if (tablename == null || tablename.isEmpty()) {

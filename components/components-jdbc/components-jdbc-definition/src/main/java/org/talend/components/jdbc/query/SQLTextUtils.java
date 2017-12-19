@@ -125,8 +125,6 @@ public class SQLTextUtils {
             return QUOTATION_MARK;
         case MSODBC:
             return QUOTATION_MARK;
-        case MSSQL:
-            return QUOTATION_MARK;
         case MYSQL:
         case AMAZON_AURORA:
             return ANTI_QUOTE;
@@ -151,6 +149,7 @@ public class SQLTextUtils {
             return QUOTATION_MARK;
         case INFORMIX:
             return QUOTATION_MARK;
+        case MSSQL:
         case ACCESS:
             return getBracket(left);
         case TERADATA:

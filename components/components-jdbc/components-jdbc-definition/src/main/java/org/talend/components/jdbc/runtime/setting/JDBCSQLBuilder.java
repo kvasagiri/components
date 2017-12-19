@@ -23,7 +23,7 @@ import org.talend.components.jdbc.module.AdditionalColumnsTable;
 import org.talend.daikon.avro.SchemaConstants;
 
 /**
- * SQL build tool
+ * SQL build tool for only runtime, for design time, we use another one : QueryUtils which consider the context.var and so on
  *
  */
 public class JDBCSQLBuilder {
