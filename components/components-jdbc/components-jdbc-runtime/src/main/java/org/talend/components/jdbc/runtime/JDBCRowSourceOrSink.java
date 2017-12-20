@@ -114,10 +114,6 @@ public class JDBCRowSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
     }
 
     public Connection connect(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
-        // TODO now we use routines.system.TalendDataSource to get the data connection from the ESB runtime, but now we
-        // can't
-        // refer it by the new framework, so will fix it later
-
         // using another component's connection
         if (useExistedConnection) {
             return JdbcRuntimeUtils.fetchConnectionFromContextOrCreateNew(setting, runtime);

@@ -26,6 +26,7 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.common.runtime.SharedConnectionsPool;
 import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.module.PreparedStatementTable;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
@@ -59,10 +60,10 @@ public class JdbcRuntimeUtils {
             }
             return (Connection) existedConn;
         }
-    
+
         return createConnection(setting);
     }
-    
+
     public static ValidationResult validate(RuntimeContainer runtime, JdbcRuntimeSourceOrSinkDefault ss) {
         ValidationResultMutable vr = new ValidationResultMutable();
         try {
@@ -73,7 +74,7 @@ public class JdbcRuntimeUtils {
         }
         return vr;
     }
-    
+
     /**
      * fill the prepared statement object
      * 
@@ -146,15 +147,15 @@ public class JdbcRuntimeUtils {
         }
     }
 
-    public static Connection createConnectionOrGetFromSharedConnectionPoolOrDataSource(RuntimeContainer runtime, AllSetting setting, boolean readonly)
-            throws SQLException, ClassNotFoundException {
+    public static Connection createConnectionOrGetFromSharedConnectionPoolOrDataSource(RuntimeContainer runtime,
+            AllSetting setting, boolean readonly) throws SQLException, ClassNotFoundException {
         Connection conn = null;
-    
+
         if (setting.getShareConnection()) {
-            // org.talend.components.common.runtime.SharedConnectionsPool sharedConnectionPool = runtime
-            // .getGlobalData(ComponentConstants.GLOBAL_CONNECTION_POOL_KEY);
-            // conn = sharedConnectionPool.getDBConnection(setting.getDriverClass(), setting.getJdbcUrl(), setting.getUsername(),
-            // setting.getPassword(), setting.getSharedConnectionName());
+            SharedConnectionsPool sharedConnectionPool = (SharedConnectionsPool) runtime
+                    .getGlobalData(ComponentConstants.GLOBAL_CONNECTION_POOL_KEY);
+            conn = sharedConnectionPool.getDBConnection(setting.getDriverClass(), setting.getJdbcUrl(), setting.getUsername(),
+                    setting.getPassword(), setting.getSharedConnectionName());
         } else if (setting.getUseDataSource()) {
             java.util.Map<String, DataSource> dataSources = (java.util.Map<String, javax.sql.DataSource>) runtime
                     .getGlobalData(ComponentConstants.KEY_DB_DATASOURCES_RAW);
@@ -177,7 +178,7 @@ public class JdbcRuntimeUtils {
                 conn.setReadOnly(setting.isReadOnly());
             }
         }
-        
+
         return conn;
     }
 }
