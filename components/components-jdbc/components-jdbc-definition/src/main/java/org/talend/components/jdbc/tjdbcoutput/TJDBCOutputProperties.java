@@ -197,9 +197,7 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
     public void refreshLayout(Form form) {
         super.refreshLayout(form);
 
-        String refComponentIdValue = referencedComponent.componentInstanceId.getStringValue();
-        boolean useOtherConnection = refComponentIdValue != null
-                && refComponentIdValue.startsWith(TJDBCConnectionDefinition.COMPONENT_NAME);
+        boolean useOtherConnection = CommonUtils.useExistedConnection(referencedComponent);
 
         if (form.getName().equals(Form.MAIN)) {
             form.getChildForm(connection.getName()).setHidden(useOtherConnection);

@@ -217,13 +217,7 @@ public class CommonUtils {
             return false;
         }
 
-        String refComponentIdValue = referencedComponent.componentInstanceId.getStringValue();
-
-        ReferenceType referenceType = referencedComponent.referenceType.getValue();
-
-        boolean useOtherConnection = refComponentIdValue != null
-                && (refComponentIdValue.startsWith(TJDBCConnectionDefinition.COMPONENT_NAME)
-                        || (referenceType != null && (referenceType == ReferenceType.COMPONENT_INSTANCE)));
+        boolean useOtherConnection = useExistedConnection(referencedComponent);
 
         if (useOtherConnection) {
             setting.setReferencedComponentId(referencedComponent.componentInstanceId.getValue());
@@ -232,6 +226,17 @@ public class CommonUtils {
         } else {
             return false;
         }
+    }
+
+    public static boolean useExistedConnection(ComponentReferenceProperties<TJDBCConnectionProperties> referencedComponent) {
+        String refComponentIdValue = referencedComponent.componentInstanceId.getStringValue();
+
+        ReferenceType referenceType = referencedComponent.referenceType.getValue();
+
+        boolean useOtherConnection = refComponentIdValue != null
+                && (refComponentIdValue.startsWith(TJDBCConnectionDefinition.COMPONENT_NAME)
+                        || (referenceType != null && (referenceType == ReferenceType.COMPONENT_INSTANCE)));
+        return useOtherConnection;
     }
 
     public static void setReferenceInfoAndConnectionInfo(AllSetting setting,
