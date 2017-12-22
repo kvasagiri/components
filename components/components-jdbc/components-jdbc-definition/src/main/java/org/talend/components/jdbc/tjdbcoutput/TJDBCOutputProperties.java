@@ -28,6 +28,7 @@ import org.talend.components.api.properties.ComponentReferenceProperties;
 import org.talend.components.common.FixedConnectorsComponentProperties;
 import org.talend.components.common.SchemaProperties;
 import org.talend.components.jdbc.CommonUtils;
+import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.JdbcRuntimeInfo;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.module.AdditionalColumnsTable;
@@ -45,6 +46,7 @@ import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
+import org.talend.daikon.properties.runtime.RuntimeContext;
 import org.talend.daikon.runtime.RuntimeUtil;
 import org.talend.daikon.sandbox.SandboxedInstance;
 
@@ -296,19 +298,19 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
                 option.fieldName = names.get(i);
                 Object its = insertables.get(i);
                 Object uts = updatables.get(i);
-                
-                if(its instanceof Boolean) {
-                    option.insertable = (Boolean)its;
+
+                if (its instanceof Boolean) {
+                    option.insertable = (Boolean) its;
                 } else {
-                    option.insertable = Boolean.valueOf((String)its);
+                    option.insertable = Boolean.valueOf((String) its);
                 }
-                
-                if(its instanceof Boolean) {
-                    option.updatable = (Boolean)uts;
+
+                if (its instanceof Boolean) {
+                    option.updatable = (Boolean) uts;
                 } else {
-                    option.updatable = Boolean.valueOf((String)uts);
+                    option.updatable = Boolean.valueOf((String) uts);
                 }
-                
+
                 oldValueMap.put(option.fieldName, option);
             }
         }
@@ -336,7 +338,12 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
         return connectors;
     }
 
-    public ValidationResult afterFetchSchemaFromTable() {
+    public ValidationResult afterFetchSchemaFromTable(RuntimeContext runtimeContext) {
+        Object mappingFileLocation = runtimeContext.getData(ComponentConstants.MAPPING_LOCATION);
+        if (mappingFileLocation == null) {
+            return new ValidationResult(ValidationResult.Result.ERROR, "can't find the mapping files directory");
+        }
+
         JdbcRuntimeInfo jdbcRuntimeInfo = new JdbcRuntimeInfo(this, "org.talend.components.jdbc.runtime.JDBCSource");
         try (SandboxedInstance sandboxI = RuntimeUtil.createRuntimeClass(jdbcRuntimeInfo,
                 connection.getClass().getClassLoader())) {
@@ -344,6 +351,7 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
             ss.initialize(null, this);
             Schema schema = null;
             try {
+                ss.setDBTypeMapping(CommonUtils.getMapping((String) mappingFileLocation, this.getRuntimeSetting(), null, null));
                 schema = ss.getEndpointSchema(null, tableSelection.tablename.getValue());
             } catch (Exception e) {
                 return new ValidationResult(ValidationResult.Result.ERROR, e.getCause().getMessage());
@@ -351,6 +359,12 @@ public class TJDBCOutputProperties extends FixedConnectorsComponentProperties im
             main.schema.setValue(schema);
             updateOutputSchemas();
         }
+        return ValidationResult.OK;
+    }
+
+    // this method is necessary as the callback logic, we need to improve it
+    public ValidationResult afterFetchSchemaFromTable() {
+        // do nothing
         return ValidationResult.OK;
     }
 

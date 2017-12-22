@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.avro.Schema;
 import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.common.config.jdbc.Dbms;
 import org.talend.daikon.NamedThing;
 
 public abstract class JdbcRuntimeSourceOrSinkDefault implements JdbcRuntimeSourceOrSink {
@@ -15,6 +16,10 @@ public abstract class JdbcRuntimeSourceOrSinkDefault implements JdbcRuntimeSourc
 
     private Connection conn;
 
+    public void setDBTypeMapping(Dbms mapping) {
+        
+    }
+    
     @Override
     public Schema getSchemaFromQuery(RuntimeContainer runtime, String query) {
         return null;

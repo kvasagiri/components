@@ -13,6 +13,7 @@
 package org.talend.components.jdbc;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -26,7 +27,12 @@ import org.talend.components.api.component.Connector;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.properties.ComponentReferenceProperties;
 import org.talend.components.api.properties.ComponentReferenceProperties.ReferenceType;
+import org.talend.components.common.config.jdbc.Dbms;
+import org.talend.components.common.config.jdbc.MappingFileLoader;
+import org.talend.components.jdbc.module.DBTypes;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
+import org.talend.components.jdbc.query.EDatabase4DriverClassName;
+import org.talend.components.jdbc.query.EDatabaseTypeName;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 
 import org.talend.daikon.exception.TalendRuntimeException;
@@ -325,6 +331,157 @@ public class CommonUtils {
             }
         }
 
+        return null;
+    }
+
+    /**
+     * computer the real database type by driver jar and class, this is useful for the tjdbcxxx
+     * 
+     * @param setting
+     * @param dbType
+     * @return
+     */
+    public static String getRealDBType(AllSetting setting, String dbType) {
+        if (dbType == null || dbType.equals(EDatabaseTypeName.GENERAL_JDBC.getDisplayName())) {
+            String driverClassName = setting.getDriverClass();
+
+            if ("com.sybase.jdbc3.jdbc.SybDataSource".equals(driverClassName)) {
+                driverClassName = EDatabase4DriverClassName.SYBASEASE.getDriverClass();
+            }
+
+            List<String> driverPaths = setting.getDriverPaths();
+            StringBuilder sb = new StringBuilder();
+            for (String path : driverPaths) {
+                sb.append(path);
+            }
+            String driverJarInfo = sb.toString();
+
+            dbType = getDbTypeByClassNameAndDriverJar(driverClassName, driverJarInfo);
+
+            if (dbType == null) {
+                // if we can not get the DB Type from the existing driver list, just set back the type to ORACLE
+                // since it's one DB unknown from Talend.
+                // it might not work directly for all DB, but it will generate a standard query.
+                dbType = EDatabaseTypeName.ORACLE_OCI.getDisplayName();
+            }
+        }
+        return dbType;
+    }
+
+    public static Dbms getMapping(String mappingFilesDir, AllSetting setting,
+            String dbTypeByComponentType/*
+                                         * for example, if tjdbcxxx, the type is "General JDBC", if tmysqlxxx, the type is "MySQL"
+                                         */,
+            DBTypes dbTypeInComponentSetting/* in tjdbcinput, can choose the db type in advanced setting */) {
+        final String realDbType = getRealDBType(setting, dbTypeByComponentType);
+        final String product = EDatabaseTypeName.getTypeFromDisplayName(realDbType).getProduct();
+
+        String mappingFileSubfix = productValue2DefaultMappingFileSubfix.get(product);
+
+        if ((dbTypeInComponentSetting != null) && (mappingFileSubfix == null)) {
+            mappingFileSubfix = dbType2MappingFileSubfix.get(dbTypeInComponentSetting);
+        }
+
+        if (mappingFileSubfix == null) {
+            mappingFileSubfix = "Mysql";
+        }
+
+        String mappingFileFullPath = mappingFilesDir + "mapping_" + mappingFileSubfix + ".xml";
+        
+        MappingFileLoader fileLoader = new MappingFileLoader();
+        List<Dbms> dbmsList = fileLoader.load(mappingFileFullPath);
+        Dbms dbms = dbmsList.get(0);
+        
+        return dbms;
+    }
+
+    // now we use a inside mapping to do the mapping file search, not good and easy to break, TODO should load all the mapping
+    // files to memory only once, and search by the memory object
+    private static Map<String, String> productValue2DefaultMappingFileSubfix = new HashMap<>();
+
+    private static Map<DBTypes, String> dbType2MappingFileSubfix = new HashMap<>();
+
+    static {
+        dbType2MappingFileSubfix.put(DBTypes.AS400, "AS400");
+        dbType2MappingFileSubfix.put(DBTypes.ACCESS, "Access");
+        dbType2MappingFileSubfix.put(DBTypes.DB2, "IBMDB2");
+        dbType2MappingFileSubfix.put(DBTypes.FIREBIRD, "Firebird");
+        dbType2MappingFileSubfix.put(DBTypes.HSQLDB, "HSQLDB");
+        dbType2MappingFileSubfix.put(DBTypes.INFORMIX, "Informix");
+        dbType2MappingFileSubfix.put(DBTypes.INGRES, "Ingres");
+        dbType2MappingFileSubfix.put(DBTypes.VECTORWISE, "VectorWise");
+        dbType2MappingFileSubfix.put(DBTypes.INTERBASE, "Interbase");
+        dbType2MappingFileSubfix.put(DBTypes.JAVADB, "JavaDB");
+        dbType2MappingFileSubfix.put(DBTypes.MAXDB, "MaxDB");
+        dbType2MappingFileSubfix.put(DBTypes.MSSQL, "MSSQL");
+        dbType2MappingFileSubfix.put(DBTypes.MYSQL, "Mysql");
+        dbType2MappingFileSubfix.put(DBTypes.NETEZZA, "Netezza");
+        dbType2MappingFileSubfix.put(DBTypes.ORACLE, "Oracle");
+        dbType2MappingFileSubfix.put(DBTypes.POSTGRESQL, "Postgres");
+        dbType2MappingFileSubfix.put(DBTypes.POSTGREPLUS, "PostgresPlus");
+        dbType2MappingFileSubfix.put(DBTypes.SQLITE, "SQLite");
+        dbType2MappingFileSubfix.put(DBTypes.SYBASE, "Sybase");
+        dbType2MappingFileSubfix.put(DBTypes.SAPHANA, "SAPHana");
+        dbType2MappingFileSubfix.put(DBTypes.TERADATA, "Teradata");
+        dbType2MappingFileSubfix.put(DBTypes.VERTICA, "Vertica");
+        dbType2MappingFileSubfix.put(DBTypes.H2, "H2");
+        dbType2MappingFileSubfix.put(DBTypes.ODBC, "MSODBC");
+    }
+
+    static {
+        productValue2DefaultMappingFileSubfix.put("ACCESS", "Access");
+        productValue2DefaultMappingFileSubfix.put("AS400", "AS400");
+        productValue2DefaultMappingFileSubfix.put("BIGQUERY", "BigQuery");
+        productValue2DefaultMappingFileSubfix.put("Cassandra", "Cassandra");
+        // productValue2DefaultMappingFileSubfix.put("Cassandra", "Cassandra_datastax");
+        // productValue2DefaultMappingFileSubfix.put("Cassandra", "Cassandra22_datastax");
+        productValue2DefaultMappingFileSubfix.put("Exasol", "Exasol");
+        productValue2DefaultMappingFileSubfix.put("FIREBIRD", "Firebird");
+        productValue2DefaultMappingFileSubfix.put("GREENPLUM", "Greenplum");
+        productValue2DefaultMappingFileSubfix.put("H2", "H2");
+        productValue2DefaultMappingFileSubfix.put("HIVE", "Hive");
+        productValue2DefaultMappingFileSubfix.put("HSQLDB", "HSQLDB");
+        productValue2DefaultMappingFileSubfix.put("IBM_DB2", "IBMDB2");
+        productValue2DefaultMappingFileSubfix.put("IMPALA", "Impala");
+        productValue2DefaultMappingFileSubfix.put("INFORMIX", "Informix");
+        productValue2DefaultMappingFileSubfix.put("INGRES", "Ingres");
+        productValue2DefaultMappingFileSubfix.put("INTERBASE", "Interbase");
+        productValue2DefaultMappingFileSubfix.put("JAVADB", "JavaDB");
+        productValue2DefaultMappingFileSubfix.put("MAXDB", "MaxDB");
+        productValue2DefaultMappingFileSubfix.put("ODBC", "MsOdbc");
+        productValue2DefaultMappingFileSubfix.put("SQL_SERVER", "MSSQL");
+        productValue2DefaultMappingFileSubfix.put("MYSQL", "Mysql");
+        productValue2DefaultMappingFileSubfix.put("NETEZZA", "Netezza");
+        productValue2DefaultMappingFileSubfix.put("ORACLE", "Oracle");
+        productValue2DefaultMappingFileSubfix.put("PARACCEL", "ParAccel");
+        productValue2DefaultMappingFileSubfix.put("POSTGRESQL", "Postgres");
+        productValue2DefaultMappingFileSubfix.put("POSTGRESPLUS", "PostgresPlus");
+        productValue2DefaultMappingFileSubfix.put("REDSHIFT", "Redshift");
+        productValue2DefaultMappingFileSubfix.put("SAPHANA", "SAPHana");
+        productValue2DefaultMappingFileSubfix.put("SNOWFLAKE", "Snowflake");
+        productValue2DefaultMappingFileSubfix.put("SQLITE", "SQLite");
+        productValue2DefaultMappingFileSubfix.put("SYBASE", "Sybase");
+        productValue2DefaultMappingFileSubfix.put("TERADATA", "Teradata");
+        productValue2DefaultMappingFileSubfix.put("VECTORWISE", "VectorWise");
+        productValue2DefaultMappingFileSubfix.put("VERTICA", "Vertica");
+    }
+
+    // hywang add for bug 7575
+    private static String getDbTypeByClassNameAndDriverJar(String driverClassName, String driverJar) {
+        List<EDatabase4DriverClassName> t4d = EDatabase4DriverClassName.indexOfByDriverClass(driverClassName);
+        if (t4d.size() == 1) {
+            return t4d.get(0).getDbTypeName();
+        } else if (t4d.size() > 1) {
+            // for some dbs use the same driverClassName.
+            if (driverJar == null || "".equals(driverJar) || !driverJar.contains(".jar")) {
+                return t4d.get(0).getDbTypeName();
+            } else if (driverJar.contains("postgresql-8.3-603.jdbc3.jar") || driverJar.contains("postgresql-8.3-603.jdbc4.jar")
+                    || driverJar.contains("postgresql-8.3-603.jdbc2.jar")) {
+                return EDatabase4DriverClassName.PSQL.getDbTypeName();
+            } else {
+                return t4d.get(0).getDbTypeName(); // first default
+            }
+        }
         return null;
     }
 

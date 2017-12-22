@@ -40,9 +40,9 @@ import org.apache.avro.generic.IndexedRecord;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.components.common.avro.JDBCAvroRegistry;
 import org.talend.components.common.avro.JDBCResultSetIndexedRecordConverter;
 import org.talend.components.common.avro.JDBCTableMetadata;
+import org.talend.components.common.config.jdbc.Dbms;
 import org.talend.components.common.dataset.DatasetProperties;
 import org.talend.components.common.datastore.DatastoreProperties;
 import org.talend.components.jdbc.ComponentConstants;
@@ -53,9 +53,9 @@ import org.talend.components.jdbc.avro.ResultSetStringRecordConverter;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSinkDefault;
 import org.talend.components.jdbc.runtime.setting.ModuleMetadata;
+import org.talend.components.jdbc.schemainfer.SchemaInferer;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.SimpleNamedThing;
-import org.talend.daikon.avro.AvroRegistry;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 import org.talend.daikon.exception.ExceptionContext;
 import org.talend.daikon.exception.error.CommonErrorCodes;
@@ -75,8 +75,6 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
     protected AllSetting setting;
 
-    private transient AvroRegistry avroRegistry;
-
     private transient IndexedRecordConverter<ResultSet, IndexedRecord> converter;
 
     private boolean work4dataprep = false;
@@ -86,8 +84,6 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         this.properties = (RuntimeSettingProvider) properties;
         setting = this.properties.getRuntimeSetting();
 
-        // TODO use another registry which use the db mapping files
-        avroRegistry = JDBCAvroRegistry.get();
         converter = new JDBCResultSetIndexedRecordConverter();
         ((JDBCResultSetIndexedRecordConverter) converter).setInfluencer(setting);
 
@@ -99,7 +95,6 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         this.properties = (RuntimeSettingProvider) properties;
         setting = this.properties.getRuntimeSetting();
 
-        avroRegistry = JDBCAvroRegistryString.get();
         converter = new ResultSetStringRecordConverter();
 
         work4dataprep = true;
@@ -113,12 +108,17 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         this.properties = (RuntimeSettingProvider) properties;
         setting = this.properties.getRuntimeSetting();
 
-        avroRegistry = JDBCAvroRegistryString.get();
         converter = new ResultSetStringRecordConverter();
 
         work4dataprep = true;
 
         return ValidationResult.OK;
+    }
+
+    private Dbms typeMapping = null;
+
+    public void setDBTypeMapping(Dbms mapping) {
+        typeMapping = mapping;
     }
 
     @Override
@@ -137,7 +137,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
             try (ResultSet resultset = dbMetaData.getTables(null, null, null, tableTypes.toArray(new String[0]))) {
                 while (resultset.next()) {
                     String tablename = resultset.getString("TABLE_NAME");
-                    if(tablename == null) {
+                    if (tablename == null) {
                         tablename = resultset.getString("SYNONYM_NAME");
                     }
                     result.add(new SimpleNamedThing(tablename, tablename));
@@ -178,7 +178,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         try (Connection conn = connect(runtime)) {
             JDBCTableMetadata tableMetadata = new JDBCTableMetadata();
             tableMetadata.setDatabaseMetaData(conn.getMetaData()).setTablename(tableName);
-            return avroRegistry.inferSchema(tableMetadata);
+            return infer(tableMetadata);
         } catch (Exception e) {
             throw new ComponentException(CommonErrorCodes.UNEXPECTED_EXCEPTION, e,
                     ExceptionContext.withBuilder().put("message", e.getMessage()).build());
@@ -190,7 +190,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
                 Statement statement = conn.createStatement();
                 ResultSet resultset = statement.executeQuery(query)) {
             ResultSetMetaData metadata = resultset.getMetaData();
-            return avroRegistry.inferSchema(metadata);
+            return infer(metadata);
         } catch (SQLSyntaxErrorException sqlSyntaxException) {
             throw new ComponentException(JdbcComponentErrorsCode.SQL_SYNTAX_ERROR, sqlSyntaxException);
         } catch (SQLException e) {
@@ -227,8 +227,22 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         return conn;
     }
 
-    public AvroRegistry getAvroRegistry() {
-        return avroRegistry;
+    // adapter for the two interfaces, in future, should use the second one
+    public Schema infer(JDBCTableMetadata tableMetadata) throws SQLException {
+        if (work4dataprep) {
+            return JDBCAvroRegistryString.get().inferSchema(tableMetadata);
+        } else {
+            return SchemaInferer.infer(tableMetadata, typeMapping);
+        }
+    }
+
+    // adapter for the two interfaces, in future, should use the second one
+    public Schema infer(ResultSetMetaData metadata) throws SQLException {
+        if (work4dataprep) {
+            return JDBCAvroRegistryString.get().inferSchema(metadata);
+        } else {
+            return SchemaInferer.infer(metadata, typeMapping);
+        }
     }
 
     public IndexedRecordConverter<ResultSet, IndexedRecord> getConverter() {
@@ -347,7 +361,8 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
                 JDBCTableMetadata tableMetadata = new JDBCTableMetadata();
                 tableMetadata.setDatabaseMetaData(conn.getMetaData()).setTablename(tableid.name);
-                Schema schema = avroRegistry.inferSchema(tableMetadata);
+
+                Schema schema = infer(tableMetadata);
 
                 // as ModuleMetadata is invisible for TUP, so store the metadata information to schema for TUP team can work on it
                 // use the same key with JDBC api

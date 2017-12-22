@@ -49,6 +49,7 @@ import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
+import org.talend.daikon.properties.runtime.RuntimeContext;
 import org.talend.daikon.runtime.RuntimeUtil;
 import org.talend.daikon.sandbox.SandboxedInstance;
 
@@ -248,13 +249,20 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
         return Collections.emptySet();
     }
 
-    public ValidationResult afterFetchSchemaFromQuery() {
+    public ValidationResult afterFetchSchemaFromQuery(RuntimeContext runtimeContext) {
+        Object mappingFileLocation = runtimeContext.getData(ComponentConstants.MAPPING_LOCATION);
+        if (mappingFileLocation == null) {
+            return new ValidationResult(ValidationResult.Result.ERROR, "can't find the mapping files directory");
+        }
+
         JdbcRuntimeInfo jdbcRuntimeInfo = new JdbcRuntimeInfo(this, "org.talend.components.jdbc.runtime.JDBCSource");
         try (SandboxedInstance sandboxI = RuntimeUtil.createRuntimeClass(jdbcRuntimeInfo,
                 connection.getClass().getClassLoader())) {
             JdbcRuntimeSourceOrSink ss = (JdbcRuntimeSourceOrSink) sandboxI.getInstance();
             ss.initialize(null, this);
             try {
+                ss.setDBTypeMapping(CommonUtils.getMapping((String) mappingFileLocation, this.getRuntimeSetting(), null,
+                        dbMapping.getValue()));
                 Schema schema = ss.getSchemaFromQuery(null, sql.getValue());
                 main.schema.setValue(schema);
             } catch (Exception e) {
@@ -262,6 +270,12 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties imp
                 return new ValidationResult(ValidationResult.Result.ERROR, e.getCause().getMessage());
             }
         }
+        return ValidationResult.OK;
+    }
+
+    // this method is necessary as the callback logic, we need to improve it
+    public ValidationResult afterFetchSchemaFromQuery() {
+        // do nothing
         return ValidationResult.OK;
     }
 

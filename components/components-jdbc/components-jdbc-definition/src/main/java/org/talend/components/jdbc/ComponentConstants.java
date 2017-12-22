@@ -44,4 +44,5 @@ public interface ComponentConstants {
 
     String KEY_DB_DATASOURCES_RAW = "KEY_DB_DATASOURCES_RAW";
 
+    String MAPPING_LOCATION = "MAPPING_LOCATION";
 }
