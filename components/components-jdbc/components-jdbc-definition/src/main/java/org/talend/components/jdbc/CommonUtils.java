@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.components.jdbc;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -387,6 +389,11 @@ public class CommonUtils {
         }
 
         String mappingFileFullPath = mappingFilesDir + "mapping_" + mappingFileSubfix + ".xml";
+        try {
+            mappingFileFullPath = new URL(mappingFileFullPath).getFile();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("can't find the db mapping file : " + mappingFileFullPath);
+        }
         
         MappingFileLoader fileLoader = new MappingFileLoader();
         List<Dbms> dbmsList = fileLoader.load(mappingFileFullPath);
