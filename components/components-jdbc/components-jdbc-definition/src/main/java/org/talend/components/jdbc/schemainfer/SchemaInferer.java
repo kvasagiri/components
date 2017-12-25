@@ -179,11 +179,11 @@ public class SchemaInferer {
             break;
         }
 
-        field.addProp(SchemaConstants.TALEND_COLUMN_DB_TYPE, dbtype);
+        field.addProp(SchemaConstants.TALEND_COLUMN_DB_TYPE, columnTypeName);
         field.addProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME, dbColumnName);
 
         if (defaultValue != null) {
-            field.addProp(SchemaConstants.TALEND_COLUMN_DEFAULT, defaultValue);
+            field.addProp(SchemaConstants.TALEND_COLUMN_DEFAULT, String.valueOf(defaultValue));
         }
 
         if (isKey) {
@@ -198,8 +198,7 @@ public class SchemaInferer {
             return;
         }
 
-        field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, precision);
-        field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, precision);
+        field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, String.valueOf(precision));
     }
 
     private static void setScale(Field field, boolean ignoreScale, int scale) {
@@ -207,7 +206,7 @@ public class SchemaInferer {
             return;
         }
 
-        field.addProp(SchemaConstants.TALEND_COLUMN_SCALE, scale);
+        field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, String.valueOf(scale));
     }
 
     private static Field wrap(boolean nullable, Schema base, String name) {
