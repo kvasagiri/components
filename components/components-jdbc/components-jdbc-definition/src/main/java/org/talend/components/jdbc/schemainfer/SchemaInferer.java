@@ -14,8 +14,11 @@ import org.apache.avro.Schema.Field;
 import org.apache.avro.SchemaBuilder;
 import org.codehaus.jackson.JsonNode;
 import org.talend.components.common.avro.JDBCTableMetadata;
+import org.talend.components.common.config.jdbc.AvroTypeConverter;
 import org.talend.components.common.config.jdbc.Dbms;
-import org.talend.daikon.avro.AvroUtils;
+import org.talend.components.common.config.jdbc.DbmsType;
+import org.talend.components.common.config.jdbc.MappingType;
+import org.talend.components.common.config.jdbc.TalendType;
 import org.talend.daikon.avro.SchemaConstants;
 
 public class SchemaInferer {
@@ -36,7 +39,10 @@ public class SchemaInferer {
             // not necessary for the result schema from the query statement
             boolean isKey = false;
 
-            Field field = sqlType2Avro(size, scale, dbtype, nullable, fieldName, dbColumnName, null, isKey, mapping);
+            String columnTypeName = metadata.getColumnTypeName(i).toUpperCase();
+
+            Field field = sqlType2Avro(size, scale, dbtype, nullable, fieldName, dbColumnName, null, isKey, mapping,
+                    columnTypeName);
 
             fields.add(field);
         }
@@ -69,8 +75,11 @@ public class SchemaInferer {
                 boolean isKey = keys.contains(columnName);
 
                 String defaultValue = metadata.getString("COLUMN_DEF");
+                
+                String columnTypeName = metadata.getString("TYPE_NAME");
 
-                Field field = sqlType2Avro(size, scale, dbtype, nullable, columnName, columnName, defaultValue, isKey, mapping);
+                Field field = sqlType2Avro(size, scale, dbtype, nullable, columnName, columnName, defaultValue, isKey, mapping,
+                        columnTypeName);
 
                 fields.add(field);
             } while (metadata.next());
@@ -95,92 +104,78 @@ public class SchemaInferer {
     }
 
     private static Field sqlType2Avro(int size, int scale, int dbtype, boolean nullable, String name, String dbColumnName,
-            Object defaultValue, boolean isKey, Dbms mapping) {
+            Object defaultValue, boolean isKey, Dbms mapping, String columnTypeName) {
+        MappingType<DbmsType, TalendType> mt = mapping.getDbmsMapping(columnTypeName);
+        TalendType talendType = mt.getDefaultType();
+        DbmsType sourceType = mt.getSourceType();
+
         Field field = null;
-        Schema schema = null;
+        // TODO check if the date,time type and timestamp is right
+        Schema schema = AvroTypeConverter.convertToAvro(talendType, null);
+        field = wrap(nullable, schema, name);
 
         switch (dbtype) {
         case java.sql.Types.VARCHAR:
-            schema = AvroUtils._string();
-            field = wrap(nullable, schema, name);
-            field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, size);
+            setPrecision(field, sourceType.isIgnoreLength(), size);
             break;
         case java.sql.Types.INTEGER:
-            schema = AvroUtils._int();
-            field = wrap(nullable, schema, name);
-            field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
+            setPrecision(field, sourceType.isIgnoreLength(), size);
             break;
         case java.sql.Types.DECIMAL:
-            schema = AvroUtils._decimal();
-            field = wrap(nullable, schema, name);
-            field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
-            field.addProp(SchemaConstants.TALEND_COLUMN_SCALE, scale);
+            setPrecision(field, sourceType.isIgnoreLength(), size);
+            setScale(field, sourceType.isIgnorePrecision(), scale);
             break;
         case java.sql.Types.BIGINT:
-            schema = AvroUtils._long();
-            field = wrap(nullable, schema, name);
-            field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
+            setPrecision(field, sourceType.isIgnoreLength(), size);
             break;
         case java.sql.Types.NUMERIC:
-            schema = AvroUtils._decimal();
-            field = wrap(nullable, schema, name);
-            field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
-            field.addProp(SchemaConstants.TALEND_COLUMN_SCALE, scale);
+            setPrecision(field, sourceType.isIgnoreLength(), size);
+            setScale(field, sourceType.isIgnorePrecision(), scale);
             break;
         case java.sql.Types.TINYINT:
-            schema = AvroUtils._byte();
-            field = wrap(nullable, schema, name);
-            field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
+            setPrecision(field, sourceType.isIgnoreLength(), size);
             break;
         case java.sql.Types.DOUBLE:
-            schema = AvroUtils._double();
-            field = wrap(nullable, schema, name);
+            setPrecision(field, sourceType.isIgnoreLength(), size);
+            setScale(field, sourceType.isIgnorePrecision(), scale);
             break;
         case java.sql.Types.FLOAT:
-            schema = AvroUtils._float();
-            field = wrap(nullable, schema, name);
+            setPrecision(field, sourceType.isIgnoreLength(), size);
+            setScale(field, sourceType.isIgnorePrecision(), scale);
             break;
         case java.sql.Types.DATE:
-            schema = AvroUtils._date();
-            field = wrap(nullable, schema, name);
+            setPrecision(field, sourceType.isIgnoreLength(), size);
+            setScale(field, sourceType.isIgnorePrecision(), scale);
             field.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "yyyy-MM-dd");
             break;
         case java.sql.Types.TIME:
-            schema = AvroUtils._date();
-            field = wrap(nullable, schema, name);
+            setPrecision(field, sourceType.isIgnoreLength(), size);
+            setScale(field, sourceType.isIgnorePrecision(), scale);
             field.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "HH:mm:ss");
             break;
         case java.sql.Types.TIMESTAMP:
-            schema = AvroUtils._date();
-            field = wrap(nullable, schema, name);
+            setPrecision(field, sourceType.isIgnoreLength(), size);
+            setScale(field, sourceType.isIgnorePrecision(), scale);
             field.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "yyyy-MM-dd HH:mm:ss.SSS");
             break;
         case java.sql.Types.BOOLEAN:
-            schema = AvroUtils._boolean();
-            field = wrap(nullable, schema, name);
             break;
         case java.sql.Types.REAL:
-            schema = AvroUtils._float();
-            field = wrap(nullable, schema, name);
+            setPrecision(field, sourceType.isIgnoreLength(), size);
+            setScale(field, sourceType.isIgnorePrecision(), scale);
             break;
         case java.sql.Types.SMALLINT:
-            schema = AvroUtils._short();
-            field = wrap(nullable, schema, name);
-            field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
+            setPrecision(field, sourceType.isIgnoreLength(), size);
             break;
         case java.sql.Types.LONGVARCHAR:
-            schema = AvroUtils._string();
-            field = wrap(nullable, schema, name);
-            field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, size);
+            setPrecision(field, sourceType.isIgnoreLength(), size);
             break;
         case java.sql.Types.CHAR:
-            schema = AvroUtils._string();
-            field = wrap(nullable, schema, name);
-            field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, size);
+            setPrecision(field, sourceType.isIgnoreLength(), size);
             break;
         default:
-            schema = AvroUtils._string();
-            field = wrap(nullable, schema, name);
+            setPrecision(field, sourceType.isIgnoreLength(), size);
+            setScale(field, sourceType.isIgnorePrecision(), scale);
             break;
         }
 
@@ -196,6 +191,23 @@ public class SchemaInferer {
         }
 
         return field;
+    }
+
+    private static void setPrecision(Field field, boolean ignorePrecision, int precision) {
+        if (ignorePrecision) {
+            return;
+        }
+
+        field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, precision);
+        field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, precision);
+    }
+
+    private static void setScale(Field field, boolean ignoreScale, int scale) {
+        if (ignoreScale) {
+            return;
+        }
+
+        field.addProp(SchemaConstants.TALEND_COLUMN_SCALE, scale);
     }
 
     private static Field wrap(boolean nullable, Schema base, String name) {
