@@ -12,6 +12,7 @@
 // ============================================================================
 package org.talend.components.jdbc;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -370,7 +371,7 @@ public class CommonUtils {
         return dbType;
     }
 
-    public static Dbms getMapping(String mappingFilesDir, AllSetting setting,
+    public static Dbms getMapping(URL mappingFilesDir, AllSetting setting,
             String dbTypeByComponentType/*
                                          * for example, if tjdbcxxx, the type is "General JDBC", if tmysqlxxx, the type is "MySQL"
                                          */,
@@ -388,18 +389,25 @@ public class CommonUtils {
             mappingFileSubfix = "Mysql";
         }
 
-        String mappingFileFullPath = mappingFilesDir + "mapping_" + mappingFileSubfix + ".xml";
-        try {
-            mappingFileFullPath = new URL(mappingFileFullPath).getFile();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("can't find the db mapping file : " + mappingFileFullPath);
-        }
-        
+        File mappingFileFullPath = new File(mappingFilesDir.getFile(), "mapping_" + mappingFileSubfix + ".xml");
+
         MappingFileLoader fileLoader = new MappingFileLoader();
         List<Dbms> dbmsList = fileLoader.load(mappingFileFullPath);
         Dbms dbms = dbmsList.get(0);
-        
+
         return dbms;
+    }
+
+    public static Dbms getMapping(String mappingFilesDir, AllSetting setting,
+            String dbTypeByComponentType/*
+                                         * for example, if tjdbcxxx, the type is "General JDBC", if tmysqlxxx, the type is "MySQL"
+                                         */,
+            DBTypes dbTypeInComponentSetting/* in tjdbcinput, can choose the db type in advanced setting */) {
+        try {
+            return getMapping(new URL(mappingFilesDir), setting, dbTypeByComponentType, dbTypeInComponentSetting);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("can't find the mapping file dir : " + mappingFilesDir);
+        }
     }
 
     // now we use a inside mapping to do the mapping file search, not good and easy to break, TODO should load all the mapping

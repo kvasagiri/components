@@ -15,6 +15,8 @@ package org.talend.components.jdbc.runtime;
 
 import java.io.IOException;
 
+import java.net.URL;
+
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -45,6 +47,7 @@ import org.talend.components.common.avro.JDBCTableMetadata;
 import org.talend.components.common.config.jdbc.Dbms;
 import org.talend.components.common.dataset.DatasetProperties;
 import org.talend.components.common.datastore.DatastoreProperties;
+import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.JdbcComponentErrorsCode;
 import org.talend.components.jdbc.RuntimeSettingProvider;
@@ -178,7 +181,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         try (Connection conn = connect(runtime)) {
             JDBCTableMetadata tableMetadata = new JDBCTableMetadata();
             tableMetadata.setDatabaseMetaData(conn.getMetaData()).setTablename(tableName);
-            return infer(tableMetadata);
+            return infer(tableMetadata, runtime);
         } catch (Exception e) {
             throw new ComponentException(CommonErrorCodes.UNEXPECTED_EXCEPTION, e,
                     ExceptionContext.withBuilder().put("message", e.getMessage()).build());
@@ -190,7 +193,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
                 Statement statement = conn.createStatement();
                 ResultSet resultset = statement.executeQuery(query)) {
             ResultSetMetaData metadata = resultset.getMetaData();
-            return infer(metadata);
+            return infer(metadata, runtime);
         } catch (SQLSyntaxErrorException sqlSyntaxException) {
             throw new ComponentException(JdbcComponentErrorsCode.SQL_SYNTAX_ERROR, sqlSyntaxException);
         } catch (SQLException e) {
@@ -228,21 +231,36 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
     }
 
     // adapter for the two interfaces, in future, should use the second one
-    public Schema infer(JDBCTableMetadata tableMetadata) throws SQLException {
+    public Schema infer(JDBCTableMetadata tableMetadata, RuntimeContainer runtime) throws SQLException {
         if (work4dataprep) {
             return JDBCAvroRegistryString.get().inferSchema(tableMetadata);
         } else {
-            return SchemaInferer.infer(tableMetadata, typeMapping);
+            Dbms mapping = getDBMapping(runtime);
+            return SchemaInferer.infer(tableMetadata, mapping);
         }
     }
 
     // adapter for the two interfaces, in future, should use the second one
-    public Schema infer(ResultSetMetaData metadata) throws SQLException {
+    public Schema infer(ResultSetMetaData metadata, RuntimeContainer runtime) throws SQLException {
         if (work4dataprep) {
             return JDBCAvroRegistryString.get().inferSchema(metadata);
         } else {
-            return SchemaInferer.infer(metadata, typeMapping);
+            Dbms mapping = getDBMapping(runtime);
+            return SchemaInferer.infer(metadata, mapping);
         }
+    }
+
+    private Dbms getDBMapping(RuntimeContainer runtime) {
+        Dbms mapping = null;
+
+        if (typeMapping != null) {
+            mapping = typeMapping;
+        } else if (runtime != null) {
+            URL mappingFileDir = (URL) runtime.getComponentData(runtime.getCurrentComponentId(),
+                    ComponentConstants.MAPPING_URL_SUBFIX);
+            mapping = CommonUtils.getMapping(mappingFileDir, setting, null, setting.getDbMapping());
+        }
+        return mapping;
     }
 
     public IndexedRecordConverter<ResultSet, IndexedRecord> getConverter() {
@@ -362,7 +380,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
                 JDBCTableMetadata tableMetadata = new JDBCTableMetadata();
                 tableMetadata.setDatabaseMetaData(conn.getMetaData()).setTablename(tableid.name);
 
-                Schema schema = infer(tableMetadata);
+                Schema schema = infer(tableMetadata, runtime);
 
                 // as ModuleMetadata is invisible for TUP, so store the metadata information to schema for TUP team can work on it
                 // use the same key with JDBC api

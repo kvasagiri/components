@@ -103,12 +103,12 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
              * need more thinking about it.
              */
             if (AvroUtils.isSchemaEmpty(querySchema)) {
-                querySchema = source.infer(resultSet.getMetaData());
+                querySchema = source.infer(resultSet.getMetaData(), container);
             }
 
             boolean includeDynamic = AvroUtils.isIncludeAllFields(querySchema);
             if (includeDynamic) {
-                Schema runtimeSchema4ResultSet = source.infer(resultSet.getMetaData());
+                Schema runtimeSchema4ResultSet = source.infer(resultSet.getMetaData(), container);
                 querySchema = CommonUtils.mergeRuntimeSchema2DesignSchema4Dynamic(querySchema, runtimeSchema4ResultSet);
             }
 
