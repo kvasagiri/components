@@ -42,7 +42,7 @@ public class RowWriter {
                 writer = new StringTypeWriter(statement, statementIndex, inputValueLocation);
             } else if (AvroUtils.isSameType(basicSchema, AvroUtils._int())) {
                 writer = new IntTypeWriter(statement, statementIndex, inputValueLocation);
-            } else if (AvroUtils.isSameType(basicSchema, AvroUtils._date())) {
+            } else if (AvroUtils.isSameType(basicSchema, AvroUtils._date()) || AvroUtils.isSameType(basicSchema, AvroUtils._logicalTimestamp())) {
                 writer = new DateTypeWriter(statement, statementIndex, inputValueLocation);
             } else if (AvroUtils.isSameType(basicSchema, AvroUtils._decimal())) {
                 writer = new BigDecimalTypeWriter(statement, statementIndex, inputValueLocation);

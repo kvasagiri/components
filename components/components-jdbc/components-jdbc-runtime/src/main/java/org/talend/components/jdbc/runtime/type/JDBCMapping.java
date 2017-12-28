@@ -44,7 +44,7 @@ public class JDBCMapping {
                 statement.setNull(index, java.sql.Types.VARCHAR);
             } else if (AvroUtils.isSameType(basicSchema, AvroUtils._int())) {
                 statement.setNull(index, java.sql.Types.INTEGER);
-            } else if (AvroUtils.isSameType(basicSchema, AvroUtils._date())) {
+            } else if (AvroUtils.isSameType(basicSchema, AvroUtils._date()) || AvroUtils.isSameType(basicSchema, AvroUtils._logicalTimestamp())) {
                 statement.setNull(index, java.sql.Types.TIMESTAMP);
             } else if (AvroUtils.isSameType(basicSchema, AvroUtils._decimal())) {
                 statement.setNull(index, java.sql.Types.DECIMAL);
@@ -77,7 +77,7 @@ public class JDBCMapping {
             statement.setString(index, String.valueOf(value));
         } else if (AvroUtils.isSameType(basicSchema, AvroUtils._int())) {
             statement.setInt(index, (Integer) value);
-        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._date())) {
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._date()) || AvroUtils.isSameType(basicSchema, AvroUtils._logicalTimestamp())) {
             java.util.Date date = (java.util.Date) value;
             statement.setTimestamp(index, new java.sql.Timestamp((date).getTime()));
         } else if (AvroUtils.isSameType(basicSchema, AvroUtils._decimal())) {
@@ -117,7 +117,7 @@ public class JDBCMapping {
             return Types.VARCHAR;
         } else if (AvroUtils.isSameType(basicSchema, AvroUtils._int())) {
             return Types.INTEGER;
-        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._date())) {
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._date()) || AvroUtils.isSameType(basicSchema, AvroUtils._logicalTimestamp())) {
             return Types.DATE;
         } else if (AvroUtils.isSameType(basicSchema, AvroUtils._decimal())) {
             return Types.DECIMAL;
