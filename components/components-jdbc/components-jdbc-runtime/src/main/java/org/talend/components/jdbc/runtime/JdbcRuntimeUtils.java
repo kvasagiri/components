@@ -18,6 +18,7 @@ import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -25,6 +26,8 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.common.runtime.SharedConnectionsPool;
 import org.talend.components.jdbc.ComponentConstants;
@@ -37,6 +40,8 @@ import org.talend.daikon.properties.ValidationResultMutable;
 
 public class JdbcRuntimeUtils {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JdbcRuntimeUtils.class);
+    
     /**
      * get the JDBC connection object by the runtime setting
      * 
@@ -175,7 +180,11 @@ public class JdbcRuntimeUtils {
             conn = createConnection(setting);
             // somebody add it for performance for dataprep
             if (readonly) {
-                conn.setReadOnly(setting.isReadOnly());
+                try {
+                    conn.setReadOnly(setting.isReadOnly());
+                } catch (SQLFeatureNotSupportedException e) {
+                    LOGGER.debug("JDBC driver '{}' does not support read only mode.", setting.getDriverClass(), e);
+                }
             }
         }
 

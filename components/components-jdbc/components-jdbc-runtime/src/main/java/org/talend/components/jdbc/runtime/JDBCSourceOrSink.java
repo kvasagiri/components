@@ -209,11 +209,6 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         // connection component
         Connection conn = JdbcRuntimeUtils.createConnectionOrGetFromSharedConnectionPoolOrDataSource(runtime, setting,
                 work4dataprep);
-        try {
-            conn.setReadOnly(setting.isReadOnly());
-        } catch (SQLFeatureNotSupportedException e) {
-            LOGGER.debug("JDBC driver '{}' does not support read only mode.", setting.getDriverClass(), e);
-        }
 
         if (setting.getUseAutoCommit()) {
             conn.setAutoCommit(setting.getAutocommit());
