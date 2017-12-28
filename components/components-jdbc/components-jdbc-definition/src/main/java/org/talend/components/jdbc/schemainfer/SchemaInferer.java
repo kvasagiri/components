@@ -14,11 +14,11 @@ import org.apache.avro.Schema.Field;
 import org.apache.avro.SchemaBuilder;
 import org.codehaus.jackson.JsonNode;
 import org.talend.components.common.avro.JDBCTableMetadata;
-import org.talend.components.common.config.jdbc.AvroTypeConverter;
 import org.talend.components.common.config.jdbc.Dbms;
 import org.talend.components.common.config.jdbc.DbmsType;
 import org.talend.components.common.config.jdbc.MappingType;
 import org.talend.components.common.config.jdbc.TalendType;
+import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
 
 public class SchemaInferer {
@@ -103,6 +103,35 @@ public class SchemaInferer {
         return result;
     }
 
+    private static Schema convertToAvro(TalendType talendType) {
+        switch (talendType) {
+        case STRING:
+            return Schema.create(Schema.Type.STRING);
+        case BOOLEAN:
+            return Schema.create(Schema.Type.BOOLEAN);
+        case INTEGER:
+            return Schema.create(Schema.Type.INT);
+        case LONG:
+            return Schema.create(Schema.Type.LONG);
+        case DOUBLE:
+            return Schema.create(Schema.Type.DOUBLE);
+        case FLOAT:
+            return Schema.create(Schema.Type.FLOAT);
+        case BYTE:
+            return AvroUtils._byte();
+        case SHORT:
+            return AvroUtils._short();
+        case CHARACTER:
+            return AvroUtils._character();
+        case BIG_DECIMAL:
+            return AvroUtils._decimal();
+        case DATE:
+            return AvroUtils._date();
+        default:
+            throw new UnsupportedOperationException("Unrecognized type " + talendType);
+        }
+    }
+    
     private static Field sqlType2Avro(int size, int scale, int dbtype, boolean nullable, String name, String dbColumnName,
             Object defaultValue, boolean isKey, Dbms mapping, String columnTypeName) {
         MappingType<DbmsType, TalendType> mt = mapping.getDbmsMapping(columnTypeName);
@@ -110,8 +139,7 @@ public class SchemaInferer {
         DbmsType sourceType = mt.getSourceType();
 
         Field field = null;
-        // TODO check if the date,time type and timestamp is right
-        Schema schema = AvroTypeConverter.convertToAvro(talendType, null);
+        Schema schema = convertToAvro(talendType);
         field = wrap(nullable, schema, name);
 
         switch (dbtype) {

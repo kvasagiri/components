@@ -300,7 +300,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 }
 
             };
-        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._date()) || AvroUtils.isSameType(basicSchema, AvroUtils._logicalTimestamp())) {// no date type in AVRO types, so we replace it by long
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._date())) {// no date type in AVRO types, so we replace it by long
             // type
             return new JDBCConverter() {
 
@@ -592,7 +592,7 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 }
 
             };
-        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._date()) || AvroUtils.isSameType(basicSchema, AvroUtils._logicalTimestamp())) {// no date type in AVRO types, so we replace it by long
+        } else if (AvroUtils.isSameType(basicSchema, AvroUtils._date())) {// no date type in AVRO types, so we replace it by long
             // type
             return new JDBCSPConverter() {
 
