@@ -71,9 +71,7 @@ public class JDBCConnectionModule extends ComponentPropertiesImpl {
         form.addRow(widget(driverTable).setWidgetType(Widget.TABLE_WIDGET_TYPE));
 
         if (useInWizard) {
-            // TODO use the open list widget, but now some bug exists
-            form.addRow(driverClass);
-            // TODO now the ui is not ok, but the trigger method can work now already
+            form.addRow(Widget.widget(driverClass).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
             form.addColumn(widget(selectClass).setWidgetType(Widget.BUTTON_WIDGET_TYPE));
         } else {
             form.addRow(driverClass);
