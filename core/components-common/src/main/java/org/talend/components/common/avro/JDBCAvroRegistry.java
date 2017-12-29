@@ -468,6 +468,19 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 }
 
             };
+        } else if (isObject(basicSchema)) {
+            return new JDBCConverter() {
+  
+              @Override
+              public Object convertToAvro(ResultSet value) {
+                  try {
+                      return value.getObject(index);
+                  } catch (SQLException e) {
+                      throw new ComponentException(e);
+                  }
+              }
+  
+            };
         } else {
             return new JDBCConverter() {
 
@@ -755,6 +768,19 @@ public class JDBCAvroRegistry extends AvroRegistry {
                 }
 
             };
+        } else if (isObject(basicSchema)) {
+            return new JDBCSPConverter() {
+    
+              @Override
+              public Object convertToAvro(CallableStatement value) {
+                  try {
+                      return value.getObject(index);
+                  } catch (SQLException e) {
+                      throw new ComponentException(e);
+                  }
+              }
+    
+            };
         } else {
             return new JDBCSPConverter() {
 
@@ -771,6 +797,23 @@ public class JDBCAvroRegistry extends AvroRegistry {
 
             };
         }
+    }
+    
+    //please see the method in MetadataToolAvroHelper :
+    //org.talend.core.model.metadata.builder.connection.MetadataColumn convertFromAvro(Schema.Field field,
+    //org.talend.core.model.metadata.builder.connection.MetadataColumn col)
+    public static boolean isObject(Schema schema) {
+        if(schema == null) {
+            return false;
+        }
+        
+        if(schema.getType() == Schema.Type.STRING) {
+            if(schema.getProp(SchemaConstants.JAVA_CLASS_FLAG) != null) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
 }

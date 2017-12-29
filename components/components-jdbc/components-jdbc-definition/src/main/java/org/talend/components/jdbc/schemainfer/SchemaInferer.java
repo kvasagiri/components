@@ -106,17 +106,17 @@ public class SchemaInferer {
     private static Schema convertToAvro(TalendType talendType) {
         switch (talendType) {
         case STRING:
-            return Schema.create(Schema.Type.STRING);
+            return AvroUtils._string();
         case BOOLEAN:
-            return Schema.create(Schema.Type.BOOLEAN);
+            return AvroUtils._boolean();
         case INTEGER:
-            return Schema.create(Schema.Type.INT);
+            return AvroUtils._int();
         case LONG:
-            return Schema.create(Schema.Type.LONG);
+            return AvroUtils._long();
         case DOUBLE:
-            return Schema.create(Schema.Type.DOUBLE);
+            return AvroUtils._double();
         case FLOAT:
-            return Schema.create(Schema.Type.FLOAT);
+            return AvroUtils._float();
         case BYTE:
             return AvroUtils._byte();
         case SHORT:
@@ -127,6 +127,8 @@ public class SchemaInferer {
             return AvroUtils._decimal();
         case DATE:
             return AvroUtils._date();
+        case OBJECT :
+            return SchemaBuilder.builder().stringBuilder().prop(SchemaConstants.JAVA_CLASS_FLAG, "java.lang.Object").endString();
         default:
             throw new UnsupportedOperationException("Unrecognized type " + talendType);
         }
