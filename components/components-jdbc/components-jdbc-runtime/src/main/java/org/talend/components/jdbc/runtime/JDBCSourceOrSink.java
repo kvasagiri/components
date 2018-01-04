@@ -14,9 +14,7 @@
 package org.talend.components.jdbc.runtime;
 
 import java.io.IOException;
-
 import java.net.URL;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -24,7 +22,6 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.SQLSyntaxErrorException;
 import java.sql.Statement;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -32,13 +29,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.avro.Schema;
-
+import org.apache.avro.generic.IndexedRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.talend.components.api.component.runtime.SourceOrSink;
-
-import org.apache.avro.generic.IndexedRecord;
-
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
@@ -53,10 +46,9 @@ import org.talend.components.jdbc.JdbcComponentErrorsCode;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.avro.JDBCAvroRegistryString;
 import org.talend.components.jdbc.avro.ResultSetStringRecordConverter;
+import org.talend.components.jdbc.runtime.schemainfer.SchemaInferer;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.runtime.setting.JdbcRuntimeSourceOrSinkDefault;
-import org.talend.components.jdbc.runtime.setting.ModuleMetadata;
-import org.talend.components.jdbc.schemainfer.SchemaInferer;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.SimpleNamedThing;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
@@ -262,6 +254,7 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
         return converter;
     }
 
+    /*
     // as studio will do schema list retrieve by the old way, now the method is not useful.
     // work for the wizard : catalog show, TODO make it common
     public List<String> getDBCatalogs(RuntimeContainer runtime) throws ClassNotFoundException, SQLException {
@@ -400,5 +393,6 @@ public class JDBCSourceOrSink extends JdbcRuntimeSourceOrSinkDefault {
 
         return tables;
     }
+    */
 
 }

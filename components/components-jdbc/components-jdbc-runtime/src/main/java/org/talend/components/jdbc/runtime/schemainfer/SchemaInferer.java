@@ -1,4 +1,4 @@
-package org.talend.components.jdbc.schemainfer;
+package org.talend.components.jdbc.runtime.schemainfer;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;

@@ -3,12 +3,12 @@ package org.talend.components.jdbc.query;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.SchemaBuilder.FieldAssembler;
+import org.junit.Assert;
 import org.junit.Test;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
 
-// TODO convert the System.out to Assert, now the test results are all right.
 public class QueryGeneratorTest {
 
     @Test
@@ -16,7 +16,8 @@ public class QueryGeneratorTest {
         AllSetting setting = new AllSetting();
         setting.setSchema(createTestSchema());
         String result = QueryUtils.generateNewQuery("General JDBC", null, null, "\"mytable\"", setting);
-        System.out.println(result);
+        Assert.assertEquals("\"SELECT \n  \\\"mytable\\\".\\\"ID1\\\", \n  \\\"mytable\\\".\\\"NAME1\\\"\nFROM \\\"mytable\\\"\"",
+                result);
     }
 
     @Test
@@ -24,7 +25,9 @@ public class QueryGeneratorTest {
         AllSetting setting = new AllSetting();
         setting.setSchema(createTestSchema());
         String result = QueryUtils.generateNewQuery("General JDBC", "\"mydatabase\"", "\"mydbschema\"", "\"mytable\"", setting);
-        System.out.println(result);
+        Assert.assertEquals(
+                "\"SELECT \n  \\\"mydatabase\\\".\\\"mydbschema\\\".\\\"mytable\\\".\\\"ID1\\\", \n  \\\"mydatabase\\\".\\\"mydbschema\\\".\\\"mytable\\\".\\\"NAME1\\\"\nFROM \\\"mydatabase\\\".\\\"mydbschema\\\".\\\"mytable\\\"\"",
+                result);
     }
 
     @Test
@@ -32,7 +35,9 @@ public class QueryGeneratorTest {
         AllSetting setting = new AllSetting();
         setting.setSchema(createTestSchema());
         String result = QueryUtils.generateNewQuery("General JDBC", null, null, "context.mytable", setting);
-        System.out.println(result);
+        Assert.assertEquals(
+                "\"SELECT \n  \\\"\"+context.mytable+\"\\\".\\\"ID1\\\", \n  \\\"\"+context.mytable+\"\\\".\\\"NAME1\\\"\nFROM \\\"\"+context.mytable+\"\\\"\"",
+                result);
     }
 
     @Test
@@ -41,7 +46,9 @@ public class QueryGeneratorTest {
         setting.setSchema(createTestSchema());
         String result = QueryUtils.generateNewQuery("General JDBC", "context.mydatabase", "context.mydbschema", "context.mytable",
                 setting);
-        System.out.println(result);
+        Assert.assertEquals(
+                "\"SELECT \n  \\\"\"+context.mydatabase+\"\\\".\\\"\"+context.mydbschema+\"\\\".\\\"\"+context.mytable+\"\\\".\\\"ID1\\\", \n  \\\"\"+context.mydatabase+\"\\\".\\\"\"+context.mydbschema+\"\\\".\\\"\"+context.mytable+\"\\\".\\\"NAME1\\\"\nFROM \\\"\"+context.mydatabase+\"\\\".\\\"\"+context.mydbschema+\"\\\".\\\"\"+context.mytable+\"\\\"\"",
+                result);
     }
 
     @Test
@@ -50,7 +57,9 @@ public class QueryGeneratorTest {
         setting.setSchema(createTestSchema());
         String result = QueryUtils.generateNewQuery("General JDBC", "context.mydatabase + \"mydatabasesubfix\"",
                 "context.mydbschema + \"mydbschemasubfix\"", "context.mytable + \"mytablesubfix\"", setting);
-        System.out.println(result);
+        Assert.assertEquals(
+                "\"SELECT \n  \\\"\"+context.mydatabase + \"mydatabasesubfix\"+\"\\\".\\\"\"+context.mydbschema + \"mydbschemasubfix\"+\"\\\".\\\"\"+context.mytable + \"mytablesubfix\"+\"\\\".\\\"ID1\\\", \n  \\\"\"+context.mydatabase + \"mydatabasesubfix\"+\"\\\".\\\"\"+context.mydbschema + \"mydbschemasubfix\"+\"\\\".\\\"\"+context.mytable + \"mytablesubfix\"+\"\\\".\\\"NAME1\\\"\nFROM \\\"\"+context.mydatabase + \"mydatabasesubfix\"+\"\\\".\\\"\"+context.mydbschema + \"mydbschemasubfix\"+\"\\\".\\\"\"+context.mytable + \"mytablesubfix\"+\"\\\"\"",
+                result);
     }
 
     @Test
@@ -58,7 +67,9 @@ public class QueryGeneratorTest {
         AllSetting setting = new AllSetting();
         setting.setSchema(createTestSchema());
         String result = QueryUtils.generateNewQuery("General JDBC", null, null, "context.mytable + \"mytablesubfix\"", setting);
-        System.out.println(result);
+        Assert.assertEquals(
+                "\"SELECT \n  \\\"\"+context.mytable + \"mytablesubfix\"+\"\\\".\\\"ID1\\\", \n  \\\"\"+context.mytable + \"mytablesubfix\"+\"\\\".\\\"NAME1\\\"\nFROM \\\"\"+context.mytable + \"mytablesubfix\"+\"\\\"\"",
+                result);
     }
 
     @Test
@@ -66,7 +77,9 @@ public class QueryGeneratorTest {
         AllSetting setting = new AllSetting();
         setting.setSchema(createTestSchema());
         String result = QueryUtils.generateNewQuery("MySQL", "\"mydatabase\"", null, "\"mytable\"", setting);
-        System.out.println(result);
+        Assert.assertEquals(
+                "\"SELECT \n  `mydatabase`.`mytable`.`ID1`, \n  `mydatabase`.`mytable`.`NAME1`\nFROM `mydatabase`.`mytable`\"",
+                result);
     }
 
     @Test
@@ -74,7 +87,9 @@ public class QueryGeneratorTest {
         AllSetting setting = new AllSetting();
         setting.setSchema(createTestSchema());
         String result = QueryUtils.generateNewQuery("Oracle with SID", null, "\"myschema\"", "\"mytable\"", setting);
-        System.out.println(result);
+        Assert.assertEquals(
+                "\"SELECT \n  \\\"myschema\\\".\\\"mytable\\\".\\\"ID1\\\", \n  \\\"myschema\\\".\\\"mytable\\\".\\\"NAME1\\\"\nFROM \\\"myschema\\\".\\\"mytable\\\"\"",
+                result);
     }
 
     @Test
@@ -83,7 +98,9 @@ public class QueryGeneratorTest {
         setting.setSchema(createTestSchema());
         String result = QueryUtils.generateNewQuery("Microsoft SQL Server", "\"mydatabase\"", "\"myschema\"", "\"mytable\"",
                 setting);
-        System.out.println(result);
+        Assert.assertEquals(
+                "\"SELECT \n  [mydatabase].[myschema].[mytable].[ID1], \n  [mydatabase].[myschema].[mytable].[NAME1]\nFROM [mydatabase].[myschema].[mytable]\"",
+                result);
     }
 
     @Test
@@ -91,7 +108,9 @@ public class QueryGeneratorTest {
         AllSetting setting = new AllSetting();
         setting.setSchema(createTestSchema());
         String result = QueryUtils.generateNewQuery("AS400", "\"mydatabase\"", "\"myschema\"", "\"mytable\"", setting);
-        System.out.println(result);
+        Assert.assertEquals(
+                "\"SELECT \n  \\\"mydatabase\\\"/\\\"myschema\\\"/\\\"mytable\\\"/\\\"ID1\\\", \n  \\\"mydatabase\\\"/\\\"myschema\\\"/\\\"mytable\\\"/\\\"NAME1\\\"\nFROM \\\"mydatabase\\\"/\\\"myschema\\\"/\\\"mytable\\\"\"",
+                result);
     }
 
     @Test
@@ -99,7 +118,7 @@ public class QueryGeneratorTest {
         AllSetting setting = new AllSetting();
         setting.setSchema(createTestSchema());
         String result = QueryUtils.generateNewQuery("Hive", "\"mydatabase\"", "\"myschema\"", "\"mytable\"", setting);
-        System.out.println(result);
+        Assert.assertEquals("\"SELECT \n  mytable.ID1, \n  mytable.NAME1\nFROM mydatabase.myschema.mytable\"", result);
     }
 
     @Test
@@ -107,7 +126,9 @@ public class QueryGeneratorTest {
         AllSetting setting = new AllSetting();
         setting.setSchema(createTestSchema());
         String result = QueryUtils.generateNewQuery("Netezza", "\"mydatabase\"", "\"myschema\"", "\"mytable\"", setting);
-        System.out.println(result);
+        Assert.assertEquals(
+                "\"SELECT \n  mydatabase..\\\"mytable\\\".\\\"ID1\\\", \n  mydatabase..\\\"mytable\\\".\\\"NAME1\\\"\nFROM mydatabase..\\\"mytable\\\"\"",
+                result);
     }
 
     @Test
@@ -116,7 +137,9 @@ public class QueryGeneratorTest {
         setting.setDriverClass("net.sourceforge.jtds.jdbc.Driver");
         setting.setSchema(createTestSchema());
         String result = QueryUtils.generateNewQuery("General JDBC", null, null, "context.mytable", setting);
-        System.out.println(result);
+        Assert.assertEquals(
+                "\"SELECT \n  [\"+context.mytable+\"].[ID1], \n  [\"+context.mytable+\"].[NAME1]\nFROM [\"+context.mytable+\"]\"",
+                result);
     }
 
     @Test
