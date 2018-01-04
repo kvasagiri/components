@@ -931,14 +931,14 @@ public class DBTestUtils {
         return "select * from ALL_TYPES";
     }
 
-    public static void testMetadata(List<Field> columns, boolean allString) {
+    public static void testMetadata(List<Field> columns, boolean dataprep) {
         Schema.Field field = columns.get(0);
 
         assertEquals("ID", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
-        assertEquals(allString ? Schema.Type.STRING : Schema.Type.INT, AvroUtils.unwrapIfNullable(field.schema()).getType());
-        assertEquals(java.sql.Types.INTEGER, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
+        assertEquals(dataprep ? Schema.Type.STRING : Schema.Type.INT, AvroUtils.unwrapIfNullable(field.schema()).getType());
+        assertEquals(dataprep ? java.sql.Types.INTEGER : "INTEGER", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
-        assertEquals(10, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
+        assertEquals(dataprep ? 10 : null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PATTERN));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DEFAULT));
@@ -947,8 +947,8 @@ public class DBTestUtils {
 
         assertEquals("NAME", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
         assertEquals(Schema.Type.STRING, AvroUtils.unwrapIfNullable(field.schema()).getType());
-        assertEquals(java.sql.Types.VARCHAR, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
-        assertEquals(8, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
+        assertEquals(dataprep ? java.sql.Types.VARCHAR : "VARCHAR", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
+        assertEquals(dataprep ? 8 : "8", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PATTERN));

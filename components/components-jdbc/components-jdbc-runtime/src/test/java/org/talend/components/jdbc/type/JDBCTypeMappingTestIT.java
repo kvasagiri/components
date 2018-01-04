@@ -31,6 +31,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.runtime.Reader;
+import org.talend.components.api.container.DefaultComponentRuntimeContainerImpl;
+import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.jdbc.ComponentConstants;
 import org.talend.components.jdbc.common.DBTestUtils;
 import org.talend.components.jdbc.runtime.JDBCSource;
 import org.talend.components.jdbc.runtime.JdbcRuntimeUtils;
@@ -81,7 +84,16 @@ public class JDBCTypeMappingTestIT {
 
         JDBCSource source = DBTestUtils.createCommonJDBCSource(properties);
 
-        Schema schema = source.getEndpointSchema(null, "TEST");
+        RuntimeContainer container = new DefaultComponentRuntimeContainerImpl() {
+            @Override
+            public String getCurrentComponentId() {
+                return "tJDBCInput1";
+            }
+        };
+        java.net.URL mappings_url = this.getClass().getResource("/mappings");
+        container.setComponentData(container.getCurrentComponentId(), ComponentConstants.MAPPING_URL_SUBFIX, mappings_url);
+        
+        Schema schema = source.getEndpointSchema(container, "TEST");
         assertEquals("TEST", schema.getName().toUpperCase());
         List<Field> columns = schema.getFields();
         testMetadata(columns);
@@ -93,9 +105,9 @@ public class JDBCTypeMappingTestIT {
 
         assertEquals("C1", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
         assertEquals(AvroUtils._int(), AvroUtils.unwrapIfNullable(field.schema()));
-        assertEquals(java.sql.Types.INTEGER, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
+        assertEquals("INTEGER", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
-        // assertEquals(10, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
+        // assertEquals("10", field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PATTERN));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DEFAULT));
@@ -104,9 +116,9 @@ public class JDBCTypeMappingTestIT {
 
         assertEquals("C2", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
         assertEquals(AvroUtils._short(), AvroUtils.unwrapIfNullable(field.schema()));
-        assertEquals(java.sql.Types.SMALLINT, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
+        assertEquals("SMALLINT", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
-        // assertEquals(5, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
+        // assertEquals("5", field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PATTERN));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DEFAULT));
@@ -115,9 +127,9 @@ public class JDBCTypeMappingTestIT {
 
         assertEquals("C3", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
         assertEquals(AvroUtils._long(), AvroUtils.unwrapIfNullable(field.schema()));
-        assertEquals(java.sql.Types.BIGINT, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
+        assertEquals("BIGINT", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
-        // assertEquals(19, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
+        // assertEquals("19", field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PATTERN));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DEFAULT));
@@ -126,8 +138,8 @@ public class JDBCTypeMappingTestIT {
 
         assertEquals("C4", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
         // assertEquals(AvroUtils._float(), AvroUtils.unwrapIfNullable(field.schema()));
-        // assertEquals(java.sql.Types.REAL, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
-        assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
+        assertEquals("REAL", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
+        assertEquals("23", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
         // assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PATTERN));
@@ -137,7 +149,7 @@ public class JDBCTypeMappingTestIT {
 
         assertEquals("C5", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
         assertEquals(AvroUtils._double(), AvroUtils.unwrapIfNullable(field.schema()));
-        assertEquals(java.sql.Types.DOUBLE, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
+        assertEquals("DOUBLE", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
@@ -159,10 +171,10 @@ public class JDBCTypeMappingTestIT {
 
         assertEquals("C7", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
         assertEquals(AvroUtils._decimal(), AvroUtils.unwrapIfNullable(field.schema()));
-        assertEquals(java.sql.Types.DECIMAL, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
-        assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
-        assertEquals(10, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
-        assertEquals(2, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
+        assertEquals("DECIMAL", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
+        assertEquals("10", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
+        assertEquals("2", field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
+        assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PATTERN));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DEFAULT));
 
@@ -171,9 +183,9 @@ public class JDBCTypeMappingTestIT {
         assertEquals("C8", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
         assertEquals(AvroUtils._decimal(), AvroUtils.unwrapIfNullable(field.schema()));
         // assertEquals(java.sql.Types.NUMERIC, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
-        assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
-        assertEquals(10, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
-        assertEquals(2, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
+        assertEquals("10", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
+        assertEquals("2", field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
+        assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PATTERN));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DEFAULT));
 
@@ -192,8 +204,8 @@ public class JDBCTypeMappingTestIT {
 
         assertEquals("C10", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
         assertEquals(AvroUtils._string(), AvroUtils.unwrapIfNullable(field.schema()));
-        assertEquals(java.sql.Types.CHAR, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
-        assertEquals(64, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
+        assertEquals("CHAR", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
+        assertEquals("64", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PATTERN));
@@ -203,7 +215,7 @@ public class JDBCTypeMappingTestIT {
 
         assertEquals("C11", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
         assertEquals(AvroUtils._date(), AvroUtils.unwrapIfNullable(field.schema()));
-        assertEquals(java.sql.Types.DATE, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
+        assertEquals("DATE", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
@@ -214,7 +226,7 @@ public class JDBCTypeMappingTestIT {
 
         assertEquals("C12", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
         assertEquals(AvroUtils._date(), AvroUtils.unwrapIfNullable(field.schema()));
-        assertEquals(java.sql.Types.TIME, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
+        assertEquals("TIME", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
@@ -225,7 +237,7 @@ public class JDBCTypeMappingTestIT {
 
         assertEquals("C13", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
         assertEquals(AvroUtils._date(), AvroUtils.unwrapIfNullable(field.schema()));
-        assertEquals(java.sql.Types.TIMESTAMP, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
+        assertEquals("TIMESTAMP", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
@@ -236,8 +248,8 @@ public class JDBCTypeMappingTestIT {
 
         assertEquals("C14", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
         assertEquals(AvroUtils._string(), AvroUtils.unwrapIfNullable(field.schema()));
-        assertEquals(java.sql.Types.VARCHAR, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
-        assertEquals(64, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
+        assertEquals("VARCHAR", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
+        assertEquals("64", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PATTERN));
@@ -247,8 +259,8 @@ public class JDBCTypeMappingTestIT {
 
         assertEquals("C15", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_COLUMN_NAME));
         assertEquals(AvroUtils._string(), AvroUtils.unwrapIfNullable(field.schema()));
-        assertEquals(java.sql.Types.LONGVARCHAR, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
-        // assertEquals(32700, field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
+        assertEquals("LONG VARCHAR", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_TYPE));
+        // assertEquals("32700", field.getObjectProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PRECISION));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_SCALE));
         assertEquals(null, field.getObjectProp(SchemaConstants.TALEND_COLUMN_PATTERN));

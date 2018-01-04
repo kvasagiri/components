@@ -33,6 +33,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.runtime.Reader;
+import org.talend.components.api.container.DefaultComponentRuntimeContainerImpl;
+import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.jdbc.common.DBTestUtils;
 import org.talend.components.jdbc.runtime.JDBCSource;
@@ -159,7 +161,16 @@ public class JDBCInputTestIT {
 
         JDBCSource source = DBTestUtils.createCommonJDBCSource(properties);
 
-        Schema schema = source.getEndpointSchema(null, "TEST");
+        RuntimeContainer container = new DefaultComponentRuntimeContainerImpl() {
+            @Override
+            public String getCurrentComponentId() {
+                return "tJDBCInput1";
+            }
+        };
+        java.net.URL mappings_url = this.getClass().getResource("/mappings");
+        container.setComponentData(container.getCurrentComponentId(), ComponentConstants.MAPPING_URL_SUBFIX, mappings_url);
+        
+        Schema schema = source.getEndpointSchema(container, "TEST");
         assertEquals("TEST", schema.getName().toUpperCase());
         List<Field> columns = schema.getFields();
         DBTestUtils.testMetadata(columns);

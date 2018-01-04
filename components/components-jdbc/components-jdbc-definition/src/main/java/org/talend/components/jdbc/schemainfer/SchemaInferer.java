@@ -137,75 +137,85 @@ public class SchemaInferer {
     private static Field sqlType2Avro(int size, int scale, int dbtype, boolean nullable, String name, String dbColumnName,
             Object defaultValue, boolean isKey, Dbms mapping, String columnTypeName) {
         MappingType<DbmsType, TalendType> mt = mapping.getDbmsMapping(columnTypeName);
-        TalendType talendType = mt.getDefaultType();
-        DbmsType sourceType = mt.getSourceType();
-
+        
         Field field = null;
-        Schema schema = convertToAvro(talendType);
-        field = wrap(nullable, schema, name);
+        boolean isIgnoreLength = false;
+        boolean isIgnorePrecision = false;
+        
+        if(mt!=null) {
+            TalendType talendType = mt.getDefaultType();
+            DbmsType sourceType = mt.getSourceType();
+            Schema schema = convertToAvro(talendType);
+            field = wrap(nullable, schema, name);
+            
+            isIgnoreLength = sourceType.isIgnoreLength();
+            isIgnorePrecision = sourceType.isIgnorePrecision();
+        } else {
+            field = wrap(nullable, AvroUtils._string(), name);
+        }
 
         switch (dbtype) {
         case java.sql.Types.VARCHAR:
-            setPrecision(field, sourceType.isIgnoreLength(), size);
+            setPrecision(field, isIgnoreLength, size);
             break;
         case java.sql.Types.INTEGER:
-            setPrecision(field, sourceType.isIgnoreLength(), size);
+            setPrecision(field, isIgnoreLength, size);
             break;
         case java.sql.Types.DECIMAL:
-            setPrecision(field, sourceType.isIgnoreLength(), size);
-            setScale(field, sourceType.isIgnorePrecision(), scale);
+            setPrecision(field, isIgnoreLength, size);
+            setScale(field, isIgnorePrecision, scale);
             break;
         case java.sql.Types.BIGINT:
-            setPrecision(field, sourceType.isIgnoreLength(), size);
+            setPrecision(field, isIgnoreLength, size);
             break;
         case java.sql.Types.NUMERIC:
-            setPrecision(field, sourceType.isIgnoreLength(), size);
-            setScale(field, sourceType.isIgnorePrecision(), scale);
+            setPrecision(field, isIgnoreLength, size);
+            setScale(field, isIgnorePrecision, scale);
             break;
         case java.sql.Types.TINYINT:
-            setPrecision(field, sourceType.isIgnoreLength(), size);
+            setPrecision(field, isIgnoreLength, size);
             break;
         case java.sql.Types.DOUBLE:
-            setPrecision(field, sourceType.isIgnoreLength(), size);
-            setScale(field, sourceType.isIgnorePrecision(), scale);
+            setPrecision(field, isIgnoreLength, size);
+            setScale(field, isIgnorePrecision, scale);
             break;
         case java.sql.Types.FLOAT:
-            setPrecision(field, sourceType.isIgnoreLength(), size);
-            setScale(field, sourceType.isIgnorePrecision(), scale);
+            setPrecision(field, isIgnoreLength, size);
+            setScale(field, isIgnorePrecision, scale);
             break;
         case java.sql.Types.DATE:
-            setPrecision(field, sourceType.isIgnoreLength(), size);
-            setScale(field, sourceType.isIgnorePrecision(), scale);
+            setPrecision(field, isIgnoreLength, size);
+            setScale(field, isIgnorePrecision, scale);
             field.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "yyyy-MM-dd");
             break;
         case java.sql.Types.TIME:
-            setPrecision(field, sourceType.isIgnoreLength(), size);
-            setScale(field, sourceType.isIgnorePrecision(), scale);
+            setPrecision(field, isIgnoreLength, size);
+            setScale(field, isIgnorePrecision, scale);
             field.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "HH:mm:ss");
             break;
         case java.sql.Types.TIMESTAMP:
-            setPrecision(field, sourceType.isIgnoreLength(), size);
-            setScale(field, sourceType.isIgnorePrecision(), scale);
+            setPrecision(field, isIgnoreLength, size);
+            setScale(field, isIgnorePrecision, scale);
             field.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "yyyy-MM-dd HH:mm:ss.SSS");
             break;
         case java.sql.Types.BOOLEAN:
             break;
         case java.sql.Types.REAL:
-            setPrecision(field, sourceType.isIgnoreLength(), size);
-            setScale(field, sourceType.isIgnorePrecision(), scale);
+            setPrecision(field, isIgnoreLength, size);
+            setScale(field, isIgnorePrecision, scale);
             break;
         case java.sql.Types.SMALLINT:
-            setPrecision(field, sourceType.isIgnoreLength(), size);
+            setPrecision(field, isIgnoreLength, size);
             break;
         case java.sql.Types.LONGVARCHAR:
-            setPrecision(field, sourceType.isIgnoreLength(), size);
+            setPrecision(field, isIgnoreLength, size);
             break;
         case java.sql.Types.CHAR:
-            setPrecision(field, sourceType.isIgnoreLength(), size);
+            setPrecision(field, isIgnoreLength, size);
             break;
         default:
-            setPrecision(field, sourceType.isIgnoreLength(), size);
-            setScale(field, sourceType.isIgnorePrecision(), scale);
+            setPrecision(field, isIgnoreLength, size);
+            setScale(field, isIgnorePrecision, scale);
             break;
         }
 

@@ -280,6 +280,8 @@ public class TJDBCRowProperties extends FixedConnectorsComponentProperties imple
 
         setting.setUseDataSource(this.useDataSource.getValue());
         setting.setDataSource(this.dataSource.getValue());
+        
+        setting.setSchema(main.schema.getValue());
 
         return setting;
     }
