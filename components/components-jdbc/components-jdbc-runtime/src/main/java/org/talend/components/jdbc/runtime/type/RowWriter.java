@@ -109,12 +109,6 @@ public class RowWriter {
         }
     }
 
-    private void writeDebugColumnContent(String content, boolean textEnclose) {
-        if (debug) {
-            debugUtil.writeColumn(content, textEnclose);
-        }
-    }
-
     class TypeWriter {
 
         protected final PreparedStatement statement;
@@ -148,7 +142,9 @@ public class RowWriter {
                 writeDebugColumnNullContent();
             } else {
                 statement.setString(statementIndex, (String) inputValue);
-                writeDebugColumnContent((String) inputValue, true);
+                if (debug) {
+                    debugUtil.writeColumn((String) inputValue, true);
+                }
             }
         }
     }
@@ -166,7 +162,9 @@ public class RowWriter {
                 writeDebugColumnNullContent();
             } else {
                 statement.setInt(statementIndex, (int) inputValue);
-                writeDebugColumnContent(inputValue.toString(), false);
+                if (debug) {
+                    debugUtil.writeColumn(inputValue.toString(), false);
+                }
             }
         }
 
@@ -188,7 +186,9 @@ public class RowWriter {
                     writeDebugColumnNullContent();
                 } else {
                     statement.setTimestamp(statementIndex, new Timestamp((long) inputValue));
-                    writeDebugColumnContent(new Timestamp((long) inputValue).toString(), false);
+                    if (debug) {
+                        debugUtil.writeColumn(new Timestamp((long) inputValue).toString(), false);
+                    }
                 }
             }
         }
@@ -209,7 +209,9 @@ public class RowWriter {
             } else {
                 // TODO check if it's right
                 statement.setBigDecimal(statementIndex, (BigDecimal) inputValue);
-                writeDebugColumnContent(inputValue.toString(), false);
+                if (debug) {
+                    debugUtil.writeColumn(inputValue.toString(), false);
+                }
             }
         }
 
@@ -228,7 +230,9 @@ public class RowWriter {
                 writeDebugColumnNullContent();
             } else {
                 statement.setLong(statementIndex, (long) inputValue);
-                writeDebugColumnContent(inputValue.toString(), false);
+                if (debug) {
+                    debugUtil.writeColumn(inputValue.toString(), false);
+                }
             }
         }
 
@@ -247,7 +251,9 @@ public class RowWriter {
                 writeDebugColumnNullContent();
             } else {
                 statement.setDouble(statementIndex, (double) inputValue);
-                writeDebugColumnContent(inputValue.toString(), false);
+                if (debug) {
+                    debugUtil.writeColumn(inputValue.toString(), false);
+                }
             }
         }
 
@@ -266,7 +272,9 @@ public class RowWriter {
                 writeDebugColumnNullContent();
             } else {
                 statement.setFloat(statementIndex, (float) inputValue);
-                writeDebugColumnContent(inputValue.toString(), false);
+                if (debug) {
+                    debugUtil.writeColumn(inputValue.toString(), false);
+                }
             }
         }
 
@@ -285,7 +293,9 @@ public class RowWriter {
                 writeDebugColumnNullContent();
             } else {
                 statement.setBoolean(statementIndex, (boolean) inputValue);
-                writeDebugColumnContent(inputValue.toString(), false);
+                if (debug) {
+                    debugUtil.writeColumn(inputValue.toString(), false);
+                }
             }
         }
 
@@ -304,7 +314,9 @@ public class RowWriter {
                 writeDebugColumnNullContent();
             } else {
                 statement.setShort(statementIndex, ((Number) inputValue).shortValue());
-                writeDebugColumnContent(inputValue.toString(), false);
+                if (debug) {
+                    debugUtil.writeColumn(inputValue.toString(), false);
+                }
             }
         }
 
@@ -326,7 +338,9 @@ public class RowWriter {
                 // know why, so change here
                 // statement.setByte(statementIndex, (byte) inputValue);
                 statement.setByte(statementIndex, ((Number) inputValue).byteValue());
-                writeDebugColumnContent(inputValue.toString(), false);
+                if (debug) {
+                    debugUtil.writeColumn(inputValue.toString(), false);
+                }
             }
         }
 
@@ -345,7 +359,9 @@ public class RowWriter {
                 writeDebugColumnNullContent();
             } else {
                 statement.setInt(statementIndex, (char) inputValue);
-                writeDebugColumnContent(inputValue.toString(), true);
+                if (debug) {
+                    debugUtil.writeColumn(inputValue.toString(), true);
+                }
             }
         }
 
@@ -376,7 +392,9 @@ public class RowWriter {
                 writeDebugColumnNullContent();
             } else {
                 statement.setObject(statementIndex, inputValue);
-                writeDebugColumnContent(inputValue.toString(), false);
+                if (debug) {
+                    debugUtil.writeColumn(inputValue.toString(), false);
+                }
             }
         }
 
