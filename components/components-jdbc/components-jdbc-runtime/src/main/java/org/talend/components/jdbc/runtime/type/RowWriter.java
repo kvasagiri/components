@@ -19,8 +19,23 @@ public class RowWriter {
 
     private TypeWriter[] typeWriters;
 
+    private final boolean debug;
+
+    private DebugUtil debugUtil;
+
     public RowWriter(List<JDBCSQLBuilder.Column> columnList, Schema inputSchema, Schema componentSchema,
             PreparedStatement statement) {
+        this(columnList, inputSchema, componentSchema, statement, false, null);
+    }
+
+    public RowWriter(List<JDBCSQLBuilder.Column> columnList, Schema inputSchema, Schema componentSchema,
+            PreparedStatement statement, boolean debug, String sql) {
+        this.debug = debug;
+
+        if (debug) {
+            debugUtil = new DebugUtil(sql);
+        }
+
         List<TypeWriter> writers = new ArrayList<TypeWriter>();
 
         int statementIndex = 0;
@@ -72,9 +87,31 @@ public class RowWriter {
         typeWriters = writers.toArray(new TypeWriter[0]);
     }
 
-    public void write(IndexedRecord input) throws SQLException {
+    public String write(IndexedRecord input) throws SQLException {
+        if (debug) {
+            debugUtil.writeHead();
+        }
+
         for (TypeWriter writer : typeWriters) {
             writer.write(input);
+        }
+
+        if (debug) {
+            return debugUtil.getSQL();
+        }
+
+        return null;
+    }
+
+    private void writeDebugColumnNullContent() {
+        if (debug) {
+            debugUtil.writeColumn(null, false);
+        }
+    }
+
+    private void writeDebugColumnContent(String content, boolean textEnclose) {
+        if (debug) {
+            debugUtil.writeColumn(content, textEnclose);
         }
     }
 
@@ -108,11 +145,12 @@ public class RowWriter {
             Object inputValue = input.get(inputValueLocation);
             if (inputValue == null) {
                 statement.setNull(statementIndex, java.sql.Types.VARCHAR);
+                writeDebugColumnNullContent();
             } else {
                 statement.setString(statementIndex, (String) inputValue);
+                writeDebugColumnContent((String) inputValue, true);
             }
         }
-
     }
 
     class IntTypeWriter extends TypeWriter {
@@ -125,8 +163,10 @@ public class RowWriter {
             Object inputValue = input.get(inputValueLocation);
             if (inputValue == null) {
                 statement.setNull(statementIndex, java.sql.Types.INTEGER);
+                writeDebugColumnNullContent();
             } else {
                 statement.setInt(statementIndex, (int) inputValue);
+                writeDebugColumnContent(inputValue.toString(), false);
             }
         }
 
@@ -145,8 +185,10 @@ public class RowWriter {
             } else {
                 if (inputValue instanceof Date) {
                     statement.setTimestamp(statementIndex, new Timestamp(((Date) inputValue).getTime()));
+                    writeDebugColumnNullContent();
                 } else {
                     statement.setTimestamp(statementIndex, new Timestamp((long) inputValue));
+                    writeDebugColumnContent(new Timestamp((long) inputValue).toString(), false);
                 }
             }
         }
@@ -163,9 +205,11 @@ public class RowWriter {
             Object inputValue = input.get(inputValueLocation);
             if (inputValue == null) {
                 statement.setNull(statementIndex, java.sql.Types.DECIMAL);
+                writeDebugColumnNullContent();
             } else {
                 // TODO check if it's right
                 statement.setBigDecimal(statementIndex, (BigDecimal) inputValue);
+                writeDebugColumnContent(inputValue.toString(), false);
             }
         }
 
@@ -181,8 +225,10 @@ public class RowWriter {
             Object inputValue = input.get(inputValueLocation);
             if (inputValue == null) {
                 statement.setNull(statementIndex, java.sql.Types.INTEGER);
+                writeDebugColumnNullContent();
             } else {
                 statement.setLong(statementIndex, (long) inputValue);
+                writeDebugColumnContent(inputValue.toString(), false);
             }
         }
 
@@ -198,8 +244,10 @@ public class RowWriter {
             Object inputValue = input.get(inputValueLocation);
             if (inputValue == null) {
                 statement.setNull(statementIndex, java.sql.Types.DOUBLE);
+                writeDebugColumnNullContent();
             } else {
                 statement.setDouble(statementIndex, (double) inputValue);
+                writeDebugColumnContent(inputValue.toString(), false);
             }
         }
 
@@ -215,8 +263,10 @@ public class RowWriter {
             Object inputValue = input.get(inputValueLocation);
             if (inputValue == null) {
                 statement.setNull(statementIndex, java.sql.Types.FLOAT);
+                writeDebugColumnNullContent();
             } else {
                 statement.setFloat(statementIndex, (float) inputValue);
+                writeDebugColumnContent(inputValue.toString(), false);
             }
         }
 
@@ -232,8 +282,10 @@ public class RowWriter {
             Object inputValue = input.get(inputValueLocation);
             if (inputValue == null) {
                 statement.setNull(statementIndex, java.sql.Types.BOOLEAN);
+                writeDebugColumnNullContent();
             } else {
                 statement.setBoolean(statementIndex, (boolean) inputValue);
+                writeDebugColumnContent(inputValue.toString(), false);
             }
         }
 
@@ -249,8 +301,10 @@ public class RowWriter {
             Object inputValue = input.get(inputValueLocation);
             if (inputValue == null) {
                 statement.setNull(statementIndex, java.sql.Types.INTEGER);
+                writeDebugColumnNullContent();
             } else {
                 statement.setShort(statementIndex, ((Number) inputValue).shortValue());
+                writeDebugColumnContent(inputValue.toString(), false);
             }
         }
 
@@ -266,10 +320,13 @@ public class RowWriter {
             Object inputValue = input.get(inputValueLocation);
             if (inputValue == null) {
                 statement.setNull(statementIndex, java.sql.Types.INTEGER);
+                writeDebugColumnNullContent();
             } else {
-                //please see org.talend.codegen.enforcer.IncomingSchemaEnforcer, it will convert byte(Byte) to int(Integer), not know why, so change here
-                //statement.setByte(statementIndex, (byte) inputValue);
+                // please see org.talend.codegen.enforcer.IncomingSchemaEnforcer, it will convert byte(Byte) to int(Integer), not
+                // know why, so change here
+                // statement.setByte(statementIndex, (byte) inputValue);
                 statement.setByte(statementIndex, ((Number) inputValue).byteValue());
+                writeDebugColumnContent(inputValue.toString(), false);
             }
         }
 
@@ -285,8 +342,10 @@ public class RowWriter {
             Object inputValue = input.get(inputValueLocation);
             if (inputValue == null) {
                 statement.setNull(statementIndex, java.sql.Types.CHAR);
+                writeDebugColumnNullContent();
             } else {
                 statement.setInt(statementIndex, (char) inputValue);
+                writeDebugColumnContent(inputValue.toString(), true);
             }
         }
 
@@ -314,8 +373,10 @@ public class RowWriter {
             Object inputValue = input.get(inputValueLocation);
             if (inputValue == null) {
                 statement.setNull(statementIndex, java.sql.Types.JAVA_OBJECT);
+                writeDebugColumnNullContent();
             } else {
                 statement.setObject(statementIndex, inputValue);
+                writeDebugColumnContent(inputValue.toString(), false);
             }
         }
 

@@ -66,7 +66,7 @@ public class JDBCOutputDeleteWriter extends JDBCOutputWriter {
                 }
             }
 
-            rowWriter = new RowWriter(columnList4Statement, inputSchema, componentSchema, statement);
+            rowWriter = new RowWriter(columnList4Statement, inputSchema, componentSchema, statement, setting.getDebug(), sql);
         }
     }
 
@@ -80,7 +80,10 @@ public class JDBCOutputDeleteWriter extends JDBCOutputWriter {
         initRowWriterIfNot(columnList, inputSchema, componentSchema);
 
         try {
-            rowWriter.write(input);
+            String sql_fact = rowWriter.write(input);
+            if (sql_fact != null) {
+                runtime.setComponentData(runtime.getCurrentComponentId(), QUERY_KEY, sql_fact);
+            }
         } catch (SQLException e) {
             throw new ComponentException(e);
         }

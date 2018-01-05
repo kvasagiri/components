@@ -50,6 +50,8 @@ import org.talend.daikon.avro.converter.IndexedRecordConverter;
 abstract public class JDBCOutputWriter implements WriterWithFeedback<Result, IndexedRecord, IndexedRecord> {
 
     private transient static final Logger LOG = LoggerFactory.getLogger(JDBCOutputWriter.class);
+    
+    protected static final String QUERY_KEY = CommonUtils.getStudioNameFromProperty(ComponentConstants.RETURN_QUERY);
 
     private WriteOperation<Result> writeOperation;
 

@@ -115,7 +115,8 @@ public class JDBCOutputInsertOrUpdateWriter extends JDBCOutputWriter {
                 }
             }
 
-            rowWriter4Update = new RowWriter(columnList4Statement, inputSchema, componentSchema, statementUpdate);
+            rowWriter4Update = new RowWriter(columnList4Statement, inputSchema, componentSchema, statementUpdate,
+                    setting.getDebug(), sqlUpdate);
         }
 
         if (rowWriter4Insert == null) {
@@ -130,7 +131,8 @@ public class JDBCOutputInsertOrUpdateWriter extends JDBCOutputWriter {
                 }
             }
 
-            rowWriter4Insert = new RowWriter(columnList4Statement, inputSchema, componentSchema, statementInsert);
+            rowWriter4Insert = new RowWriter(columnList4Statement, inputSchema, componentSchema, statementInsert,
+                    setting.getDebug(), sqlInsert);
         }
     }
 
@@ -161,7 +163,10 @@ public class JDBCOutputInsertOrUpdateWriter extends JDBCOutputWriter {
         try {
             if (dataExists) {// do update
                 try {
-                    rowWriter4Update.write(input);
+                    String sql_fact = rowWriter4Update.write(input);
+                    if (sql_fact != null) {
+                        runtime.setComponentData(runtime.getCurrentComponentId(), QUERY_KEY, sql_fact);
+                    }
                 } catch (SQLException e) {
                     throw new ComponentException(e);
                 }
@@ -169,7 +174,10 @@ public class JDBCOutputInsertOrUpdateWriter extends JDBCOutputWriter {
                 updateCount += execute(input, statementUpdate);
             } else {// do insert
                 try {
-                    rowWriter4Insert.write(input);
+                    String sql_fact = rowWriter4Insert.write(input);
+                    if (sql_fact != null) {
+                        runtime.setComponentData(runtime.getCurrentComponentId(), QUERY_KEY, sql_fact);
+                    }
                 } catch (SQLException e) {
                     throw new ComponentException(e);
                 }
@@ -181,7 +189,7 @@ public class JDBCOutputInsertOrUpdateWriter extends JDBCOutputWriter {
                 throw new ComponentException(e);
             } else {
                 result.totalCount++;
-                
+
                 System.err.println(e.getMessage());
                 LOG.warn(e.getMessage());
             }

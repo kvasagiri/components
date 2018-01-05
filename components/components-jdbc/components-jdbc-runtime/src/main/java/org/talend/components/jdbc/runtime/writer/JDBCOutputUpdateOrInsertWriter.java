@@ -90,7 +90,7 @@ public class JDBCOutputUpdateOrInsertWriter extends JDBCOutputWriter {
                 }
             }
 
-            rowWriter4Update = new RowWriter(columnList4Statement, inputSchema, componentSchema, statementUpdate);
+            rowWriter4Update = new RowWriter(columnList4Statement, inputSchema, componentSchema, statementUpdate, setting.getDebug(), sqlUpdate);
         }
 
         if (rowWriter4Insert == null) {
@@ -105,7 +105,7 @@ public class JDBCOutputUpdateOrInsertWriter extends JDBCOutputWriter {
                 }
             }
 
-            rowWriter4Insert = new RowWriter(columnList4Statement, inputSchema, componentSchema, statementInsert);
+            rowWriter4Insert = new RowWriter(columnList4Statement, inputSchema, componentSchema, statementInsert, setting.getDebug(), sqlInsert);
         }
     }
 
@@ -120,7 +120,10 @@ public class JDBCOutputUpdateOrInsertWriter extends JDBCOutputWriter {
         initRowWriterIfNot(columnList, inputSchema, componentSchema);
 
         try {
-            rowWriter4Update.write(input);
+            String sql_fact = rowWriter4Update.write(input);
+            if (sql_fact != null) {
+                runtime.setComponentData(runtime.getCurrentComponentId(), QUERY_KEY, sql_fact);
+            }
         } catch (SQLException e) {
             throw new ComponentException(e);
         }
@@ -133,7 +136,10 @@ public class JDBCOutputUpdateOrInsertWriter extends JDBCOutputWriter {
             boolean noDataUpdate = (count == 0);
 
             if (noDataUpdate) {
-                rowWriter4Insert.write(input);
+                String sql_fact = rowWriter4Insert.write(input);
+                if (sql_fact != null) {
+                    runtime.setComponentData(runtime.getCurrentComponentId(), QUERY_KEY, sql_fact);
+                }
 
                 insertCount += execute(input, statementInsert);
             } else {
