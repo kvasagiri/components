@@ -12,6 +12,9 @@
 // ============================================================================
 package org.talend.components.adapter.beam.kv;
 
+import static org.talend.components.adapter.beam.kv.KeyValueRecordConstant.RECORD_KEY_PREFIX;
+import static org.talend.components.adapter.beam.kv.KeyValueRecordConstant.RECORD_VALUE_PREFIX;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -26,6 +29,8 @@ import org.apache.avro.Schema.Type;
 import org.apache.avro.SchemaBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.talend.daikon.avro.AvroUtils;
+import org.talend.daikon.exception.TalendRuntimeException;
+import org.talend.daikon.exception.error.CommonErrorCodes;
 
 public class SchemaGeneratorUtils {
 
@@ -123,11 +128,12 @@ public class SchemaGeneratorUtils {
             if (retrieveFieldFromJsonPath(inputSchema, fieldPath) != null) {
                 // If the field exist in the inputSchema, copy its schema
                 Field oldField = retrieveFieldFromJsonPath(inputSchema, fieldPath);
-                tree.get(currentParrentValue)
-                        .add(new Field(currentElement, oldField.schema(), oldField.doc(), oldField.defaultVal()));
+                tree.get(currentParrentValue).add(
+                        new Field(currentElement, oldField.schema(), oldField.doc(), oldField.defaultVal()));
             } else {
                 // If the field does not exist in the inputSchema, create a new element as a String Field
-                Schema outputHierarchicalSchema = SchemaBuilder.builder().unionOf().nullType().and().stringType().endUnion();
+                Schema outputHierarchicalSchema =
+                        SchemaBuilder.builder().unionOf().nullType().and().stringType().endUnion();
                 tree.get(currentParrentValue).add(new Field(currentElement, outputHierarchicalSchema, "", ""));
             }
         }
@@ -141,7 +147,8 @@ public class SchemaGeneratorUtils {
      * @param elementToGenerate the current part of the tree that will be generated.
      * @return
      */
-    public static Schema convertTreeToAvroSchema(Map<String, Set<Object>> tree, String elementToGenerate, Schema inputSchema) {
+    public static Schema convertTreeToAvroSchema(Map<String, Set<Object>> tree, String elementToGenerate,
+            Schema inputSchema) {
         List<Schema.Field> fieldList = new ArrayList<>();
         if (tree.containsKey(elementToGenerate)) {
             for (Object treeElement : tree.get(elementToGenerate)) {
@@ -157,11 +164,13 @@ public class SchemaGeneratorUtils {
                     // field element, adding it to the field list.
                     fieldList.add((Field) treeElement);
                 } else {
-                    // throw error
+                    TalendRuntimeException.build(CommonErrorCodes.UNEXPECTED_ARGUMENT).setAndThrow(
+                            "Should be only String or Field", treeElement.getClass().toString());
                 }
             }
         } else {
-            // Throw exception
+            TalendRuntimeException.build(CommonErrorCodes.UNEXPECTED_ARGUMENT).setAndThrow(tree.keySet().toString(),
+                    elementToGenerate);
         }
 
         try {
@@ -173,8 +182,8 @@ public class SchemaGeneratorUtils {
             } else if (retrieveFieldFromJsonPath(inputSchema, elementToGenerate) != null) {
                 // If the field exist in the inputSchema, copy its schema
                 Schema currentSchema = retrieveFieldFromJsonPath(inputSchema, elementToGenerate).schema();
-                return Schema.createRecord(currentSchema.getName(), currentSchema.getDoc(), currentSchema.getNamespace(),
-                        currentSchema.isError(), fieldList);
+                return Schema.createRecord(currentSchema.getName(), currentSchema.getDoc(),
+                        currentSchema.getNamespace(), currentSchema.isError(), fieldList);
             } else {
                 return Schema.createRecord(fieldList);
             }
@@ -197,8 +206,8 @@ public class SchemaGeneratorUtils {
         }
         Schema outputSchema = extractValues(inputSchema, keyPaths, "");
         if (outputSchema == null) {
-            return Schema.createRecord("value_" + inputSchema.getName(), inputSchema.getDoc(), inputSchema.getNamespace(),
-                    inputSchema.isError(), new ArrayList<Schema.Field>());
+            return Schema.createRecord("value_" + inputSchema.getName(), inputSchema.getDoc(),
+                    inputSchema.getNamespace(), inputSchema.isError(), new ArrayList<Schema.Field>());
         } else {
             return outputSchema;
         }
@@ -236,8 +245,8 @@ public class SchemaGeneratorUtils {
         }
         if (fieldList.size() > 0) {
             try {
-                return Schema.createRecord("value_" + inputSchema.getName(), inputSchema.getDoc(), inputSchema.getNamespace(),
-                        inputSchema.isError(), fieldList);
+                return Schema.createRecord("value_" + inputSchema.getName(), inputSchema.getDoc(),
+                        inputSchema.getNamespace(), inputSchema.isError(), fieldList);
             } catch (AvroRuntimeException e) {
                 // this will be throw if we are trying to get the name of an anonymous type
                 return Schema.createRecord(fieldList);
@@ -258,9 +267,9 @@ public class SchemaGeneratorUtils {
         List<Schema.Field> fieldList = new ArrayList<>();
 
         Schema keySchema = extractKeys(inputSchema, keyPaths);
-        fieldList.add(new Field("key", keySchema, "", ""));
+        fieldList.add(new Field(RECORD_KEY_PREFIX, keySchema, "", ""));
         Schema valueSchema = extractValues(inputSchema, keyPaths);
-        fieldList.add(new Field("value", valueSchema, "", ""));
+        fieldList.add(new Field(RECORD_VALUE_PREFIX, valueSchema, "", ""));
 
         return Schema.createRecord(fieldList);
     }
@@ -280,8 +289,8 @@ public class SchemaGeneratorUtils {
         for (Field field : keySchema.getFields()) {
             if (valueSchema.getField(field.name()) != null) {
                 // element in both key and value => create sub element
-                fieldList.add(new Field(field.name(), mergeKeyValues(field.schema(), valueSchema.getField(field.name()).schema()),
-                        "", ""));
+                fieldList.add(new Field(field.name(),
+                        mergeKeyValues(field.schema(), valueSchema.getField(field.name()).schema()), "", ""));
             } else {
                 // Element only present in the key
                 fieldList.add(new Field(field.name(), field.schema(), field.doc(), field.defaultVal()));
@@ -296,8 +305,8 @@ public class SchemaGeneratorUtils {
         }
         if (fieldList.size() > 0) {
             try {
-                return Schema.createRecord(keySchema.getName(), keySchema.getDoc(), keySchema.getNamespace(), keySchema.isError(),
-                        fieldList);
+                return Schema.createRecord(keySchema.getName(), keySchema.getDoc(), keySchema.getNamespace(),
+                        keySchema.isError(), fieldList);
             } catch (AvroRuntimeException e) {
                 // this will be throw if we are trying to get the name of an anonymous type
                 return Schema.createRecord(fieldList);
@@ -314,7 +323,8 @@ public class SchemaGeneratorUtils {
      * @return an avro Schema resulting in a merge of the key and the value part of the KV schema
      */
     public static Schema mergeKeyValues(Schema inputSchema) {
-        return mergeKeyValues(inputSchema.getField("key").schema(), inputSchema.getField("value").schema());
+        return mergeKeyValues(inputSchema.getField(RECORD_KEY_PREFIX).schema(),
+                inputSchema.getField(RECORD_VALUE_PREFIX).schema());
     }
 
     private static Schema getUnwrappedSchema(Field field) {

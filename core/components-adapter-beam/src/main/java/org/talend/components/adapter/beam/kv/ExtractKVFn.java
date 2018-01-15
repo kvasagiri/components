@@ -18,35 +18,26 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.values.KV;
-import org.talend.daikon.avro.AvroRegistry;
-import org.talend.daikon.avro.converter.IndexedRecordConverter;
 
-public class ExtractKVFn extends DoFn<Object, KV<IndexedRecord, IndexedRecord>> {
+public class ExtractKVFn extends DoFn<IndexedRecord, KV<IndexedRecord, IndexedRecord>> {
 
     private List<String> keyList = null;
-
-    private transient IndexedRecordConverter converter = null;
 
     private transient Schema keySchema = null;
 
     private transient Schema valueSchema = null;
 
-    
     public ExtractKVFn(List<String> keyList) {
         this.keyList = keyList;
     }
-    
+
     @Setup
     public void setup() throws Exception {
     }
 
     @ProcessElement
     public void processElement(ProcessContext context) {
-        if (converter == null) {
-            AvroRegistry registry = new AvroRegistry();
-            converter = registry.createIndexedRecordConverter(context.element().getClass());
-        }
-        IndexedRecord inputRecord = (IndexedRecord) converter.convertToAvro(context.element());
+        IndexedRecord inputRecord = context.element();
         if (keySchema == null) {
             keySchema = SchemaGeneratorUtils.extractKeys(inputRecord.getSchema(), keyList);
         }

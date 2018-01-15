@@ -12,6 +12,9 @@
 // ============================================================================
 package org.talend.components.adapter.beam.kv;
 
+import static org.talend.components.adapter.beam.kv.KeyValueRecordConstant.RECORD_KEY_PREFIX;
+import static org.talend.components.adapter.beam.kv.KeyValueRecordConstant.RECORD_VALUE_PREFIX;
+
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.Schema.Type;
@@ -45,7 +48,8 @@ public class KeyValueUtils {
                     // so we need to get the true sub-schema
                     Schema inputChildSchema = getUnwrappedSchema(inputSchema.getField(field.name()));
                     Schema outputChildSchema = getUnwrappedSchema(outputSchema.getField(field.name()));
-                    if (inputChildSchema.getType().equals(Type.RECORD) && outputChildSchema.getType().equals(Type.RECORD)) {
+                    if (inputChildSchema.getType().equals(Type.RECORD)
+                            && outputChildSchema.getType().equals(Type.RECORD)) {
                         Object childRecord = extractIndexedRecord((IndexedRecord) inputValue, outputChildSchema);
                         outputRecord.set(field.name(), childRecord);
                     }
@@ -68,14 +72,14 @@ public class KeyValueUtils {
      * @return the key-value
      */
     public static IndexedRecord transformToKV(IndexedRecord record, Schema kvSchema) {
-        Schema keySchema = kvSchema.getField("key").schema();
+        Schema keySchema = kvSchema.getField(RECORD_KEY_PREFIX).schema();
         IndexedRecord keyIndexRecord = extractIndexedRecord(record, keySchema);
-        Schema valueSchema = kvSchema.getField("value").schema();
+        Schema valueSchema = kvSchema.getField(RECORD_VALUE_PREFIX).schema();
         IndexedRecord valueIndexRecord = extractIndexedRecord(record, valueSchema);
 
         GenericRecordBuilder outputRecord = new GenericRecordBuilder(kvSchema);
-        outputRecord.set("key", keyIndexRecord);
-        outputRecord.set("value", valueIndexRecord);
+        outputRecord.set(RECORD_KEY_PREFIX, keyIndexRecord);
+        outputRecord.set(RECORD_VALUE_PREFIX, valueIndexRecord);
 
         return outputRecord.build();
     }
@@ -88,7 +92,8 @@ public class KeyValueUtils {
      * @param outputSchema a schema
      * @return a merged IndexedRecord
      */
-    public static IndexedRecord mergeIndexedRecord(IndexedRecord keyRecord, IndexedRecord valueRecord, Schema outputSchema) {
+    public static IndexedRecord mergeIndexedRecord(IndexedRecord keyRecord, IndexedRecord valueRecord,
+            Schema outputSchema) {
         GenericRecordBuilder outputRecord = new GenericRecordBuilder(outputSchema);
         Schema keySchema = getUnwrappedSchema(keyRecord);
         Schema valueSchema = getUnwrappedSchema(valueRecord);
@@ -131,8 +136,8 @@ public class KeyValueUtils {
      * @return a merged IndexedRecord
      */
     public static IndexedRecord transformFromKV(IndexedRecord record, Schema schema) {
-        IndexedRecord keyRecord = (IndexedRecord) record.get(record.getSchema().getField("key").pos());
-        IndexedRecord valueRecord = (IndexedRecord) record.get(record.getSchema().getField("value").pos());
+        IndexedRecord keyRecord = (IndexedRecord) record.get(record.getSchema().getField(RECORD_KEY_PREFIX).pos());
+        IndexedRecord valueRecord = (IndexedRecord) record.get(record.getSchema().getField(RECORD_VALUE_PREFIX).pos());
         return mergeIndexedRecord(keyRecord, valueRecord, schema);
     }
 
@@ -234,12 +239,12 @@ public class KeyValueUtils {
                 if (i == path.length - 1) {
                     return inputValue;
                 } else {
-                    // No need to go further, return an empty list
+                    // No need to go further, return an empty element
                     return null;
                 }
             }
         }
-        // field not found, return an empty list
+        // field not found, return an empty element
         return null;
     }
 }
