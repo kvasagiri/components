@@ -141,9 +141,9 @@ public class RowWriter {
                 statement.setNull(statementIndex, java.sql.Types.VARCHAR);
                 writeDebugColumnNullContent();
             } else {
-                statement.setString(statementIndex, (String) inputValue);
+                statement.setString(statementIndex, inputValue.toString());
                 if (debug) {
-                    debugUtil.writeColumn((String) inputValue, true);
+                    debugUtil.writeColumn(inputValue.toString(), true);
                 }
             }
         }
