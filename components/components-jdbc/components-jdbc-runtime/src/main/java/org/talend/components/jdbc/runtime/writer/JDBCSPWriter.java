@@ -98,9 +98,8 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
     public void write(Object datum) throws IOException {
         result.totalCount++;
 
-        successfulWrites.clear();
-        rejectedWrites.clear();
-
+        cleanWrites();
+        
         IndexedRecord inputRecord = this.getGenericIndexedRecordConverter(datum).convertToAvro(datum);
 
         Schema inputSchema = inputRecord.getSchema();
@@ -186,6 +185,12 @@ public class JDBCSPWriter implements WriterWithFeedback<Result, IndexedRecord, I
     @Override
     public List<IndexedRecord> getRejectedWrites() {
         return Collections.unmodifiableList(rejectedWrites);
+    }
+    
+    @Override
+    public void cleanWrites() {
+        successfulWrites.clear();
+        rejectedWrites.clear();
     }
 
 }

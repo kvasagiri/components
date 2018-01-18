@@ -175,6 +175,8 @@ public class JDBCSPTestIT {
             IndexedRecord record = writeResult.get(0);
             Assert.assertEquals(Integer.valueOf(0), record.get(0));
             Assert.assertEquals("wangwei", record.get(1));
+            
+            writer.cleanWrites();
         } finally {
             writer.close();
         }

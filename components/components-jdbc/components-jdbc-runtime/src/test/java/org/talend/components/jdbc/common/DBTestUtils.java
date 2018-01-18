@@ -742,6 +742,7 @@ public class DBTestUtils {
         List<IndexedRecord> successfulWrites = writer.getSuccessfulWrites();
         assertThat(successfulWrites, hasSize(1));
         assertThat(successfulWrites.get(0), is(r));
+        writer.cleanWrites();
     }
 
     public static void assertSuccessRecord(JDBCRowWriter writer, IndexedRecord r) {
@@ -749,6 +750,7 @@ public class DBTestUtils {
         List<IndexedRecord> successfulWrites = writer.getSuccessfulWrites();
         assertThat(successfulWrites, hasSize(1));
         assertThat(successfulWrites.get(0), is(r));
+        writer.cleanWrites();
     }
 
     public static void assertRejectRecord(JDBCOutputWriter writer) {
@@ -761,6 +763,7 @@ public class DBTestUtils {
             Assert.assertNotNull(rejectRecord.get(2));
             Assert.assertNotNull(rejectRecord.get(3));
         }
+        writer.cleanWrites();
     }
 
     private static Random random = new Random();
