@@ -13,7 +13,6 @@
     <modules>
         <module>components-google-drive-definition</module>
         <module>components-google-drive-runtime</module>
-        <module>components-google-drive-integration</module>
     </modules>
     <build>
         <plugins>
