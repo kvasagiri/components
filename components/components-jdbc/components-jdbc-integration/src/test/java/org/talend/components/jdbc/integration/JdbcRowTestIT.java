@@ -429,7 +429,6 @@ public class JdbcRowTestIT {
                 writer.write(r1);
 
                 List<IndexedRecord> rejects = writer.getRejectedWrites();
-                writer.cleanWrites();
                 assertThat(rejects, hasSize(1));
                 IndexedRecord reject = rejects.get(0);
                 Assert.assertEquals(4, reject.get(0));
@@ -437,6 +436,8 @@ public class JdbcRowTestIT {
                 Assert.assertNotNull(reject.get(2));
                 Assert.assertNotNull(reject.get(3));
                 assertThat(writer.getSuccessfulWrites(), empty());
+                
+                writer.cleanWrites();
 
                 IndexedRecord r2 = new GenericData.Record(properties.main.schema.getValue());
                 r2.put(0, 5);
@@ -444,7 +445,6 @@ public class JdbcRowTestIT {
                 writer.write(r2);
 
                 rejects = writer.getRejectedWrites();
-                writer.cleanWrites();
                 assertThat(rejects, hasSize(1));
                 reject = rejects.get(0);
                 Assert.assertEquals(5, reject.get(0));
@@ -452,6 +452,8 @@ public class JdbcRowTestIT {
                 Assert.assertNotNull(reject.get(2));
                 Assert.assertNotNull(reject.get(3));
                 assertThat(writer.getSuccessfulWrites(), empty());
+                
+                writer.cleanWrites();
 
                 writer.close();
             } finally {
@@ -554,7 +556,7 @@ public class JdbcRowTestIT {
 
                 assertThat(writer.getRejectedWrites(), empty());
                 List<IndexedRecord> successfulWrites = writer.getSuccessfulWrites();
-                writer.cleanWrites();
+                
                 assertThat(successfulWrites, hasSize(1));
                 IndexedRecord successRecord = successfulWrites.get(0);
                 Assert.assertEquals(4, successRecord.get(0));
@@ -565,6 +567,8 @@ public class JdbcRowTestIT {
                 Assert.assertEquals(3, resultSet.getInt(1));
                 Assert.assertEquals("dabao", resultSet.getString(2));
                 resultSet.close();
+                
+                writer.cleanWrites();
 
                 IndexedRecord r2 = new GenericData.Record(properties.main.schema.getValue());
                 r2.put(0, 5);
@@ -573,7 +577,7 @@ public class JdbcRowTestIT {
 
                 assertThat(writer.getRejectedWrites(), empty());
                 successfulWrites = writer.getSuccessfulWrites();
-                writer.cleanWrites();
+                
                 assertThat(successfulWrites, hasSize(1));
                 successRecord = successfulWrites.get(0);
                 Assert.assertEquals(5, successRecord.get(0));
@@ -585,6 +589,8 @@ public class JdbcRowTestIT {
                 Assert.assertEquals("dabao", resultSet.getString(2));
                 resultSet.close();
 
+                writer.cleanWrites();
+                
                 writer.close();
             } finally {
                 writer.close();
