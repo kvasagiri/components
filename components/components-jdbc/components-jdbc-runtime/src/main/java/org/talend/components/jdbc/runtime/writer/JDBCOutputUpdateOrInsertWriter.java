@@ -143,6 +143,7 @@ public class JDBCOutputUpdateOrInsertWriter extends JDBCOutputWriter {
 
                 insertCount += execute(input, statementInsert);
             } else {
+                result.totalCount++;
                 handleSuccess(input);
             }
         } catch (SQLException e) {
