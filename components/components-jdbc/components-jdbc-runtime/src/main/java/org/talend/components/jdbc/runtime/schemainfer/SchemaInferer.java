@@ -19,6 +19,7 @@ import org.talend.components.common.config.jdbc.DbmsType;
 import org.talend.components.common.config.jdbc.MappingType;
 import org.talend.components.common.config.jdbc.TalendType;
 import org.talend.daikon.avro.AvroUtils;
+import org.talend.daikon.avro.NameUtil;
 import org.talend.daikon.avro.SchemaConstants;
 
 public class SchemaInferer {
@@ -26,6 +27,9 @@ public class SchemaInferer {
     public static Schema infer(ResultSetMetaData metadata, Dbms mapping) throws SQLException {
         List<Field> fields = new ArrayList<>();
 
+        Set<String> existNames = new HashSet<String>();
+        int index = 0;
+        
         int count = metadata.getColumnCount();
         for (int i = 1; i <= count; i++) {
             int size = metadata.getPrecision(i);
@@ -41,7 +45,10 @@ public class SchemaInferer {
 
             String columnTypeName = metadata.getColumnTypeName(i).toUpperCase();
 
-            Field field = sqlType2Avro(size, scale, dbtype, nullable, fieldName, dbColumnName, null, isKey, mapping,
+            String validName = NameUtil.correct(fieldName, index++, existNames);
+            existNames.add(validName);
+            
+            Field field = sqlType2Avro(size, scale, dbtype, nullable, validName, dbColumnName, null, isKey, mapping,
                     columnTypeName);
 
             fields.add(field);
@@ -56,6 +63,9 @@ public class SchemaInferer {
         Set<String> keys = getPrimaryKeys(databaseMetdata, tableMetadata.getCatalog(), tableMetadata.getDbSchema(),
                 tableMetadata.getTablename());
 
+        Set<String> existNames = new HashSet<String>();
+        int index = 0;
+        
         try (ResultSet metadata = databaseMetdata.getColumns(tableMetadata.getCatalog(), tableMetadata.getDbSchema(),
                 tableMetadata.getTablename(), null)) {
             if (!metadata.next()) {
@@ -77,14 +87,17 @@ public class SchemaInferer {
                 String defaultValue = metadata.getString("COLUMN_DEF");
                 
                 String columnTypeName = metadata.getString("TYPE_NAME");
+                
+                String validName = NameUtil.correct(columnName, index++, existNames);
+                existNames.add(validName);
 
-                Field field = sqlType2Avro(size, scale, dbtype, nullable, columnName, columnName, defaultValue, isKey, mapping,
+                Field field = sqlType2Avro(size, scale, dbtype, nullable, validName, columnName, defaultValue, isKey, mapping,
                         columnTypeName);
 
                 fields.add(field);
             } while (metadata.next());
 
-            return Schema.createRecord(tablename, null, null, false, fields);
+            return Schema.createRecord(NameUtil.correct(tablename, 0, new HashSet<String>()), null, null, false, fields);
         }
     }
 

@@ -347,6 +347,14 @@ public class DBTestUtils {
             createTestTableForEveryType(conn);
         }
     }
+    
+    public static void createTableWithSpecialName(AllSetting allSetting) throws SQLException, ClassNotFoundException {
+        try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
+            try (Statement statement = conn.createStatement()) {
+                statement.execute("CREATE TABLE TEST (P1_Vente_Qté INT)");
+            }
+        }
+    }
 
     public static void truncateTableAndLoadDataForEveryType(AllSetting allSetting) throws SQLException, ClassNotFoundException {
         try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
