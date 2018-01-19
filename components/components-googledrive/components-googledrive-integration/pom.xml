@@ -7,22 +7,22 @@
         <version>0.22.0-SNAPSHOT</version>
         <relativePath>../../../components-parent/pom.xml</relativePath>
     </parent>
-    <artifactId>components-google-drive-integration</artifactId>
+    <artifactId>components-googledrive-integration</artifactId>
     <name>Components - Google Drive Integration</name>
     <packaging>jar</packaging>
     <properties>
         <coverage.sonar.reportRoot>${project.basedir}/..</coverage.sonar.reportRoot>
     </properties>
     <dependencies>
-        <!-- google-drive runtime specific dependencies -->
+        <!-- googledrive runtime specific dependencies -->
         <dependency>
             <groupId>org.talend.components</groupId>
-            <artifactId>components-google-drive-definition</artifactId>
+            <artifactId>components-googledrive-definition</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.talend.components</groupId>
-            <artifactId>components-google-drive-runtime</artifactId>
+            <artifactId>components-googledrive-runtime</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- -->
@@ -159,7 +159,7 @@
                         </goals>
                         <configuration>
                             <instructions>
-                                <Bundle-SymbolicName>org.talend.components.google-drive.lib</Bundle-SymbolicName>
+                                <Bundle-SymbolicName>org.talend.components.googledrive.lib</Bundle-SymbolicName>
                                 <Bundle-Name>${project.name} lib</Bundle-Name>
                                 <Include-Resource>
                                     {maven-resources},META-INF/maven/${project.groupId}/${project.artifactId}/dependencies.txt=target/classes/META-INF/maven/${project.groupId}/${project.artifactId}/dependencies.txt
@@ -178,7 +178,7 @@
                         <configuration>
                             <classifier>bundle</classifier>
                             <instructions>
-                                <Bundle-SymbolicName>org.talend.components.google-drive</Bundle-SymbolicName>
+                                <Bundle-SymbolicName>org.talend.components.googledrive</Bundle-SymbolicName>
                                 <Service-Component>*</Service-Component>
                                 <Import-Package>*</Import-Package>
                                 <Embed-Dependency>*;scope=compile|runtime;inline=false;artifactId=!components*
